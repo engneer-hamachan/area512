@@ -1,0 +1,789 @@
+{
+  "frame": "Builtin",
+  "class": "String",
+  "ram": {
+    "header_bytes": 24
+  },
+  "instance_methods": [
+    {
+      "name": "!",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Return logical NOT"
+    },
+    {
+      "name": "*",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Repeat string specified number of times"
+    },
+    {
+      "name": "**",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Repeat string specified number of times"
+    },
+    {
+      "name": "+",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Concatenate strings"
+    },
+    {
+      "name": "<",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if lexicographically smaller"
+    },
+    {
+      "name": "<<",
+      "arguments": [
+        {
+          "type": [
+            "String",
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Append string or character code"
+    },
+    {
+      "name": "<=",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if lexicographically less than or equal"
+    },
+    {
+      "name": "<=>",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Compare lexicographically. Returns -1 if self < other, 0 if self == other, 1 if self > other"
+    },
+    {
+      "name": "==",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform equality comparison"
+    },
+    {
+      "name": "===",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform equality comparison (for case statements)"
+    },
+    {
+      "name": ">",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if lexicographically greater"
+    },
+    {
+      "name": ">=",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if lexicographically greater than or equal"
+    },
+    {
+      "name": "[]",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Get character or substring at specified position"
+    },
+    {
+      "name": "[]=",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Replace character or substring at specified position"
+    },
+    {
+      "name": "__ljust_rjust_argcheck",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Internal method for argument checking of ljust and rjust"
+    },
+    {
+      "name": "bytes",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "IntArray"
+        ]
+      },
+      "document": "Return byte sequence of string as array"
+    },
+    {
+      "name": "chars",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "StringArray"
+        ]
+      },
+      "document": "Return characters of string as array"
+    },
+    {
+      "name": "chomp",
+      "arguments": [
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string with trailing newline removed"
+    },
+    {
+      "name": "chomp!",
+      "arguments": [
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Remove trailing newline destructively"
+    },
+    {
+      "name": "clear",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Clear string contents"
+    },
+    {
+      "name": "downcase",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        },
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string converted to lowercase"
+    },
+    {
+      "name": "downcase!",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        },
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Convert to lowercase destructively"
+    },
+    {
+      "name": "each_byte",
+      "arguments": [],
+      "block_parameters": [
+        "Int"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Execute block for each byte"
+    },
+    {
+      "name": "each_char",
+      "arguments": [],
+      "block_parameters": [
+        "String"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Execute block for each character"
+    },
+    {
+      "name": "each_line",
+      "arguments": [],
+      "block_parameters": [
+        "String"
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Execute block for each line"
+    },
+    {
+      "name": "empty?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if string is empty"
+    },
+    {
+      "name": "end_with?",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Check if ends with specified string"
+    },
+    {
+      "name": "getbyte",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "NilClass"
+        ]
+      },
+      "document": "Get byte value at specified position"
+    },
+    {
+      "name": "include?",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if contains specified string"
+    },
+    {
+      "name": "index",
+      "arguments": [
+        {
+          "type": [
+            "String",
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "NilClass"
+        ]
+      },
+      "document": "Return first position of specified string"
+    },
+    {
+      "name": "inspect",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string representation for debugging"
+    },
+    {
+      "name": "intern",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Symbol"
+        ]
+      },
+      "document": "Convert to symbol"
+    },
+    {
+      "name": "length",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Return string length"
+    },
+    {
+      "name": "ljust",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string left-justified to specified width"
+    },
+    {
+      "name": "lstrip",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string with leading whitespace removed"
+    },
+    {
+      "name": "lstrip!",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Remove leading whitespace destructively"
+    },
+    {
+      "name": "ord",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Return character code of first character"
+    },
+    {
+      "name": "rjust",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string right-justified to specified width"
+    },
+    {
+      "name": "rstrip",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string with trailing whitespace removed"
+    },
+    {
+      "name": "rstrip!",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Remove trailing whitespace destructively"
+    },
+    {
+      "name": "split",
+      "arguments": [
+        {
+          "type": [
+            "DefaultString"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "StringArray"
+        ]
+      },
+      "document": "Split by delimiter and return array"
+    },
+    {
+      "name": "start_with?",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if starts with specified string"
+    },
+    {
+      "name": "strip",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string with leading and trailing whitespace removed"
+    },
+    {
+      "name": "strip!",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Remove leading and trailing whitespace destructively"
+    },
+    {
+      "name": "to_f",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Convert to floating point number"
+    },
+    {
+      "name": "to_i",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Convert to integer"
+    },
+    {
+      "name": "to_s",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return self as string"
+    },
+    {
+      "name": "to_sym",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Symbol"
+        ]
+      },
+      "document": "Convert to symbol"
+    },
+    {
+      "name": "tr",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string with characters replaced"
+    },
+    {
+      "name": "tr!",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Replace characters destructively"
+    },
+    {
+      "name": "upcase",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        },
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string converted to uppercase"
+    },
+    {
+      "name": "upcase!",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        },
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Convert to uppercase destructively"
+    }
+  ]
+}

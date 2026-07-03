@@ -1,0 +1,70 @@
+{
+  "frame": "Builtin",
+  "class": "Display",
+  "instance_methods": [],
+  "class_methods": [
+    {
+      "name": "width",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Screen width in pixels"
+    },
+    {
+      "name": "height",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Screen height in pixels"
+    },
+    {
+      "name": "fill_screen",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      },
+      "document": "Fill the whole screen with an RGB888 color"
+    },
+    {
+      "name": "brightness=",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      },
+      "document": "Set backlight brightness (0..255)"
+    },
+    {
+      "name": "console",
+      "arguments": [
+      ],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      },
+      "document": "Show/hide the text console"
+    }
+  ]
+}

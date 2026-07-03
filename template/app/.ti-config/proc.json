@@ -1,0 +1,37 @@
+{
+  "frame": "Builtin",
+  "class": "Proc",
+  "instance_methods": [
+    {
+      "name": "call",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      },
+      "document": "Call Proc"
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [],
+      "block_parameters": [
+        "Untyped"
+      ],
+      "return_type": {
+        "type": [
+          "Proc"
+        ]
+      }
+    }
+  ]
+}

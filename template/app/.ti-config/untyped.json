@@ -1,0 +1,43 @@
+{
+  "frame": "Builtin",
+  "class": "Untyped",
+  "instance_methods": [
+    {
+      "name": "to_i",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "to_int",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "to_f",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      }
+    },
+    {
+      "name": "to_s",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    }
+  ],
+  "class_methods": []
+}

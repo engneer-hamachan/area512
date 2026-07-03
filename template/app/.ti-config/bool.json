@@ -1,0 +1,91 @@
+{
+  "frame": "Builtin",
+  "class": "Bool",
+  "ram": {
+    "header_bytes": 0
+  },
+  "instance_methods": [
+    {
+      "name": "!",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "&",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform logical AND operation"
+    },
+    {
+      "name": "===",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "^",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform logical XOR operation"
+    },
+    {
+      "name": "to_s",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "|",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform logical OR operation"
+    }
+  ],
+  "class_methods": []
+}

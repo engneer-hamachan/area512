@@ -1,0 +1,12 @@
+[submodule "R2P2-ESP32"]
+	path = R2P2-ESP32
+	url = https://github.com/picoruby/R2P2-ESP32.git
+	# Area512 builds inside this submodule's picoruby (MRUBY_ROOT); ignore the
+	# build-artifact churn so `git status` only flags actual commit changes.
+	ignore = dirty
+[submodule "components/M5GFX"]
+	path = components/m5gfx
+	url = https://github.com/m5stack/M5GFX.git
+[submodule "components/M5Unified"]
+	path = components/M5Unified
+	url = https://github.com/m5stack/M5Unified.git

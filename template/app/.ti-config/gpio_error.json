@@ -1,0 +1,87 @@
+{
+  "frame": "Builtin::GPIO",
+  "class": "Error",
+  "extends": [],
+  "instance_methods": [],
+  "class_methods": [
+    {
+      "name": "peripheral_error",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ],
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "ERROR_NONE",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "ERROR_TIMEOUT",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "ERROR_GENERIC",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "ERROR_NO_DATA",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "ERROR_NOT_PERMITTED",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "ERROR_INVALID_ARG",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "ERROR_IO",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    }
+  ]
+}

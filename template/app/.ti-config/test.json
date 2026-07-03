@@ -1,0 +1,220 @@
+{
+  "frame": "Builtin",
+  "class": "Test",
+  "instance_methods": [],
+  "class_methods": [
+    {
+      "name": "asterisk",
+      "arguments": [
+        {
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "test",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "test",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "test",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "block_parameters": ["Int"],
+      "return_type": {
+        "type": [
+          "Array"
+        ]
+      }
+    },
+    {
+      "name": "any",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      }
+    },
+    {
+      "name": "union",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int",
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "union2",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "IntInt"
+        ]
+      }
+    },
+    {
+      "name": "keyword_json_test",
+      "arguments": [
+        {
+          "key": "name:",
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "keyword_json_test2",
+      "arguments": [
+        {
+          "key": "name:",
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "hogefuga",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Hoge::Fuga"
+        ]
+      }
+    },
+    {
+      "name": "compact_optional",
+      "arguments": [
+        {
+          "type": "?String"
+        }
+      ],
+      "return_type": {
+        "type": "String"
+      }
+    },
+    {
+      "name": "compact_asterisk",
+      "arguments": [
+        {
+          "type": "*String"
+        }
+      ],
+      "return_type": {
+        "type": "String"
+      }
+    },
+    {
+      "name": "compact_union",
+      "arguments": [
+        {
+          "type": "String|Int"
+        }
+      ],
+      "return_type": {
+        "type": "String|Int"
+      }
+    },
+    {
+      "name": "compact_array",
+      "arguments": [
+        {
+          "type": "[String]"
+        }
+      ],
+      "return_type": {
+        "type": "[String]"
+      }
+    },
+    {
+      "name": "compact_complex",
+      "arguments": [
+        {
+          "type": "[String|Int]"
+        }
+      ],
+      "return_type": {
+        "type": "?[String]"
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "TEST",
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      }
+    }
+  ]
+}

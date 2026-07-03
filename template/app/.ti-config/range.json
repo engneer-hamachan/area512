@@ -1,0 +1,147 @@
+{
+  "frame": "Builtin",
+  "class": "Range",
+  "extends": [
+    "Enumerable"
+  ],
+  "instance_methods": [
+    {
+      "name": "==",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform equality comparison"
+    },
+    {
+      "name": "===",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if value is included in range"
+    },
+    {
+      "name": "exclude_end?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if end value is excluded"
+    },
+    {
+      "name": "first",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "OptionalUnify",
+          "SelfArray"
+        ],
+        "is_conditional": true
+      },
+      "document": "Return start value of range"
+    },
+    {
+      "name": "inspect",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string representation for debugging"
+    },
+    {
+      "name": "last",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "OptionalUnify",
+          "SelfArray"
+        ],
+        "is_conditional": true
+      },
+      "document": "Return end value of range"
+    },
+    {
+      "name": "to_s",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string representation"
+    },
+    {
+      "name": "each",
+      "arguments": [],
+      "block_parameters": [
+        "Unify"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Execute block for each element in range"
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        },
+        {
+          "type": [
+            "Untyped"
+          ]
+        },
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Range"
+        ]
+      }
+    }
+  ]
+}

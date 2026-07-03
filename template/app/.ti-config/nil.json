@@ -1,0 +1,142 @@
+{
+  "frame": "Builtin",
+  "class": "NilClass",
+  "ram": {
+    "header_bytes": 0
+  },
+  "instance_methods": [
+    {
+      "name": "!",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "&",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Always returns false"
+    },
+    {
+      "name": "===",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "^",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Returns logical value of argument"
+    },
+    {
+      "name": "inspect",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Returns \"nil\""
+    },
+    {
+      "name": "nil?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Returns true"
+    },
+    {
+      "name": "to_f",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Returns 0.0"
+    },
+    {
+      "name": "to_h",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Hash"
+        ]
+      },
+      "document": "Returns empty hash"
+    },
+    {
+      "name": "to_i",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Returns 0"
+    },
+    {
+      "name": "to_s",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Returns empty string"
+    },
+    {
+      "name": "|",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Returns logical value of argument"
+    }
+  ],
+  "class_methods": []
+}

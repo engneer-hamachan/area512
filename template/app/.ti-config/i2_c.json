@@ -1,0 +1,175 @@
+{
+  "frame": "Builtin",
+  "class": "I2C",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "write",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int",
+            "String",
+            "[Int]"
+          ],
+          "is_asterisk": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "timeout:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Bool"
+          ],
+          "key": "nostop:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "read",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int",
+            "String",
+            "[Int]"
+          ],
+          "is_asterisk": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "timeout:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "scan",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "timeout:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "Symbol",
+            "NilClass"
+          ],
+          "key": "unit:"
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "frequency:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "sda_pin:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "scl_pin:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "timeout:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "I2C"
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "DEFAULT_FREQUENCY",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "DEFAULT_TIMEOUT",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    }
+  ],
+  "instance_variables": [
+    {
+      "name": "unit_num",
+      "type": [
+        "Int"
+      ]
+    },
+    {
+      "name": "timeout",
+      "type": [
+        "Int"
+      ]
+    }
+  ]
+}

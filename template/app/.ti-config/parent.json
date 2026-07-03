@@ -1,0 +1,41 @@
+{
+  "frame": "Builtin",
+  "class": "Parent",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "hoge",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": ""
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "getChild",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Child"
+        ]
+      },
+      "document": ""
+    },
+    {
+      "name": "getChildren",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Children"
+        ]
+      },
+      "document": ""
+    }
+  ],
+  "constants": null
+}
+

@@ -1,0 +1,5 @@
+{
+  "preload": [
+    "main.rb"
+  ]
+}

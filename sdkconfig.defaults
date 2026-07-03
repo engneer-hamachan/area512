@@ -1,0 +1,37 @@
+# Area512 — M5 Cardputer (ESP32-S3, no PSRAM), femtoruby (mrubyc) VM.
+
+# Single supported target. A fresh configure reads this; to switch an existing
+# build dir run `idf.py set-target esp32s3` once.
+CONFIG_IDF_TARGET="esp32s3"
+
+# Flash 8MB. partitions.csv ends at 0x710000 (7.4MB), so an 8MB setting also
+# works on 16MB chips (the upper 8MB is simply unused).
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="8MB"
+
+# Partition table: factory 4M / storage(littlefs) 3M.
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# PicoRuby main task stack. Parsing/loading .rb on device is stack heavy;
+# 8K/16K overflows, so use 32K.
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=32768
+
+# No PSRAM on Cardputer.
+# CONFIG_SPIRAM is not set
+
+# Console over the ESP32-S3 USB Serial/JTAG (Cardputer USB-C). Keeping UART0 as
+# primary would pick up noise from a floating RX as stdin.
+# CONFIG_ESP_CONSOLE_UART_DEFAULT is not set
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
+
+# microSD (FAT over SPI, mounted at /sd). SD uses 512-byte sectors, so FATFS
+# must be built for 512 (default 4096 is flash-wear-levelling only and fails on
+# SD). Enable long file names on the stack with a small 32-char buffer
+# ((32+1)*2 = 66B) to keep RAM cost negligible.
+# CONFIG_FATFS_SECTOR_4096 is not set
+CONFIG_FATFS_SECTOR_512=y
+# CONFIG_FATFS_LFN_NONE is not set
+CONFIG_FATFS_LFN_STACK=y
+CONFIG_FATFS_MAX_LFN=32

@@ -1,0 +1,402 @@
+{
+  "frame": "Builtin",
+  "class": "Dir",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "close",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "each",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "block_parameters": [
+        "String"
+      ]
+    },
+    {
+      "name": "read",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "rewind",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      }
+    },
+    {
+      "name": "seek",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "pos=",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "tell",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "pos",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "empty?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "findnext",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Dir"
+        ]
+      },
+      "document": "for VFS"
+    },
+    {
+      "name": "pat=",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "chdir",
+      "arguments": [
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "chdir",
+      "arguments": [
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      },
+      "block_parameters": [
+        "String"
+      ]
+    },
+    {
+      "name": "delete",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "rmdir",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "unlink",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "entries",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "[String]"
+        ]
+      }
+    },
+    {
+      "name": "children",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "[String]"
+        ]
+      }
+    },
+    {
+      "name": "exist?",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "foreach",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "block_parameters": [
+        "String"
+      ]
+    },
+    {
+      "name": "getwd",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "pwd",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "mkdir",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "glob",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        },
+        {
+          "type": [
+            "String",
+            "NilClass"
+          ],
+          "key": "base:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "[String]"
+        ]
+      }
+    },
+    {
+      "name": "glob",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        },
+        {
+          "type": [
+            "String",
+            "NilClass"
+          ],
+          "key": "base:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "block_parameters": [
+        "String"
+      ]
+    },
+    {
+      "name": "open",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      }
+    },
+    {
+      "name": "open",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Dir"
+        ]
+      },
+      "block_parameters": [
+        "Dir"
+      ]
+    }
+  ]
+}

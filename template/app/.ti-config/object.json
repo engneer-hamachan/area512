@@ -1,0 +1,365 @@
+{
+  "frame": "Builtin",
+  "class": "",
+  "ram": {
+    "header_bytes": 16,
+    "per_ivar": 8,
+    "per_method": 56,
+    "per_const": 24
+  },
+  "extends": [
+    "Kernel"
+  ],
+  "class_methods": [
+    {
+      "name": "methods",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "[Symbol]"
+        ]
+      },
+      "document": "get object method list"
+    }
+  ],
+  "instance_methods": [
+    {
+      "name": "<=>",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "OptionalInt"
+        ]
+      },
+      "document": "Comparison operator"
+    },
+    {
+      "name": "!=",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform inequality comparison"
+    },
+    {
+      "name": "==",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform equality comparison"
+    },
+    {
+      "name": "===",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Judge case equality"
+    },
+    {
+      "name": "attr_accessor",
+      "arguments": [
+        {
+          "type": [
+            "Symbol"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "attr_reader",
+      "arguments": [
+        {
+          "type": [
+            "Symbol"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "block_given?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "class",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return object class"
+    },
+    {
+      "name": "dup",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Duplicate object"
+    },
+    {
+      "name": "exit",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "include",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "extend",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "inspect",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string representation for debugging"
+    },
+    {
+      "name": "is_a?",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if instance of specified class or module"
+    },
+    {
+      "name": "loop",
+      "arguments": [],
+      "block_parameters": [
+        "NilClass"
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "nil?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if nil"
+    },
+    {
+      "name": "private",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "public",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "raise",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        },
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bot"
+        ]
+      }
+    },
+    {
+      "name": "relinquish",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "sleep",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "sleep_ms",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "sprintf",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultUntyped"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "to_s",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string representation"
+    }
+  ]
+}

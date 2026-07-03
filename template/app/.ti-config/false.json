@@ -1,0 +1,7 @@
+{
+  "frame": "Builtin",
+  "class": "FalseClass",
+  "extends": ["Bool"],
+  "instance_methods": [],
+  "class_methods": []
+}

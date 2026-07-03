@@ -1,0 +1,81 @@
+{
+  "frame": "Builtin",
+  "class": "Symbol",
+  "ram": {
+    "header_bytes": 0
+  },
+  "instance_methods": [
+    {
+      "name": "<=>",
+      "arguments": [
+        {
+          "type": [
+            "Symbol",
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "OptionalInt"
+        ],
+        "is_conditional": true
+      },
+      "document": "Compare symbols"
+    },
+    {
+      "name": "==",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform equality comparison"
+    },
+    {
+      "name": "===",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform equality comparison (for case statements)"
+    },
+    {
+      "name": "inspect",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string representation for debugging"
+    },
+    {
+      "name": "to_sym",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Symbol"
+        ]
+      },
+      "document": "Return self as symbol"
+    }
+  ],
+  "class_methods": []
+}

@@ -1,0 +1,333 @@
+{
+  "frame": "Builtin",
+  "class": "Sprite",
+  "instance_methods": [
+    {
+      "name": "width",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Sprite width in pixels"
+    },
+    {
+      "name": "height",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Sprite height in pixels"
+    },
+    {
+      "name": "fill",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Sprite"
+        ]
+      },
+      "document": "Fill the whole sprite with an RGB888 color"
+    },
+    {
+      "name": "pixel",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Sprite"
+        ]
+      },
+      "document": "Draw a single pixel (x, y, color)"
+    },
+    {
+      "name": "line",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Sprite"
+        ]
+      },
+      "document": "Draw a line (x0, y0, x1, y1, color)"
+    },
+    {
+      "name": "rect",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Sprite"
+        ]
+      },
+      "document": "Draw a rectangle outline (x, y, w, h, color)"
+    },
+    {
+      "name": "fill_rect",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Sprite"
+        ]
+      },
+      "document": "Draw a filled rectangle (x, y, w, h, color)"
+    },
+    {
+      "name": "circle",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Sprite"
+        ]
+      },
+      "document": "Draw a circle outline (x, y, r, color)"
+    },
+    {
+      "name": "fill_circle",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Sprite"
+        ]
+      },
+      "document": "Draw a filled circle (x, y, r, color)"
+    },
+    {
+      "name": "text",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Sprite"
+        ]
+      },
+      "document": "Draw text at (x, y, str, color); efont supports Japanese"
+    },
+    {
+      "name": "push",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Sprite"
+        ]
+      },
+      "document": "Transfer the sprite to the screen at (x, y); optional 3rd arg is a transparent color"
+    },
+    {
+      "name": "delete",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Nil"
+        ]
+      },
+      "document": "Free the sprite buffer immediately"
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "?Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Sprite"
+        ]
+      },
+      "document": "Create an off-screen sprite of the given width and height"
+    }
+  ]
+}

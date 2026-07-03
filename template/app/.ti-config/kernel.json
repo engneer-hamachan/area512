@@ -1,0 +1,132 @@
+{
+  "frame": "Builtin",
+  "class": "Kernel",
+  "instance_methods": [
+    {
+      "name": "p",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "SelfArgument"
+        ]
+      },
+      "document": "Inspect and output object"
+    },
+    {
+      "name": "print",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Output object"
+    },
+    {
+      "name": "puts",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Output object with newline"
+    },
+    {
+      "name": "system",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "yield",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "SelfArgument"
+        ]
+      }
+    },
+    {
+      "name": "proc",
+      "arguments": [],
+      "block_parameters": [
+        "Untyped"
+      ],
+      "return_type": {
+        "type": [
+          "Proc"
+        ]
+      },
+      "document": "Create Proc object"
+    },
+    {
+      "name": "lambda",
+      "arguments": [],
+      "block_parameters": [
+        "Untyped"
+      ],
+      "return_type": {
+        "type": [
+          "Proc"
+        ]
+      },
+      "document": "Create lambda expression"
+    },
+    {
+      "name": "->",
+      "arguments": [
+        {
+          "type": [
+            "?Untyped"
+          ]
+        }
+      ],
+      "block_parameters": [
+        "Untyped"
+      ],
+      "return_type": {
+        "type": [
+          "Proc"
+        ]
+      }
+    }
+  ],
+  "class_methods": []
+}

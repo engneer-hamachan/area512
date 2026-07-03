@@ -1,0 +1,278 @@
+{
+  "frame": "Builtin",
+  "class": "Float",
+  "ram": {
+    "header_bytes": 0
+  },
+  "instance_methods": [
+    {
+      "name": "%",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate modulo"
+    },
+    {
+      "name": "*",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Perform multiplication"
+    },
+    {
+      "name": "**",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate power"
+    },
+    {
+      "name": "+",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Perform addition"
+    },
+    {
+      "name": "+@",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Unary plus operator. Returns self"
+    },
+    {
+      "name": "-",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Perform subtraction"
+    },
+    {
+      "name": "-@",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Unary minus operator. Inverts sign"
+    },
+    {
+      "name": "/",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Perform division"
+    },
+    {
+      "name": "<",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform less than comparison"
+    },
+    {
+      "name": "<=",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform less than or equal comparison"
+    },
+    {
+      "name": "<=>",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "NilClass"
+        ]
+      },
+      "document": "Comparison operator. Returns -1 if self < other, 0 if self == other, 1 if self > other"
+    },
+    {
+      "name": "==",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform equality comparison"
+    },
+    {
+      "name": "===",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": ">",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform greater than comparison"
+    },
+    {
+      "name": ">=",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform greater than or equal comparison"
+    },
+    {
+      "name": "abs",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Get absolute value"
+    },
+    {
+      "name": "to_f",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Return self as floating point number"
+    },
+    {
+      "name": "to_i",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Convert to integer (truncate)"
+    },
+    {
+      "name": "to_s",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Convert to string"
+    }
+  ],
+  "class_methods": []
+}

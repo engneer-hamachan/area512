@@ -1,0 +1,18 @@
+{
+  "frame": "Builtin",
+  "class": "Class",
+  "ram": {
+    "header_bytes": 80
+  },
+  "instance_methods": [
+    {
+      "name": "name",
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return class name as string"
+    }
+  ]
+}

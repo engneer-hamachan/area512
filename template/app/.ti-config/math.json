@@ -1,0 +1,396 @@
+{
+  "frame": "Builtin",
+  "class": "Math",
+  "instance_methods": [],
+  "class_methods": [
+    {
+      "name": "acos",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate arccosine"
+    },
+    {
+      "name": "acosh",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate inverse hyperbolic cosine"
+    },
+    {
+      "name": "asin",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate arcsine"
+    },
+    {
+      "name": "asinh",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate inverse hyperbolic sine"
+    },
+    {
+      "name": "atan",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate arctangent"
+    },
+    {
+      "name": "atan2",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        },
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate arctangent with two arguments"
+    },
+    {
+      "name": "atanh",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate inverse hyperbolic tangent"
+    },
+    {
+      "name": "cbrt",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate cube root"
+    },
+    {
+      "name": "cos",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate cosine"
+    },
+    {
+      "name": "cosh",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate hyperbolic cosine"
+    },
+    {
+      "name": "erf",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate error function"
+    },
+    {
+      "name": "erfc",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate complementary error function"
+    },
+    {
+      "name": "exp",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate exponential function"
+    },
+    {
+      "name": "hypot",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        },
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate hypotenuse of right triangle"
+    },
+    {
+      "name": "ldexp",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate x * 2^n"
+    },
+    {
+      "name": "log",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        },
+        {
+          "type": [
+            "DefaultFloat"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate natural logarithm"
+    },
+    {
+      "name": "log10",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate common logarithm"
+    },
+    {
+      "name": "log2",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate base-2 logarithm"
+    },
+    {
+      "name": "sin",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate sine"
+    },
+    {
+      "name": "sinh",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate hyperbolic sine"
+    },
+    {
+      "name": "sqrt",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate square root"
+    },
+    {
+      "name": "tan",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate tangent"
+    },
+    {
+      "name": "tanh",
+      "arguments": [
+        {
+          "type": [
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Calculate hyperbolic tangent"
+    }
+  ],
+  "constants": []
+}

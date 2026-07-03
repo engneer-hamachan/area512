@@ -1,0 +1,81 @@
+{
+  "frame": "Builtin",
+  "class": "SD",
+  "instance_methods": [],
+  "class_methods": [
+    {
+      "name": "mount",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Mount the microSD card; raises RuntimeError when no card is found"
+    },
+    {
+      "name": "unmount",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Unmount the microSD card"
+    },
+    {
+      "name": "exist?",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check whether a file exists on the card"
+    },
+    {
+      "name": "read",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Read a whole file from the card; raises RuntimeError on failure"
+    },
+    {
+      "name": "write",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Write content to a file on the card and return bytes written"
+    }
+  ],
+  "constants": []
+}

@@ -1,0 +1,13 @@
+build
+sdkconfig
+sdkconfig.old
+dependencies.lock
+.env
+.envrc
+!storage/home/.keep
+storage/etc/*
+!storage/etc/.keep
+.vscode/*
+.cache
+storage/home/**/*.mrb
+managed_components/*

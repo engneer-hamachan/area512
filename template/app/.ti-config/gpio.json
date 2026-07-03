@@ -1,0 +1,293 @@
+{
+  "frame": "Builtin",
+  "class": "GPIO",
+  "instance_methods": [
+    {
+      "name": "high?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if GPIO pin is HIGH"
+    },
+    {
+      "name": "low?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if GPIO pin is LOW"
+    },
+    {
+      "name": "open_drain",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Set to open drain output mode"
+    },
+    {
+      "name": "read",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Read GPIO pin state"
+    },
+    {
+      "name": "write",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Write value to GPIO pin"
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "high_at?",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if specified pin is HIGH"
+    },
+    {
+      "name": "low_at?",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if specified pin is LOW"
+    },
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "GPIO"
+        ]
+      },
+      "document": "Create GPIO object"
+    },
+    {
+      "name": "open_drain_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Set specified pin to open drain output mode"
+    },
+    {
+      "name": "pull_down_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Set specified pin to pull-down"
+    },
+    {
+      "name": "pull_up_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Set specified pin to pull-up"
+    },
+    {
+      "name": "read_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Read specified pin state"
+    },
+    {
+      "name": "set_dir_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Set input/output direction of specified pin"
+    },
+    {
+      "name": "set_function_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Set function of specified pin"
+    },
+    {
+      "name": "write_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Write value to specified pin"
+    }
+  ],
+  "constants": [
+    {
+      "name": "OUT",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Constant representing output mode"
+    },
+    {
+      "name": "IN",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Constant representing input mode"
+    }
+  ]
+}

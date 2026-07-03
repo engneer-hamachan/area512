@@ -1,0 +1,323 @@
+{
+  "frame": "Builtin",
+  "class": "Sandbox",
+  "instance_methods": [
+    {
+      "name": "compile",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ],
+          "key": "remove_lv:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "String",
+            "NilClass"
+          ],
+          "key": "filename:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Compile a Ruby script string; true on success"
+    },
+    {
+      "name": "compile_from_memory",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ],
+          "key": "remove_lv:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Compile a script from a memory address and size"
+    },
+    {
+      "name": "execute",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Start executing the compiled code as a task"
+    },
+    {
+      "name": "exec_mrb",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Execute precompiled mrb bytecode"
+    },
+    {
+      "name": "exec_mrb_from_memory",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Execute mrb bytecode located at a memory address"
+    },
+    {
+      "name": "load_file",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ],
+          "key": "join:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      },
+      "document": "Compile or exec a .rb/.mrb file; join: waits for completion"
+    },
+    {
+      "name": "wait",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "NilClass"
+          ],
+          "key": "timeout:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Wait until the task finishes; timeout in ms, nil waits forever"
+    },
+    {
+      "name": "state",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Symbol"
+        ]
+      },
+      "document": "Task state such as :DORMANT or :SUSPENDED"
+    },
+    {
+      "name": "result",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      },
+      "document": "Value of the last executed expression"
+    },
+    {
+      "name": "error",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      },
+      "document": "Exception raised by the task, or nil"
+    },
+    {
+      "name": "resume",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Resume the suspended task"
+    },
+    {
+      "name": "suspend",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Suspend the running task"
+    },
+    {
+      "name": "stop",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Stop the running task"
+    },
+    {
+      "name": "terminate",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Terminate the task"
+    },
+    {
+      "name": "free_parser",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Release compiler resources"
+    },
+    {
+      "name": "load_manifest",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ],
+          "key": "join:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool",
+          "NilClass"
+        ]
+      },
+      "document": "Execute each .mrb listed in a manifest file, keeping loaded code resident"
+    },
+    {
+      "name": "cleanup",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Terminate the task and release kept code and compiler resources"
+    },
+    {
+      "name": "area512_exec_mrb_file_keep",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Execute an .mrb file keeping its bytecode resident until release"
+    },
+    {
+      "name": "area512_release_kept_code",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Release all bytecode kept by area512_exec_mrb_file_keep"
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Sandbox"
+        ]
+      },
+      "document": "Create a sandbox task; optional name"
+    }
+  ],
+  "constants": [
+    {
+      "name": "TIMEOUT",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Default wait timeout in milliseconds"
+    }
+  ]
+}

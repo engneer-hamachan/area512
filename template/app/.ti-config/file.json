@@ -1,0 +1,336 @@
+{
+  "frame": "Builtin",
+  "class": "File",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "close",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Close file"
+    },
+    {
+      "name": "flush",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Flush write buffer"
+    },
+    {
+      "name": "gets",
+      "arguments": [
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Read one line from file"
+    },
+    {
+      "name": "puts",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Write string with newline to file"
+    },
+    {
+      "name": "read",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Read data from file"
+    },
+    {
+      "name": "seek",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Move file position"
+    },
+    {
+      "name": "tell",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Return current file position"
+    },
+    {
+      "name": "pos",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Return current file position"
+    },
+    {
+      "name": "write",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Write string to file, return number of bytes written"
+    },
+    {
+      "name": "each_line",
+      "arguments": [],
+      "block_parameters": [
+        "String"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Execute block for each line"
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "open",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "File"
+        ]
+      },
+      "document": "Open file and return File object"
+    },
+    {
+      "name": "open",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "block_parameters": [
+        "File"
+      ],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      },
+      "document": "Open file, yield to block, close automatically"
+    },
+    {
+      "name": "exist?",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if file exists"
+    },
+    {
+      "name": "read",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Read entire file and return as string"
+    },
+    {
+      "name": "write",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Write string to file, return number of bytes written"
+    },
+    {
+      "name": "delete",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Delete file(s)"
+    },
+    {
+      "name": "unlink",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Delete file(s) (alias for delete)"
+    },
+    {
+      "name": "basename",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return last component of path"
+    },
+    {
+      "name": "dirname",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return directory part of path"
+    },
+    {
+      "name": "join",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Join path components with separator"
+    }
+  ]
+}

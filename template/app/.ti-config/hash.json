@@ -1,0 +1,341 @@
+{
+  "frame": "Builtin",
+  "class": "Hash",
+  "ram": {
+    "header_bytes": 40
+  },
+  "extends": [
+    "Enumerable"
+  ],
+  "instance_methods": [
+    {
+      "name": "<",
+      "arguments": [
+        {
+          "type": [
+            "Hash"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "<=",
+      "arguments": [
+        {
+          "type": [
+            "Hash"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "==",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform equality comparison"
+    },
+    {
+      "name": ">",
+      "arguments": [
+        {
+          "type": [
+            "Hash"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": ">=",
+      "arguments": [
+        {
+          "type": [
+            "Hash"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "[]",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Get value for specified key"
+    },
+    {
+      "name": "[]=",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Set value for specified key"
+    },
+    {
+      "name": "clear",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Hash"
+        ]
+      },
+      "document": "Remove all elements from hash"
+    },
+    {
+      "name": "delete",
+      "arguments": [
+        {
+          "type": [
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Unify",
+          "NilClass"
+        ]
+      },
+      "document": "Delete specified key"
+    },
+    {
+      "name": "each",
+      "block_parameters": [
+        "Untyped",
+        "Unify"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Execute block for each key and value"
+    },
+    {
+      "name": "empty?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if hash is empty"
+    },
+    {
+      "name": "has_key?",
+      "arguments": [
+        {
+          "type": [
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if specified key exists"
+    },
+    {
+      "name": "has_value?",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if specified value exists"
+    },
+    {
+      "name": "inspect",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string representation for debugging"
+    },
+    {
+      "name": "key",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String",
+          "Symbol",
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "keys",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "[Untyped]"
+        ]
+      },
+      "document": "Return all keys as array"
+    },
+    {
+      "name": "length",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Return number of elements in hash"
+    },
+    {
+      "name": "merge",
+      "arguments": [
+        {
+          "type": [
+            "Hash"
+          ]
+        }
+      ],
+      "block_parameters": [
+        "Symbol",
+        "Unify",
+        "UnifyArgument"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Return new hash merged with another hash"
+    },
+    {
+      "name": "merge!",
+      "arguments": [
+        {
+          "type": [
+            "Hash"
+          ]
+        }
+      ],
+      "block_parameters": [
+        "Symbol",
+        "Unify",
+        "UnifyArgument"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ],
+        "is_destructive": true
+      },
+      "document": "Merge hash destructively"
+    },
+    {
+      "name": "shift",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Array"
+        ]
+      },
+      "document": "Remove and return first key-value pair"
+    },
+    {
+      "name": "to_h",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Return self as hash"
+    },
+    {
+      "name": "values",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "KeyValueArray"
+        ]
+      },
+      "document": "Return all values as array"
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Hash"
+        ]
+      }
+    }
+  ]
+}

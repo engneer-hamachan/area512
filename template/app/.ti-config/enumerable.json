@@ -1,0 +1,35 @@
+{
+  "frame": "Builtin",
+  "class": "Enumerable",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "collect",
+      "arguments": [],
+      "block_parameters": [
+        "Item"
+      ],
+      "return_type": {
+        "type": [
+          "BlockResultArray"
+        ]
+      },
+      "document": "Execute block for each element and return results as array"
+    },
+    {
+      "name": "each_with_index",
+      "arguments": [],
+      "block_parameters": [
+        "Unify",
+        "Int"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Execute block for each element and index"
+    }
+  ],
+  "class_methods": []
+}

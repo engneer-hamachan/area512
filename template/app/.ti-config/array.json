@@ -1,0 +1,625 @@
+{
+  "frame": "Builtin",
+  "class": "Array",
+  "ram": {
+    "header_bytes": 32
+  },
+  "extends": [
+    "Enumerable"
+  ],
+  "instance_methods": [
+    {
+      "name": "[]=",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Set element at specified position"
+    },
+    {
+      "name": "[]",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Get element at specified position"
+    },
+    {
+      "name": "&",
+      "arguments": [
+        {
+          "type": [
+            "Array"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      }
+    },
+    {
+      "name": "*",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Self",
+          "String"
+        ],
+        "is_conditional": true
+      },
+      "document": "Repeat array specified number of times and return new array"
+    },
+    {
+      "name": "+",
+      "arguments": [
+        {
+          "type": [
+            "Array"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Array"
+        ]
+      },
+      "document": "Concatenate arrays"
+    },
+    {
+      "name": "-",
+      "arguments": [
+        {
+          "type": [
+            "Array"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Return new array excluding specified elements"
+    },
+    {
+      "name": "push",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Array"
+        ]
+      },
+      "document": "Append element to end"
+    },
+    {
+      "name": "<=>",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "OptionalInt"
+        ]
+      },
+      "document": "Compare arrays. Returns -1 if self < other, 0 if self == other, 1 if self > other"
+    },
+    {
+      "name": "all?",
+      "arguments": [],
+      "block_parameters": [
+        "Unify"
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "at",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "OptionalUnify"
+        ]
+      },
+      "document": "Get element at specified position"
+    },
+    {
+      "name": "clear",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Array"
+        ]
+      },
+      "document": "Remove all elements from array"
+    },
+    {
+      "name": "collect!",
+      "arguments": [],
+      "block_parameters": [
+        "Item"
+      ],
+      "return_type": {
+        "type": [
+          "BlockResultArray"
+        ],
+        "is_destructive": true
+      },
+      "document": "Execute block for each element and destructively replace"
+    },
+    {
+      "name": "count",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        }
+      ],
+      "block_parameters": [
+        "Unify"
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "concat",
+      "arguments": [
+        {
+          "type": [
+            "Array"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Array"
+        ]
+      },
+      "document": "Concatenate arrays"
+    },
+    {
+      "name": "delete_at",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "OptionalUnify"
+        ]
+      },
+      "document": "Delete element at specified position"
+    },
+    {
+      "name": "delete_if",
+      "arguments": [],
+      "block_parameters": [
+        "Unify"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Delete elements for which block returns true"
+    },
+    {
+      "name": "each",
+      "arguments": [],
+      "block_parameters": [
+        "Flatten"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Execute block for each element"
+    },
+    {
+      "name": "each_index",
+      "arguments": [],
+      "block_parameters": [
+        "Int"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Execute block for each index"
+    },
+    {
+      "name": "empty?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if array is empty"
+    },
+    {
+      "name": "first",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "OptionalUnify"
+        ]
+      },
+      "document": "Get first element"
+    },
+    {
+      "name": "flatten",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Flatten nested array"
+    },
+    {
+      "name": "include?",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Check if element is included"
+    },
+    {
+      "name": "inspect",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return string representation for debugging"
+    },
+    {
+      "name": "join",
+      "arguments": [
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Join elements and return string"
+    },
+    {
+      "name": "last",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "OptionalUnify",
+          "Self"
+        ],
+        "is_conditional": true
+      },
+      "document": "Get last element"
+    },
+    {
+      "name": "length",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Return number of elements in array"
+    },
+    {
+      "name": "max",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "block_parameters": [
+        "Unify",
+        "Unify"
+      ],
+      "return_type": {
+        "type": [
+          "OptionalUnify",
+          "Self"
+        ],
+        "is_conditional": true
+      }
+    },
+    {
+      "name": "min",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "block_parameters": [
+        "Unify",
+        "Unify"
+      ],
+      "return_type": {
+        "type": [
+          "OptionalUnify",
+          "Self"
+        ],
+        "is_conditional": true
+      }
+    },
+    {
+      "name": "pop",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "OptionalUnify",
+          "Self"
+        ],
+        "is_conditional": true
+      },
+      "document": "Remove and return last element"
+    },
+    {
+      "name": "reject",
+      "arguments": [],
+      "block_parameters": [
+        "Unify"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Return array excluding elements for which block returns true"
+    },
+    {
+      "name": "reject!",
+      "arguments": [],
+      "block_parameters": [
+        "Unify"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Destructively delete elements for which block returns true"
+    },
+    {
+      "name": "replace",
+      "arguments": [
+        {
+          "type": [
+            "Array"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Array"
+        ]
+      }
+    },
+    {
+      "name": "shift",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Unify",
+          "Self"
+        ],
+        "is_conditional": true
+      },
+      "document": "Remove and return first element"
+    },
+    {
+      "name": "sort",
+      "arguments": [],
+      "block_parameters": [
+        "Unify",
+        "Unify"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Return sorted array"
+    },
+    {
+      "name": "sort!",
+      "arguments": [],
+      "block_parameters": [
+        "Unify",
+        "Unify"
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Sort destructively"
+    },
+    {
+      "name": "slice",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      },
+      "document": "Get subarray"
+    },
+    {
+      "name": "uniq",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Return array with duplicates removed"
+    },
+    {
+      "name": "uniq!",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      },
+      "document": "Remove duplicates destructively"
+    },
+    {
+      "name": "unshift",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Array"
+        ]
+      },
+      "document": "Prepend element to beginning"
+    },
+    {
+      "name": "|",
+      "arguments": [
+        {
+          "type": [
+            "Array"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Array"
+        ]
+      }
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        },
+        {
+          "type": [
+            "DefaultUntyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Array"
+        ]
+      }
+    }
+  ]
+}

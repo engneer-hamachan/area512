@@ -1,0 +1,434 @@
+{
+  "frame": "Builtin",
+  "class": "Integer",
+  "ram": {
+    "header_bytes": 0
+  },
+  "instance_methods": [
+    {
+      "name": "%",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "Float"
+        ],
+        "is_conditional": true
+      },
+      "document": "Calculate modulo"
+    },
+    {
+      "name": "&",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Perform bitwise AND operation"
+    },
+    {
+      "name": "*",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "Float"
+        ],
+        "is_conditional": true
+      },
+      "document": "Perform multiplication"
+    },
+    {
+      "name": "**",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Integer"
+        ]
+      },
+      "document": "Calculate power"
+    },
+    {
+      "name": "+",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "Float"
+        ],
+        "is_conditional": true
+      },
+      "document": "Perform addition"
+    },
+    {
+      "name": "+@",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Unary plus operator. Returns self"
+    },
+    {
+      "name": "-",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "Float"
+        ],
+        "is_conditional": true
+      },
+      "document": "Perform subtraction"
+    },
+    {
+      "name": "-@",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Unary minus operator. Inverts sign"
+    },
+    {
+      "name": "/",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "Float"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "Float"
+        ],
+        "is_conditional": true
+      },
+      "document": "Perform division"
+    },
+    {
+      "name": "<",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform less than comparison"
+    },
+    {
+      "name": "<<",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Perform left bit shift"
+    },
+    {
+      "name": "<=",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform less than or equal comparison"
+    },
+    {
+      "name": "<=>",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "OptionalInt"
+        ],
+        "is_conditional": true
+      },
+      "document": "Comparison operator. Returns -1 if self < other, 0 if self == other, 1 if self > other"
+    },
+    {
+      "name": "==",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform equality comparison"
+    },
+    {
+      "name": ">",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform greater than comparison"
+    },
+    {
+      "name": ">=",
+      "arguments": [
+        {
+          "type": [
+            "Number"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Perform greater than or equal comparison"
+    },
+    {
+      "name": ">>",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Perform right bit shift"
+    },
+    {
+      "name": "^",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Perform bitwise XOR operation"
+    },
+    {
+      "name": "[]",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Get value at specified bit position"
+    },
+    {
+      "name": "abs",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Get absolute value"
+    },
+    {
+      "name": "chr",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Return single character string corresponding to character code"
+    },
+    {
+      "name": "downto",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "block_parameters": [
+        "Int"
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Execute block while decreasing from self to argument by 1"
+    },
+    {
+      "name": "times",
+      "arguments": [],
+      "block_parameters": [
+        "Int"
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Execute block self times"
+    },
+    {
+      "name": "to_f",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      },
+      "document": "Convert to floating point number"
+    },
+    {
+      "name": "to_i",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Return self as integer value"
+    },
+    {
+      "name": "to_s",
+      "arguments": [
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Convert to string. Base can be specified with argument"
+    },
+    {
+      "name": "|",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Perform bitwise OR operation"
+    },
+    {
+      "name": "~",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Perform bitwise NOT operation"
+    }
+  ],
+  "class_methods": []
+}
