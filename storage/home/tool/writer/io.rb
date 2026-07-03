@@ -14,13 +14,3 @@ def read_key
   input = "" if input.nil?
   input
 end
-
-def safe_mount
-  SD.mount
-rescue
-end
-
-def safe_unmount
-  SD.unmount
-rescue
-end

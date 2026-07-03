@@ -75,6 +75,7 @@ class Scheduler
     @sp = Sprite.new(W, H, 12)
     begin
       SD.mount
+      SD.mkdir(DATA_DIR)
       load_data
       until @quit
         draw

@@ -28,5 +28,5 @@ Tiny Klondike solitaire for Area512/Cardputer.
 To move a card to a foundation, press `f` with a card selected, or move
 the cursor to `F1`..`F4` and press `space` or Enter.
 
-The high score is kept in `solitair.txt` on the microSD card when one is
+The high score is kept in `Area512_data/solitair.txt` on the microSD card when one is
 inserted.

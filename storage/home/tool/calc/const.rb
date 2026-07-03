@@ -26,5 +26,6 @@ class Calc
   C_ERR = COL_AMBER unless const_defined?(:C_ERR)
 
   HELP = "hjkl move e edit c clear g goto s save o open q quit" unless const_defined?(:HELP)
-  SHEET_FILE = "sheet.txt" unless const_defined?(:SHEET_FILE)
+  DATA_DIR = "Area512_data" unless const_defined?(:DATA_DIR)
+  SHEET_FILE = "#{DATA_DIR}/sheet.txt" unless const_defined?(:SHEET_FILE)
 end

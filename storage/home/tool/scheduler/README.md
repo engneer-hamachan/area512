@@ -1,7 +1,7 @@
 # Scheduler
 
 Monthly calendar with per-day events for Area512/Cardputer.
-Data is saved as `scheduler.txt` on the microSD card and loaded on start.
+Data is saved as `Area512_data/scheduler.txt` on the microSD card and loaded on start.
 
 ## Calendar screen
 
@@ -21,7 +21,7 @@ Data is saved as `scheduler.txt` on the microSD card and loaded on start.
 
 ## Both screens
 
-- `s`: save to `scheduler.txt`
+- `s`: save to `Area512_data/scheduler.txt`
 - `q`: quit
 
 ## Notes

@@ -12,7 +12,7 @@ class Writer
     end
     SD.write(DOC_FILE, data)
     @dirty = false
-    @msg = "Saved " + DOC_FILE
+    @msg = "Saved " + DOC_NAME
   rescue
     @msg = "Save failed"
   end
@@ -27,7 +27,7 @@ class Writer
     @col = 0
     @top = 0
     @dirty = false
-    @msg = "Opened " + DOC_FILE
+    @msg = "Opened " + DOC_NAME
   rescue
     @lines = [""] if @lines.length == 0
     @msg = "Open failed"
@@ -41,6 +41,7 @@ class Writer
     @sp = Sprite.new(Display.width, Display.height, 12)
     begin
       SD.mount
+      SD.mkdir(DATA_DIR)
       while !@quit
         draw
         handle(read_key)

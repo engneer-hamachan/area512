@@ -21,7 +21,8 @@ class Solitair
   VISIBLE_ROWS = 6 unless const_defined?(:VISIBLE_ROWS)
   BOARD_W = 7 * COL_W unless const_defined?(:BOARD_W)
   BOARD_H = 135 unless const_defined?(:BOARD_H)
-  HIGHSCORE_FILE = "solitair.txt" unless const_defined?(:HIGHSCORE_FILE)
+  DATA_DIR = "Area512_data" unless const_defined?(:DATA_DIR)
+  HIGHSCORE_FILE = "#{DATA_DIR}/solitair.txt" unless const_defined?(:HIGHSCORE_FILE)
   SCORE_TIME_BASE = 360000 unless const_defined?(:SCORE_TIME_BASE)
 
   COL_BG     = 0x000000 unless const_defined?(:COL_BG)

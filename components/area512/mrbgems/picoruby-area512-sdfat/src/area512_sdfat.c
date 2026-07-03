@@ -82,6 +82,28 @@ c_sdfat__is_exist(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) 
 }
 
 static void
+c_sdfat__mkdir(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
+  const char *path = (const char *)GET_STRING_ARG(1);
+  char *full_path = build_sd_path(virtual_machine, path);
+
+  if (full_path == NULL) {
+    raise_no_memory(virtual_machine);
+    return;
+  }
+
+  int result = mkdir(full_path, 0777);
+
+  mrbc_free(virtual_machine, full_path);
+
+  if (result != 0 && errno != EEXIST) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), strerror(errno));
+    return;
+  }
+
+  SET_TRUE_RETURN();
+}
+
+static void
 c_sdfat__read(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
   const char *path = (const char *)GET_STRING_ARG(1);
   char *full_path = build_sd_path(virtual_machine, path);
@@ -199,6 +221,7 @@ mrbc_area512_sdfat_init(mrbc_vm *virtual_machine) {
   mrbc_define_method(virtual_machine, module_SD, "mount", c_sdfat__mount);
   mrbc_define_method(virtual_machine, module_SD, "unmount", c_sdfat__unmount);
   mrbc_define_method(virtual_machine, module_SD, "exist?", c_sdfat__is_exist);
+  mrbc_define_method(virtual_machine, module_SD, "mkdir", c_sdfat__mkdir);
   mrbc_define_method(virtual_machine, module_SD, "read", c_sdfat__read);
   mrbc_define_method(virtual_machine, module_SD, "write", c_sdfat__write);
 }
