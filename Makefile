@@ -27,6 +27,7 @@ help:
 	@echo "  make monitor    - idf.py monitor"
 	@echo "  make clean      - idf.py clean (light)"
 	@echo "  make compile-home-mrb - recursively compile storage/home/**/*.rb to .mrb"
+	@echo "                    (storage/ is the seed copied to the SD card's Area512_data/ on first boot)"
 	@echo "  make flash-firmware   - flash committed firmware/ binaries (no rebuild)"
 	@echo "  make save-firmware    - copy build/ artifacts into firmware/ (refresh snapshot)"
 	@echo "  make fullclean  - nuke everything: build/, picoruby/build/ (esp32-*, host, repos),"
@@ -51,8 +52,7 @@ save-firmware:
 	  --flash_mode dio --flash_size 8MB --flash_freq 80m \
 	  0x0 $(ROOT)/build/bootloader/bootloader.bin \
 	  0x8000 $(ROOT)/build/partition_table/partition-table.bin \
-	  0x10000 $(ROOT)/build/Area512.bin \
-	  0x410000 $(ROOT)/build/storage.bin
+	  0x10000 $(ROOT)/build/Area512.bin
 	@echo "firmware/ refreshed from build/"
 
 monitor:

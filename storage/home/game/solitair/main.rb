@@ -85,7 +85,6 @@ class Solitair
     @sp = Sprite.new(Display.width, Display.height, 12)
     begin
       SD.mount
-      SD.mkdir(DATA_DIR)
       load_high_score
       init_game
       while !@quit

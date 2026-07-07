@@ -1,10 +1,21 @@
 #pragma once
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// Ruby-visible paths are rooted here: "/" in Ruby means this directory.
+#define AREA512_DATA_ROOT "/sdcard/Area512_data"
+#define AREA512_PATH_MAX 256
+
+int area512_resolve_data_path(
+  const char *path,
+  char *buffer,
+  size_t buffer_size
+);
 
 void area512_console_poll(void);
 int area512_console_getchar(void);
@@ -55,6 +66,7 @@ int area512_gfx_show_header_image(const char *path, int hold_milliseconds);
 int area512_sd_mount(const char *base_path);
 int area512_sd_unmount(void);
 int area512_sd_mounted(void);
+int area512_seed_restore(void);
 
 #ifdef __cplusplus
 }

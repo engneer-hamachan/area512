@@ -1,7 +1,7 @@
 # Writer
 
 Small word processor for Area512/Cardputer. Edits one document,
-saved as `Area512_data/writer.txt` on the microSD card.
+saved as `Area512_data/data/writer.txt` on the microSD card.
 
 ## Controls
 
@@ -9,8 +9,8 @@ saved as `Area512_data/writer.txt` on the microSD card.
 - Arrow keys: move the cursor
 - `Ctrl+Space`: toggle JP / EN input
 - `Ctrl+K` / `Ctrl+J`: page up / page down
-- `Ctrl+S`: save to `Area512_data/writer.txt`
-- `Ctrl+O`: open `Area512_data/writer.txt` (replaces the current document)
+- `Ctrl+S`: save to `Area512_data/data/writer.txt`
+- `Ctrl+O`: open `Area512_data/data/writer.txt` (replaces the current document)
 - `Ctrl+Q`: quit
 - Esc: show the help line
 

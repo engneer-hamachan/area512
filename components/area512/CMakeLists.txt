@@ -29,8 +29,6 @@ idf_component_register(
     ${COMPONENT_DIR}/ports/machine_port.c
     ${PURE_PICORUBY}/mrbgems/picoruby-machine/ports/common/machine.c
     ${PURE_PICORUBY}/mrbgems/picoruby-io-console/ports/esp32/io-console.c
-    # esp32 flash port forked here for the 768-block (3MB) layout.
-    ${COMPONENT_DIR}/ports/littlefs_flash_hal.c
     ${PURE_PICORUBY}/mrbgems/picoruby-env/ports/esp32/env.c
     ${PURE_PICORUBY}/mrbgems/picoruby-gpio/ports/esp32/gpio.c
     ${PURE_PICORUBY}/mrbgems/picoruby-adc/ports/esp32/adc.c
@@ -44,9 +42,6 @@ idf_component_register(
     ${PURE_PICORUBY}/mrbgems/picoruby-mrubyc/lib/mrubyc/src
     ${PURE_PICORUBY}/mrbgems/picoruby-machine/include
     ${PURE_PICORUBY}/mrbgems/picoruby-io-console/include
-    # littlefs lfs.h / littlefs.h for ports/littlefs_flash_hal.c
-    ${PURE_PICORUBY}/mrbgems/picoruby-littlefs/lib/littlefs
-    ${PURE_PICORUBY}/mrbgems/picoruby-littlefs/include
     ${PURE_PICORUBY}/mrbgems/mruby-compiler2/include
     ${PURE_PICORUBY}/mrbgems/mruby-compiler2/lib/prism/include
     ${ADDITIONAL_INCLUDE_DIRS}

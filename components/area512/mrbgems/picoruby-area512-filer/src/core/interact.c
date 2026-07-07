@@ -133,14 +133,28 @@ run_filer_interaction(Filer *filer) {
       break;
 
     case KEY_NEW_FILE:
-      if (read_created_file_or_directory_name(filer, "New file: "))
+      if (read_text_input(filer, "New file: "))
         return ACTION_NEW_FILE;
 
       break;
 
     case KEY_NEW_DIR:
-      if (read_created_file_or_directory_name(filer, "New dir: "))
+      if (read_text_input(filer, "New dir: "))
         return ACTION_NEW_DIR;
+
+      break;
+
+    case KEY_MOVE:
+      if (!entry)
+        break;
+
+      if (entry->type == ENTRY_TYPE_UP) {
+        set_message(filer, "Cannot move ..");
+        break;
+      }
+
+      if (read_text_input(filer, "Move to: "))
+        return ACTION_MOVE;
 
       break;
 

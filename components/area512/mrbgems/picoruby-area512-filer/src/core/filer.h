@@ -40,6 +40,7 @@
 #define ACTION_NEW_DIR 9
 #define ACTION_DELETE 10
 #define ACTION_REBOOT 11
+#define ACTION_MOVE 12
 
 #define KEY_UP 1001
 #define KEY_DOWN 1002
@@ -54,6 +55,7 @@
 #define KEY_NEW_FILE 1011
 #define KEY_NEW_DIR 1012
 #define KEY_REBOOT 1013
+#define KEY_MOVE 1014
 
 typedef struct {
   char name[NAME_MAX];
@@ -90,10 +92,11 @@ void fit_string(
 );
 
 int area512_filer_read_key(void);
+int read_raw_text_key(void);
 void area512_filer_setup_ui(Filer *filer);
 void area512_filer_teardown_ui(Filer *filer);
 
-int read_created_file_or_directory_name(Filer *filer, const char *label);
+int read_text_input(Filer *filer, const char *label);
 int read_yes_no_confirmation(Filer *filer, const char *question);
 int run_filer_interaction(Filer *filer);
 void draw_all(Filer *filer);

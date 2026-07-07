@@ -5,12 +5,13 @@
 #include <ctype.h>
 #include <new>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "area512_display.h"
+#include "area512_hal.h"
 #include "sdkconfig.h"
-#include <littlefs.h>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -59,20 +60,16 @@ area512_sprite_font_for_size(int font_size) {
 }
 
 static bool
-read_lfs_line(lfs_file_t *file, char *line, int line_size) {
+read_text_line(FILE *file, char *line, int line_size) {
   int len = 0;
 
   while (len < line_size - 1) {
-    char ch;
-    lfs_ssize_t n = lfs_file_read(littlefs_get_lfs(), file, &ch, 1);
+    int ch = fgetc(file);
 
-    if (n < 0)
-      return false;
-
-    if (n == 0)
+    if (ch == EOF)
       break;
 
-    line[len++] = ch;
+    line[len++] = (char)ch;
 
     if (ch == '\n')
       break;
@@ -306,13 +303,12 @@ area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
   if (dev == nullptr || path == nullptr)
     return 0;
 
-  int err = littlefs_ensure_mounted();
-  if (err < 0)
+  char full_path[AREA512_PATH_MAX];
+  if (area512_resolve_data_path(path, full_path, sizeof full_path) != 0)
     return 0;
 
-  lfs_file_t file;
-  err = lfs_file_open(littlefs_get_lfs(), &file, path, LFS_O_RDONLY);
-  if (err < 0)
+  FILE *file = fopen(full_path, "rb");
+  if (file == nullptr)
     return 0;
 
   // Images are authored at the panel's exact size, so use its dimensions.
@@ -322,7 +318,7 @@ area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
   bool ok = false;
   char line[192];
 
-  while (read_lfs_line(&file, line, sizeof(line))) {
+  while (read_text_line(file, line, sizeof(line))) {
     if (strchr(line, '{')) {
       in_array = true;
       break;
@@ -343,7 +339,7 @@ area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
     int y = 0;
     int col = 0;
 
-    while (read_lfs_line(&file, line, sizeof(line)) && y < img_h) {
+    while (read_text_line(file, line, sizeof(line)) && y < img_h) {
       const char *p = line;
       uint8_t byte;
 
@@ -372,7 +368,7 @@ area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
     }
   }
 
-  lfs_file_close(littlefs_get_lfs(), &file);
+  fclose(file);
   return ok ? 1 : 0;
 }
 

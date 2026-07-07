@@ -33,6 +33,7 @@ free_dram(void) {
 static sdmmc_card_t *s_card = NULL;
 static bool s_bus_inited = false;
 static char s_base[24] = {0};
+static int s_mount_reference_count = 0;
 
 int
 area512_sd_mounted(void) {
@@ -42,7 +43,8 @@ area512_sd_mounted(void) {
 int
 area512_sd_mount(const char *base_path) {
   if (s_card != NULL) {
-    return 0; // already mounted
+    s_mount_reference_count++;
+    return 0;
   }
 
   esp_err_t ret;
@@ -115,6 +117,7 @@ area512_sd_mount(const char *base_path) {
 
   strncpy(s_base, base_path, sizeof(s_base) - 1);
   s_base[sizeof(s_base) - 1] = '\0';
+  s_mount_reference_count = 1;
   return 0;
 }
 
@@ -123,7 +126,12 @@ area512_sd_unmount(void) {
   if (s_card == NULL) {
     return 0;
   }
+  if (s_mount_reference_count > 1) {
+    s_mount_reference_count--;
+    return 0;
+  }
   esp_vfs_fat_sdcard_unmount(s_base, s_card);
   s_card = NULL;
+  s_mount_reference_count = 0;
   return 0;
 }

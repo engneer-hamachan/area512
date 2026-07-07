@@ -86,12 +86,6 @@ task :flash_factory do
   sh "esptool.py -b 460800 write_flash 0x10000 build/Area512.bin"
 end
 
-desc "Erase storage partition and flash storage binary"
-task :flash_storage do
-  sh "esptool.py -b 460800 erase_region 0x410000 0x300000"
-  sh "esptool.py -b 460800 write_flash 0x410000 build/storage.bin"
-end
-
 desc "Monitor ESP32 serial output"
 task :monitor do
   sh "idf.py monitor"

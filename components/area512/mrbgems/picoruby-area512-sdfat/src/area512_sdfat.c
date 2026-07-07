@@ -14,30 +14,22 @@
 
 #define SD_BASE_PATH "/sdcard"
 
-static char *
-build_sd_path(mrbc_vm *virtual_machine, const char *path) {
-  size_t path_length = strlen(path);
-  bool absolute = path_length > 0 && path[0] == '/';
+static bool
+resolve_path_argument(
+  mrbc_vm *virtual_machine,
+  mrbc_value v[],
+  char *buffer,
+  size_t buffer_size
+) {
 
-  size_t full_path_length =
-    strlen(SD_BASE_PATH) + path_length + (absolute ? 0 : 1);
+  const char *path = (const char *)GET_STRING_ARG(1);
 
-  char *full_path =
-    (char *)mrbc_alloc(virtual_machine, (unsigned int)(full_path_length + 1));
-
-  if (full_path == NULL) {
-    return NULL;
+  if (area512_resolve_data_path(path, buffer, buffer_size) != 0) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), "invalid path");
+    return false;
   }
 
-  strcpy(full_path, SD_BASE_PATH);
-
-  if (!absolute) {
-    strcat(full_path, "/");
-  }
-
-  strcat(full_path, path);
-
-  return full_path;
+  return true;
 }
 
 static void
@@ -65,37 +57,26 @@ c_sdfat__unmount(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
 static void
 c_sdfat__is_exist(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
   const char *path = (const char *)GET_STRING_ARG(1);
-  char *full_path = build_sd_path(virtual_machine, path);
+  char full_path[AREA512_PATH_MAX];
 
-  if (full_path == NULL) {
+  if (area512_resolve_data_path(path, full_path, sizeof full_path) != 0) {
     SET_FALSE_RETURN();
     return;
   }
 
   struct stat stat_buffer;
 
-  bool exists = stat(full_path, &stat_buffer) == 0;
-
-  mrbc_free(virtual_machine, full_path);
-
-  SET_BOOL_RETURN(exists);
+  SET_BOOL_RETURN(stat(full_path, &stat_buffer) == 0);
 }
 
 static void
 c_sdfat__mkdir(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
-  const char *path = (const char *)GET_STRING_ARG(1);
-  char *full_path = build_sd_path(virtual_machine, path);
+  char full_path[AREA512_PATH_MAX];
 
-  if (full_path == NULL) {
-    raise_no_memory(virtual_machine);
+  if (!resolve_path_argument(virtual_machine, v, full_path, sizeof full_path))
     return;
-  }
 
-  int result = mkdir(full_path, 0777);
-
-  mrbc_free(virtual_machine, full_path);
-
-  if (result != 0 && errno != EEXIST) {
+  if (mkdir(full_path, 0777) != 0 && errno != EEXIST) {
     mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), strerror(errno));
     return;
   }
@@ -105,34 +86,26 @@ c_sdfat__mkdir(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
 
 static void
 c_sdfat__read(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
-  const char *path = (const char *)GET_STRING_ARG(1);
-  char *full_path = build_sd_path(virtual_machine, path);
+  char full_path[AREA512_PATH_MAX];
 
-  if (full_path == NULL) {
-    raise_no_memory(virtual_machine);
+  if (!resolve_path_argument(virtual_machine, v, full_path, sizeof full_path))
     return;
-  }
 
   FILE *file_pointer = fopen(full_path, "rb");
 
   if (file_pointer == NULL) {
-    mrbc_free(virtual_machine, full_path);
     mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), strerror(errno));
-
     return;
   }
 
   struct stat stat_buffer;
 
   if (stat(full_path, &stat_buffer) != 0) {
-    mrbc_free(virtual_machine, full_path);
     fclose(file_pointer);
     mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), strerror(errno));
 
     return;
   }
-
-  mrbc_free(virtual_machine, full_path);
 
   long file_size = (long)stat_buffer.st_size;
   char *buffer = NULL;
@@ -182,18 +155,18 @@ c_sdfat__read(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
 
 static void
 c_sdfat__write(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
-  const char *path = (const char *)GET_STRING_ARG(1);
   mrbc_value content = v[2];
+  char full_path[AREA512_PATH_MAX];
 
-  char *full_path = build_sd_path(virtual_machine, path);
-  if (full_path == NULL) {
-    raise_no_memory(virtual_machine);
+  if (!resolve_path_argument(virtual_machine, v, full_path, sizeof full_path))
     return;
-  }
 
-  FILE *file_pointer = fopen(full_path, "wb");
+  char temporary_path[AREA512_PATH_MAX + sizeof(".tmp")];
 
-  mrbc_free(virtual_machine, full_path);
+  strcpy(temporary_path, full_path);
+  strcat(temporary_path, ".tmp");
+
+  FILE *file_pointer = fopen(temporary_path, "wb");
 
   if (file_pointer == NULL) {
     mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), strerror(errno));
@@ -208,11 +181,50 @@ c_sdfat__write(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
       file_pointer
     );
 
-  fflush(file_pointer);
-  fclose(file_pointer);
+  bool closed = fclose(file_pointer) == 0;
+
+  if (!closed || bytes_written != (size_t)content.string->size) {
+    remove(temporary_path);
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), "write failed");
+
+    return;
+  }
+
+  // FAT's rename can't replace an existing file, so remove the target first;
+  // the fully written .tmp file survives a power cut in between.
+  if (rename(temporary_path, full_path) != 0) {
+    if (remove(full_path) != 0 || rename(temporary_path, full_path) != 0) {
+      remove(temporary_path);
+      mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), strerror(errno));
+
+      return;
+    }
+  }
 
   SET_INT_RETURN((mrbc_int_t)bytes_written);
 }
+
+static void
+c_sdfat__restore_seed(
+  mrbc_vm *virtual_machine,
+  mrbc_value v[],
+  int argument_count
+) {
+
+  if (area512_seed_restore() != 0) {
+    mrbc_raise(
+      virtual_machine,
+      MRBC_CLASS(RuntimeError),
+      "seed restore failed"
+    );
+
+    return;
+  }
+
+  SET_TRUE_RETURN();
+}
+
+void mrbc_area512_fs_register(mrbc_vm *virtual_machine);
 
 void
 mrbc_area512_sdfat_init(mrbc_vm *virtual_machine) {
@@ -224,6 +236,15 @@ mrbc_area512_sdfat_init(mrbc_vm *virtual_machine) {
   mrbc_define_method(virtual_machine, module_SD, "mkdir", c_sdfat__mkdir);
   mrbc_define_method(virtual_machine, module_SD, "read", c_sdfat__read);
   mrbc_define_method(virtual_machine, module_SD, "write", c_sdfat__write);
+
+  mrbc_define_method(
+    virtual_machine,
+    module_SD,
+    "restore_seed",
+    c_sdfat__restore_seed
+  );
+
+  mrbc_area512_fs_register(virtual_machine);
 }
 
 #else // PICORB_VM_MRUBY: unused in this build; empty stubs

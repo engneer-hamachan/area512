@@ -4,8 +4,7 @@
 # the shared sandbox VM (each run keeps a global const table). Guard with the
 # class-scoped const_defined? to stay quiet on re-runs of this same app.
 class Writer
-  DATA_DIR = "Area512_data" unless const_defined?(:DATA_DIR)
-  DOC_FILE = "#{DATA_DIR}/writer.txt" unless const_defined?(:DOC_FILE)
+  DOC_FILE = "/data/writer.txt" unless const_defined?(:DOC_FILE)
   DOC_NAME = "writer.txt" unless const_defined?(:DOC_NAME)
 
   MARGIN = 6 unless const_defined?(:MARGIN)

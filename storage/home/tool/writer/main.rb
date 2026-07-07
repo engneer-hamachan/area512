@@ -41,7 +41,6 @@ class Writer
     @sp = Sprite.new(Display.width, Display.height, 12)
     begin
       SD.mount
-      SD.mkdir(DATA_DIR)
       while !@quit
         draw
         handle(read_key)
