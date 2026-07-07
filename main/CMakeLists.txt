@@ -4,6 +4,3 @@ idf_component_register(
   PRIV_REQUIRES spi_flash
   INCLUDE_DIRS ""
 )
-
-set(image ../storage)
-littlefs_create_partition_image(storage ${image} FLASH_IN_PROJECT)

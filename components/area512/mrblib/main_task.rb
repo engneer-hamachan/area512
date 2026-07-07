@@ -3,8 +3,6 @@ require "watchdog"
 Watchdog.disable
 require "env"
 require "io/console"
-require "littlefs"
-require "vfs"
 require "sandbox"
 require "area512-sandbox"
 require "area512-compile"
@@ -18,7 +16,10 @@ end
 # The filer UI (rendering, input loop) lives in C (picoruby-area512-filer) to
 # keep per-frame churn off the mruby/c heap; this file is a thin dispatch shell.
 require "area512-filer"
-# SD is not required at boot; apps that need it require "area512-sdfat" + SD.mount.
+# All files live on the SD card; area512-sdfat provides SD plus the minimal
+# File/Dir used by this file, require.rb and Sandbox. Ruby-visible paths are
+# rooted at the card's Area512_data directory ("/" here == that directory).
+require "area512-sdfat"
 
 STDIN = IO.new unless Object.const_defined?(:STDIN)
 STDOUT = IO.new unless Object.const_defined?(:STDOUT)
@@ -41,42 +42,31 @@ ACT_NEW_FILE = 8 unless Object.const_defined?(:ACT_NEW_FILE)
 ACT_NEW_DIR = 9 unless Object.const_defined?(:ACT_NEW_DIR)
 ACT_DELETE = 10 unless Object.const_defined?(:ACT_DELETE)
 ACT_REBOOT = 11 unless Object.const_defined?(:ACT_REBOOT)
+ACT_MOVE = 12 unless Object.const_defined?(:ACT_MOVE)
 
-def setup_root_volume(device, label: "storage")
-  return if VFS.volume_index("/")
+def run_sd_error_screen(filer)
+  filer.cwd = "/"
+  filer.clear_entries
+  filer.add_entry("Retry SD mount", T_UP, false, false)
+  filer.message = "No SD card: Enter = retry, r = reboot"
 
-  fs = Littlefs.new(device, label: label)
-  retry_count = 0
+  while true
+    act = filer.run
+    Machine.reboot 0 if act == ACT_REBOOT
 
-  begin
-    VFS.mount(fs, "/")
-  rescue => e
-    fs.mkfs
-
-    retry_count += 1
-    retry if retry_count == 1
-
-    raise e
-  end
-end
-
-def create_base_dirs(root = "")
-  Dir.chdir(root.empty? ? "/" : root) do
-    dirs = %w(home lib bin)
-
-    i = 0
-    while i < dirs.size
-      dir = dirs[i]
-      Dir.mkdir(dir) unless Dir.exist?(dir)
-      i += 1
+    begin
+      SD.mount
+      return
+    rescue => e
+      filer.message = "#{e.message}: Enter = retry, r = reboot"
     end
   end
 end
 
-def setup_environment(root = "")
-  $LOAD_PATH = ["#{root}/lib"]
-  ENV["HOME"] = "#{root}/home"
-  ENV["PATH"] = "#{root}/bin"
+def setup_environment
+  $LOAD_PATH = ["/lib"]
+  ENV["HOME"] = "/home"
+  ENV["PATH"] = "/bin"
 end
 
 # --- Path/name helpers (File lacks basename/dirname in this build) ---
@@ -182,21 +172,6 @@ def build_entries(filer, cwd)
 
   filer.clear_entries
   filer.add_entry("..", T_UP, false, false) unless cwd == "/"
-
-  if cwd == "/"
-    vols = VFS::VOLUMES
-
-    vi = 0
-    while vi < vols.length
-      mountpoint = vols[vi][:mountpoint]
-
-      if mountpoint != "/" && mountpoint.start_with?("/")
-        filer.add_entry(mountpoint[1, mountpoint.length - 1], T_DIR, false, false)
-      end
-
-      vi += 1
-    end
-  end
 
   i = 0
   while i < dirs.length
@@ -397,11 +372,6 @@ end
 
 def delete_entry(cwd, name, type, has_rb, has_mrb)
   begin
-    # Don't delete a mount point (e.g. /sd) or remove_tree would wipe the SD.
-    if cwd == "/" && VFS.volume_index("/#{name}")
-      return "Can't delete a mount point"
-    end
-
     if type == T_DIR
       remove_tree(join_path(cwd, name))
     elsif type == T_APP
@@ -417,10 +387,94 @@ def delete_entry(cwd, name, type, has_rb, has_mrb)
   end
 end
 
+# --- Move (m, destination typed relative to cwd or absolute) ---
+
+# Collapses "." and ".." components; nil when ".." would climb above the root
+# (the Ruby-side half of the path traversal guard, so typed ".." still works).
+def normalize_path(path)
+  parts = path.split("/")
+  kept = []
+
+  i = 0
+  while i < parts.length
+    part = parts[i]
+    i += 1
+
+    next if part == "" || part == "."
+
+    if part == ".."
+      return nil if kept.empty?
+      kept.pop
+    else
+      kept << part
+    end
+  end
+
+  result = "/"
+
+  i = 0
+  while i < kept.length
+    result = join_path(result, kept[i])
+    i += 1
+  end
+
+  result
+end
+
+def moved_file_names(name, type, has_rb, has_mrb)
+  return [name] unless type == T_APP
+
+  names = []
+  names << "#{name}.rb" if has_rb
+  names << "#{name}.mrb" if has_mrb
+  names
+end
+
+def move_entry(cwd, name, type, has_rb, has_mrb, input)
+  return "Empty path" if input.nil? || input.empty?
+
+  destination =
+    normalize_path(input.start_with?("/") ? input : join_path(cwd, input))
+
+  return "Bad path" unless destination
+  return "No such directory" unless File.directory?(destination)
+  return "Same directory" if destination == cwd
+
+  if type == T_DIR
+    source = join_path(cwd, name)
+
+    if destination == source || destination.start_with?("#{source}/")
+      return "Can't move into itself"
+    end
+  end
+
+  names = moved_file_names(name, type, has_rb, has_mrb)
+
+  i = 0
+  while i < names.length
+    if File.exist?(join_path(destination, names[i]))
+      return "Already exists: #{names[i]}"
+    end
+
+    i += 1
+  end
+
+  begin
+    i = 0
+    while i < names.length
+      File.rename(join_path(cwd, names[i]), join_path(destination, names[i]))
+      i += 1
+    end
+
+    "Moved #{name} -> #{destination}"
+  rescue => e
+    "#{e.class}: #{e.message}"
+  end
+end
+
 # --- Dispatch shell ---
 
-def run_filer(root)
-  filer = Filer.new
+def run_filer(filer, root)
   cwd = root
   filer.cwd = cwd
   build_entries(filer, cwd)
@@ -439,7 +493,6 @@ def run_filer(root)
 
     when ACT_UP
       cwd = dir_name(cwd)
-      cwd = "/" if cwd.empty?
       filer.index = 0
 
     when ACT_RUN_MRB
@@ -472,6 +525,17 @@ def run_filer(root)
           filer.selected_rb,
           filer.selected_mrb
         )
+    when ACT_MOVE
+      msg =
+        move_entry(
+          cwd,
+          filer.selected_name,
+          filer.selected_type,
+          filer.selected_rb,
+          filer.selected_mrb,
+          filer.input_text
+        )
+
     when ACT_REBOOT
       Machine.reboot 0
     end
@@ -485,13 +549,18 @@ end
 begin
   STDIN.echo = false
 
-  setup_root_volume(:flash, label: "storage")
-  create_base_dirs
+  filer = Filer.new
+
+  begin
+    SD.mount
+  rescue
+    run_sd_error_screen(filer)
+  end
+
+  SD.restore_seed
   setup_environment
 
-  Dir.chdir ENV["HOME"]
-
-  run_filer(ENV["HOME"])
+  run_filer(filer, ENV["HOME"])
 
 rescue => e
   puts "#{e.message} (#{e.class})"

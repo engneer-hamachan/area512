@@ -12,7 +12,7 @@ typedef struct {
 static const Chip BAR1[] =
   {{"ENT", "open"}, {"e", "vim"}, {"x", "del"}, {"N", "new"}};
 static const Chip BAR2[] =
-  {{"K", "dir"}, {"c", "compile"}, {"a", "all"}, {"R", "run"}};
+  {{"K", "dir"}, {"c", "cmp"}, {"a", "all"}, {"R", "run"}, {"m", "mv"}};
 
 #define BAR1_COUNT ((int)(sizeof(BAR1) / sizeof(BAR1[0])))
 #define BAR2_COUNT ((int)(sizeof(BAR2) / sizeof(BAR2[0])))

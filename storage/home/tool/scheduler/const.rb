@@ -5,7 +5,7 @@ require 'area512-sdfat'
 class Scheduler
   W = 240 unless const_defined?(:W)
   H = 135 unless const_defined?(:H)
-  SAVE_FILE = "scheduler.txt" unless const_defined?(:SAVE_FILE)
+  SAVE_FILE = "/data/scheduler.txt" unless const_defined?(:SAVE_FILE)
 
   C_BG = 0x000000 unless const_defined?(:C_BG)
   C_AMBER = 0xF5972D unless const_defined?(:C_AMBER)

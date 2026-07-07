@@ -3,6 +3,17 @@
 #include "core/filer.h"
 #include "area512_hal.h"
 
+static int
+read_csi_final_byte(void) {
+  int byte;
+
+  do {
+    byte = area512_console_getch_timeout(40);
+  } while (byte >= ' ' && byte < '@');
+
+  return byte;
+}
+
 int
 area512_filer_read_key(void) {
   int first_byte = area512_console_getch_block();
@@ -10,7 +21,7 @@ area512_filer_read_key(void) {
   if (first_byte == 27) {
     if (area512_console_getch_timeout(40) != '[')
       return first_byte;
-    switch (area512_console_getch_timeout(40)) {
+    switch (read_csi_final_byte()) {
     case 'A':
       return KEY_UP;
     case 'B':
@@ -63,8 +74,28 @@ area512_filer_read_key(void) {
     return KEY_NEW_DIR;
   case 'r':
     return KEY_REBOOT;
+  case 'm':
+    return KEY_MOVE;
   default:
     return first_byte;
+  }
+}
+
+// area512_filer_read_key() translates letters into filer commands, which
+// would make them untypable in text dialogs; this returns the raw byte.
+// A lone ESC cancels; escape sequences (arrow keys etc.) are discarded.
+int
+read_raw_text_key(void) {
+  for (;;) {
+    int first_byte = area512_console_getch_block();
+
+    if (first_byte != 27)
+      return first_byte;
+
+    if (area512_console_getch_timeout(40) != '[')
+      return 27;
+
+    read_csi_final_byte();
   }
 }
 

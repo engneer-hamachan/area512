@@ -1,14 +1,17 @@
 // Extends picoruby's Sandbox class to run precompiled .mrb bytecode from
-// LittleFS. mruby/c executes bytecode in place instead of copying it, so the
-// code (and any top irep it replaces) must outlive the task run; both are
+// the SD card. mruby/c executes bytecode in place instead of copying it, so
+// the code (and any top irep it replaces) must outlive the task run; both are
 // tracked on per-sandbox lists and freed only on an explicit release.
 #if defined(PICORB_VM_MRUBYC)
 
+#include "area512_hal.h"
+
+#include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
-#include "littlefs.h"
 #include <mruby_compiler.h>
 #include <mrubyc.h>
 
@@ -95,56 +98,55 @@ release_kept_code(SandboxState *sandbox_state) {
 }
 
 static uint8_t *
-read_lfs_file(mrbc_vm *virtual_machine, const char *path, size_t *size) {
-  int error = littlefs_ensure_mounted();
+read_whole_file(mrbc_vm *virtual_machine, const char *path, size_t *size) {
+  char full_path[AREA512_PATH_MAX];
 
-  mrbc_raise_iff_lfs_error(virtual_machine, error, "lfs_mount");
-
-  if (error < 0)
+  if (area512_resolve_data_path(path, full_path, sizeof full_path) != 0) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), "invalid path");
     return NULL;
+  }
 
-  lfs_file_t file;
-  error = lfs_file_open(littlefs_get_lfs(), &file, path, LFS_O_RDONLY);
+  FILE *file = fopen(full_path, "rb");
 
-  mrbc_raise_iff_lfs_error(virtual_machine, error, path);
-  if (error < 0)
+  if (!file) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), strerror(errno));
     return NULL;
+  }
 
-  lfs_soff_t file_size = lfs_file_size(littlefs_get_lfs(), &file);
-  if (file_size < 0) {
-    lfs_file_close(littlefs_get_lfs(), &file);
-    mrbc_raise_iff_lfs_error(virtual_machine, (int)file_size, "lfs_file_size");
+  long file_size = -1;
+
+  if (fseek(file, 0, SEEK_END) == 0) {
+    file_size = ftell(file);
+  }
+
+  if (file_size < 0 || fseek(file, 0, SEEK_SET) != 0) {
+    fclose(file);
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), strerror(errno));
 
     return NULL;
   }
 
   uint8_t *buffer = (uint8_t *)mrbc_raw_alloc((unsigned int)file_size + 1);
   if (!buffer) {
-    lfs_file_close(littlefs_get_lfs(), &file);
+    fclose(file);
     mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), "out of memory");
+
     return NULL;
   }
 
-  lfs_ssize_t read_size =
-    lfs_file_read(littlefs_get_lfs(), &file, buffer, (lfs_size_t)file_size);
+  size_t read_size = fread(buffer, 1, (size_t)file_size, file);
 
-  error = lfs_file_close(littlefs_get_lfs(), &file);
+  fclose(file);
 
-  if (read_size < 0) {
+  if (read_size != (size_t)file_size) {
     mrbc_raw_free(buffer);
-    mrbc_raise_iff_lfs_error(virtual_machine, (int)read_size, "lfs_file_read");
-    return NULL;
-  }
-
-  mrbc_raise_iff_lfs_error(virtual_machine, error, "lfs_file_close");
-  if (error < 0) {
-    mrbc_raw_free(buffer);
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), "read failed");
 
     return NULL;
   }
 
   buffer[read_size] = '\0';
-  *size = (size_t)read_size;
+  *size = read_size;
 
   return buffer;
 }
@@ -251,7 +253,7 @@ c_sandbox_area512_exec_mrb_file_keep(
 
   const char *path = (const char *)v[1].string->data;
   size_t size = 0;
-  uint8_t *code = read_lfs_file(virtual_machine, path, &size);
+  uint8_t *code = read_whole_file(virtual_machine, path, &size);
 
   if (!code)
     return;

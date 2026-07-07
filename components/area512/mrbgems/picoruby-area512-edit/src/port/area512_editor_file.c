@@ -1,59 +1,59 @@
 #include "port/area512_editor_file.h"
 
+#include "area512_hal.h"
 #include "core/text/string.h"
 
-#include <littlefs.h>
+#include <stdio.h>
 #include <string.h>
 
-static void
-copy_edit_path_c_string(
+static int
+resolve_edit_path(
   char *destination,
   int destination_size,
   const char *path,
   int path_byte_length
 ) {
 
+  char ruby_path[AREA512_PATH_MAX];
+
   int byte_length = path_byte_length;
-  if (byte_length > destination_size - 1)
-    byte_length = destination_size - 1;
+  if (byte_length > (int)sizeof(ruby_path) - 1)
+    byte_length = (int)sizeof(ruby_path) - 1;
 
   if (byte_length < 0)
     byte_length = 0;
 
-  memcpy(destination, path, byte_length);
+  memcpy(ruby_path, path, byte_length);
 
-  destination[byte_length] = '\0';
+  ruby_path[byte_length] = '\0';
+
+  return area512_resolve_data_path(
+        ruby_path,
+        destination,
+        (size_t)destination_size
+      ) == 0;
 }
 
 int
 load_edit_file(const char *path, int path_byte_length, VimString *content) {
-  lfs_t *lfs = littlefs_get_lfs();
+  char path_buffer[AREA512_PATH_MAX];
 
-  if (!lfs)
+  if (!resolve_edit_path(path_buffer, sizeof(path_buffer), path, path_byte_length))
     return 0;
 
-  char path_buffer[LFS_NAME_MAX + 1];
+  FILE *file = fopen(path_buffer, "rb");
 
-  copy_edit_path_c_string(
-    path_buffer,
-    sizeof(path_buffer),
-    path,
-    path_byte_length
-  );
-
-  lfs_file_t file;
-  if (lfs_file_open(lfs, &file, path_buffer, LFS_O_RDONLY) < 0)
+  if (file == NULL)
     return 0;
 
   char read_buffer[256];
-  lfs_ssize_t read_size;
+  size_t read_size;
 
-  while ((read_size =
-            lfs_file_read(lfs, &file, read_buffer, sizeof(read_buffer))) > 0) {
+  while ((read_size = fread(read_buffer, 1, sizeof(read_buffer), file)) > 0) {
     vim_string_append(content, read_buffer, (int)read_size);
   }
 
-  lfs_file_close(lfs, &file);
+  fclose(file);
 
   return 1;
 }
@@ -63,58 +63,34 @@ save_edit_file(Vim *core) {
   if (core->filepath.byte_length <= 0)
     return 0;
 
-  lfs_t *lfs = littlefs_get_lfs();
+  char path_buffer[AREA512_PATH_MAX];
 
-  if (!lfs)
+  if (!resolve_edit_path(
+        path_buffer,
+        sizeof(path_buffer),
+        core->filepath.bytes,
+        core->filepath.byte_length
+      ))
     return 0;
-
-  char path_buffer[LFS_NAME_MAX + 1];
-
-  copy_edit_path_c_string(
-    path_buffer,
-    sizeof(path_buffer),
-    core->filepath.bytes,
-    core->filepath.byte_length
-  );
 
   VimString content;
   vim_string_init(&content);
   vim_write_content(core, &content);
 
-  lfs_file_t file;
-
   int saved = 0;
 
-  if (
-        lfs_file_open(
-          lfs,
-          &file,
-          path_buffer,
-          LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC
-        ) >= 0
-      ) {
+  FILE *file = fopen(path_buffer, "wb");
 
-    int offset = 0;
-    saved = 1;
+  if (file != NULL) {
+    size_t written = 0;
 
-    while (offset < content.byte_length) {
-      lfs_ssize_t written =
-        lfs_file_write(
-          lfs,
-          &file,
-          content.bytes + offset,
-          content.byte_length - offset
-        );
+    if (content.byte_length > 0)
+      written = fwrite(content.bytes, 1, (size_t)content.byte_length, file);
 
-      if (written < 0) {
-        saved = 0;
-        break;
-      }
+    saved = written == (size_t)content.byte_length;
 
-      offset += (int)written;
-    }
-
-    lfs_file_close(lfs, &file);
+    if (fclose(file) != 0)
+      saved = 0;
   }
 
   vim_string_free(&content);

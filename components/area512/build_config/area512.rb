@@ -35,14 +35,17 @@ MRuby::CrossBuild.new("esp32-femtoruby") do |conf|
   conf.gem gemdir: File.join(pure, 'picoruby-mrubyc')
   conf.gem gemdir: File.join(pure, 'picoruby-io-console')
 
-  # littlefs core is pristine; the esp32 flash port lives in area512_hal.
-  conf.gem gemdir: File.join(pure, 'picoruby-littlefs')
-
   # require first so Kernel#require is defined early.
   conf.gem gemdir: File.join(pure, 'picoruby-require')
+
+  # picoruby-require hard-depends on vfs/littlefs on non-POSIX builds; these
+  # empty shims shadow them so no flash FS code enters the build. File/Dir
+  # come from picoruby-area512-sdfat (SD/FAT via esp_vfs) instead.
+  conf.gem gemdir: File.expand_path('../mrbgems/stubs/picoruby-vfs', __dir__)
+  conf.gem gemdir: File.expand_path('../mrbgems/stubs/picoruby-littlefs', __dir__)
+
   conf.gem gemdir: File.join(pure, 'picoruby-picorubyvm')
   conf.gem gemdir: File.join(pure, 'picoruby-time')
-  conf.gem gemdir: File.join(pure, 'picoruby-vfs')
   conf.gem gemdir: File.join(pure, 'picoruby-watchdog')
   conf.gem gemdir: File.join(pure, 'picoruby-env')
   conf.gem gemdir: File.join(pure, 'picoruby-gpio')
@@ -71,7 +74,8 @@ MRuby::CrossBuild.new("esp32-femtoruby") do |conf|
   # input loop out of the mruby/c heap to avoid fragmentation as it grows.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-filer', __dir__)
 
-  # microSD (FAT over SPI) VFS driver. Mounts at /sd; backend is ESP-IDF's
-  # esp_vfs_fat_sdspi_mount (hardware init lives in area512_hal/area512_sd.c).
+  # microSD (FAT over SPI). Mounts at /sdcard via ESP-IDF's
+  # esp_vfs_fat_sdspi_mount (hardware init lives in area512_hal/area512_sd.c);
+  # also provides the minimal libc-backed File/Dir and the seed restore.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-sdfat', __dir__)
 end

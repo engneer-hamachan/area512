@@ -8,6 +8,4 @@ MRuby::Gem::Specification.new('picoruby-area512-compile') do |spec|
   spec.add_dependency 'mruby-compiler2'
   # pm_options_t etc. live in prism's own headers, not the compiler2 includes.
   spec.cc.include_paths << "#{MRUBY_ROOT}/mrbgems/mruby-compiler2/lib/prism/include"
-
-  spec.add_dependency 'picoruby-littlefs'
 end

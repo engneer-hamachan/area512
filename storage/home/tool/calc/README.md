@@ -8,8 +8,8 @@ Tiny spreadsheet for Area512/Cardputer. 26x26 cells (`A1`..`Z26`).
 - `e` / Enter: edit the current cell (Enter commits, Esc cancels, Backspace deletes)
 - `c`: clear the current cell
 - `g`: go to a cell by name (e.g. `B12`; Enter confirms, Esc cancels)
-- `s`: save the sheet to `sheet.txt` on the microSD card
-- `o`: load `sheet.txt` from the microSD card (replaces the current sheet)
+- `s`: save the sheet to `Area512_data/data/sheet.txt` on the microSD card
+- `o`: load `Area512_data/data/sheet.txt` from the microSD card (replaces the current sheet)
 - `q`: quit
 
 ## Formulas

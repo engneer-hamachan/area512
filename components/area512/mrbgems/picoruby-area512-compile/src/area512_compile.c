@@ -1,130 +1,101 @@
-// Uses the mruby-compiler2 API directly, not Sandbox: the upstream Sandbox
-// leaks heap on every compile and cannot avoid it.
-
 #include <stdint.h>
 
 #if defined(PICORB_VM_MRUBYC)
 
+#include "area512_hal.h"
+
+#include <errno.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 
-#include "littlefs.h"
 #include <mrc_codegen.h>
 #include <mrc_presym.h>
 #include <mruby_compiler.h>
 #include <mrubyc.h>
 
 static uint8_t *
-read_lfs_file(mrbc_vm *virtual_machine, const char *path, size_t *size) {
-  int error = littlefs_ensure_mounted();
+read_whole_file(mrbc_vm *virtual_machine, const char *path, size_t *size) {
+  char full_path[AREA512_PATH_MAX];
 
-  mrbc_raise_iff_lfs_error(virtual_machine, error, "lfs_mount");
-  if (error < 0)
+  if (area512_resolve_data_path(path, full_path, sizeof full_path) != 0) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), "invalid path");
     return NULL;
+  }
 
-  lfs_file_t file;
+  FILE *file = fopen(full_path, "rb");
 
-  error = lfs_file_open(littlefs_get_lfs(), &file, path, LFS_O_RDONLY);
-
-  mrbc_raise_iff_lfs_error(virtual_machine, error, path);
-  if (error < 0)
+  if (!file) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), strerror(errno));
     return NULL;
+  }
 
-  lfs_soff_t file_size = lfs_file_size(littlefs_get_lfs(), &file);
-  if (file_size < 0) {
-    lfs_file_close(littlefs_get_lfs(), &file);
-    mrbc_raise_iff_lfs_error(virtual_machine, (int)file_size, "lfs_file_size");
+  long file_size = -1;
+
+  if (fseek(file, 0, SEEK_END) == 0) {
+    file_size = ftell(file);
+  }
+
+  if (file_size < 0 || fseek(file, 0, SEEK_SET) != 0) {
+    fclose(file);
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), strerror(errno));
 
     return NULL;
   }
 
   uint8_t *buffer = (uint8_t *)mrbc_raw_alloc((unsigned int)file_size + 1);
   if (!buffer) {
-    lfs_file_close(littlefs_get_lfs(), &file);
+    fclose(file);
     mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), "out of memory");
 
     return NULL;
   }
 
-  lfs_ssize_t read_size =
-    lfs_file_read(littlefs_get_lfs(), &file, buffer, (lfs_size_t)file_size);
+  size_t read_size = fread(buffer, 1, (size_t)file_size, file);
 
-  error = lfs_file_close(littlefs_get_lfs(), &file);
-  if (read_size < 0) {
+  fclose(file);
+
+  if (read_size != (size_t)file_size) {
     mrbc_raw_free(buffer);
-    mrbc_raise_iff_lfs_error(virtual_machine, (int)read_size, "lfs_file_read");
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), "read failed");
 
-    return NULL;
-  }
-
-  mrbc_raise_iff_lfs_error(virtual_machine, error, "lfs_file_close");
-  if (error < 0) {
-    mrbc_raw_free(buffer);
     return NULL;
   }
 
   buffer[read_size] = '\0';
-  *size = (size_t)read_size;
+  *size = read_size;
 
   return buffer;
 }
 
 static bool
-write_lfs_file(
+write_whole_file(
   mrbc_vm *virtual_machine,
   const char *path,
   const uint8_t *data,
   size_t size
 ) {
 
-  int error = littlefs_ensure_mounted();
+  char full_path[AREA512_PATH_MAX];
 
-  mrbc_raise_iff_lfs_error(virtual_machine, error, "lfs_mount");
-  if (error < 0)
-    return false;
-
-  lfs_file_t file;
-
-  error = lfs_file_open(
-    littlefs_get_lfs(),
-    &file,
-    path,
-    LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC
-  );
-
-  mrbc_raise_iff_lfs_error(virtual_machine, error, path);
-  if (error < 0)
-    return false;
-
-  lfs_ssize_t written =
-    lfs_file_write(littlefs_get_lfs(), &file, data, (lfs_size_t)size);
-
-  if (written < 0) {
-    lfs_file_close(littlefs_get_lfs(), &file);
-    mrbc_raise_iff_lfs_error(virtual_machine, (int)written, "lfs_file_write");
-
+  if (area512_resolve_data_path(path, full_path, sizeof full_path) != 0) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), "invalid path");
     return false;
   }
 
-  error = lfs_file_sync(littlefs_get_lfs(), &file);
-  if (error >= 0) {
-    error = lfs_file_close(littlefs_get_lfs(), &file);
-  } else {
-    lfs_file_close(littlefs_get_lfs(), &file);
+  FILE *file = fopen(full_path, "wb");
+
+  if (!file) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), strerror(errno));
+    return false;
   }
 
-  mrbc_raise_iff_lfs_error(virtual_machine, error, "lfs_file_close");
-  if (error < 0)
-    return false;
+  size_t written = fwrite(data, 1, size, file);
 
-  uint32_t timestamp = littlefs_get_unixtime();
-  lfs_setattr(
-    littlefs_get_lfs(),
-    path,
-    LFS_ATTR_MTIME,
-    &timestamp,
-    sizeof(timestamp)
-  );
+  if (fclose(file) != 0 || written != size) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(RuntimeError), "write failed");
+    return false;
+  }
 
   return true;
 }
@@ -135,6 +106,7 @@ c_area512_compile_file(
   mrbc_value *v,
   int argument_count
 ) {
+
   (void)argument_count;
 
   if (v[1].tt != MRBC_TT_STRING || v[2].tt != MRBC_TT_STRING) {
@@ -152,7 +124,9 @@ c_area512_compile_file(
 
   size_t source_length = 0;
 
-  uint8_t *source = read_lfs_file(virtual_machine, source_path, &source_length);
+  uint8_t *source =
+    read_whole_file(virtual_machine, source_path, &source_length);
+
   if (!source)
     return;
 
@@ -173,10 +147,6 @@ c_area512_compile_file(
 
   mrc_ccontext_filename(context, source_path);
 
-  // Drive parse -> codegen directly instead of mrc_load_string_cxt: that
-  // function never destroys the prism AST (unlike mrc_load_file_cxt), and its
-  // mrubyc path swaps cc->options for a scoped pm_options_t it never frees --
-  // both leak every compile. Here the AST, parser, ccontext and options all go.
   context->filename_table =
     (mrc_filename_table *)mrbc_raw_alloc(sizeof(mrc_filename_table));
 
@@ -210,7 +180,12 @@ c_area512_compile_file(
 
     if (dump_result == MRC_DUMP_OK)
       wrote =
-        write_lfs_file(virtual_machine, destination_path, binary, binary_size);
+        write_whole_file(
+          virtual_machine,
+          destination_path,
+          binary,
+          binary_size
+        );
   }
 
   if (binary)
@@ -237,7 +212,7 @@ c_area512_compile_file(
   }
 
   if (!wrote)
-    return; // write_lfs_file already raised
+    return;
 
   SET_TRUE_RETURN();
 }

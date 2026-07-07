@@ -6,5 +6,4 @@ MRuby::Gem::Specification.new('picoruby-area512-sandbox') do |spec|
   spec.cc.include_paths << "#{spec.dir}/../../../area512_hal/include"
 
   spec.add_dependency 'picoruby-sandbox'
-  spec.add_dependency 'picoruby-littlefs'
 end

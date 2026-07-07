@@ -46,6 +46,7 @@ The following keys are available.
 | `N` | Create a new file (you type the name) |
 | `K` | Create a new directory (you type the name) |
 | `x` | Delete (asks `y/n` for confirmation) |
+| `m` | Move the selected entry (you type the destination path) |
 | `r` | Reboot the device |
 | `q` | Quit the file manager |
 
@@ -163,7 +164,9 @@ rake build
 rake flash
 ```
 
-Files under `storage/home` are placed on the device's littlefs partition.
+Files under `storage/` are embedded in the firmware as seed content and
+restored to the SD card's `Area512_data/` directory on first boot (each
+top-level directory is only written if it does not exist yet on the card).
 
 ## Contributing
 

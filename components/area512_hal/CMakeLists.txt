@@ -1,14 +1,3 @@
-# Skip the early-expansion pass (idf_build_* are undefined there).
-if(NOT CMAKE_BUILD_EARLY_EXPANSION)
-  set(_AREA512_GLOBAL_DEFS
-    # Must match the storage offset in partitions.csv.
-    -DLFS_FLASH_TARGET_OFFSET=0x410000
-  )
-  idf_build_set_property(COMPILE_OPTIONS "${_AREA512_GLOBAL_DEFS}" APPEND)
-endif()
-
-set(PURE_PICORUBY ${CMAKE_CURRENT_LIST_DIR}/../../R2P2-ESP32/components/picoruby-esp32/picoruby)
-
 idf_component_register(
   SRCS
     console/input.cpp
@@ -18,14 +7,13 @@ idf_component_register(
     console/vm_stats.c
     gfx/area512_display.cpp
     gfx/area512_gfx.cpp
+    sd/area512_data_path.c
     sd/area512_sd.c
+    sd/area512_seed.c
   INCLUDE_DIRS
     include
     console
     gfx
-  PRIV_INCLUDE_DIRS
-    ${PURE_PICORUBY}/mrbgems/picoruby-littlefs/include
-    ${PURE_PICORUBY}/mrbgems/picoruby-littlefs/lib/littlefs
   REQUIRES
     M5Unified
     m5gfx
@@ -45,3 +33,18 @@ set_source_files_properties(
   console/vm_stats.c
   PROPERTIES COMPILE_DEFINITIONS "PICORB_VM_MRUBYC"
 )
+
+set(AREA512_SEED_DIR ${COMPONENT_DIR}/../../storage)
+set(AREA512_SEED_TAR ${CMAKE_BINARY_DIR}/area512_seed.tar)
+file(GLOB AREA512_SEED_TOP_ENTRIES RELATIVE ${AREA512_SEED_DIR} ${AREA512_SEED_DIR}/*)
+file(GLOB_RECURSE AREA512_SEED_FILES ${AREA512_SEED_DIR}/*)
+
+add_custom_command(
+  OUTPUT ${AREA512_SEED_TAR}
+  COMMAND ${CMAKE_COMMAND} -E tar cf ${AREA512_SEED_TAR} --format=gnutar -- ${AREA512_SEED_TOP_ENTRIES}
+  WORKING_DIRECTORY ${AREA512_SEED_DIR}
+  DEPENDS ${AREA512_SEED_FILES}
+  VERBATIM
+)
+
+target_add_binary_data(${COMPONENT_LIB} ${AREA512_SEED_TAR} BINARY DEPENDS ${AREA512_SEED_TAR})
