@@ -13,6 +13,10 @@ class Scheduler
 
   def handle_calendar(input)
     case input
+    when "," then move_day(-1) # left key
+    when "/" then move_day(1) # right key
+    when ";" then move_day(-7) # up key
+    when "." then move_day(7) # down key
     when "h" then move_day(-1)
     when "l" then move_day(1)
     when "k" then move_day(-7)
