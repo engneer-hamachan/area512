@@ -3,6 +3,7 @@ idf_component_register(
     console/input.cpp
     console/keyboard.cpp
     console/getch.cpp
+    console/output.c
     console/system_metrics.cpp
     console/vm_stats.c
     gfx/area512_display.cpp

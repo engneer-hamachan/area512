@@ -6,6 +6,7 @@ require "io/console"
 require "sandbox"
 require "area512-sandbox"
 require "area512-compile"
+require "area512-console"
 require "vim"
 
 begin
@@ -247,41 +248,43 @@ end
 
 def run_mrb(path, label = nil)
   label ||= strip_extension(base_name(path))
+  Console.reset
   sandbox = Sandbox.new(label)
 
-  begin
-    sandbox.load_file(path)
+  result =
+    begin
+      sandbox.load_file(path)
+      sandbox.error ? "Error: #{label}" : "Returned: #{label}"
 
-    if err = sandbox.error
-      "#{err.class}: #{err.message}"
-    else
-      "Returned: #{label}"
+    rescue
+      "Error: #{label}"
+    ensure
+      sandbox.cleanup
+      sandbox = nil
     end
 
-  rescue => e
-    "#{e.class}: #{e.message}"
-  ensure
-    sandbox.cleanup if sandbox
-  end
+  Console.wait_key_if_output
+  result
 end
 
 def run_manifest(dir, manifest_path, label)
+  Console.reset
   sandbox = Sandbox.new(label)
 
-  begin
-    sandbox.load_manifest(dir, manifest_path)
+  result =
+    begin
+      sandbox.load_manifest(dir, manifest_path)
+      sandbox.error ? "Error: #{label}" : "Returned: #{label}"
 
-    if err = sandbox.error
-      "#{err.class}: #{err.message}"
-    else
-      "Returned: #{label}"
+    rescue
+      "Error: #{label}"
+    ensure
+      sandbox.cleanup
+      sandbox = nil
     end
 
-  rescue => e
-    "#{e.class}: #{e.message}"
-  ensure
-    sandbox.cleanup if sandbox
-  end
+  Console.wait_key_if_output
+  result
 end
 
 def show_app_image(dir)

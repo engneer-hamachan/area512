@@ -102,5 +102,3 @@ class Solitair
 end
 
 Solitair.new.run
-
-puts "Bye."

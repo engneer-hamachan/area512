@@ -16,6 +16,14 @@ class Calc
       return
     end
     case input
+    when ","
+      move(-1, 0)
+    when "/"
+      move(1, 0)
+    when ";"
+      move(0, -1)
+    when "."
+      move(0, 1)
     when "h"
       move(-1, 0)
     when "l"

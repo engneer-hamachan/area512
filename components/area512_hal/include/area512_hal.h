@@ -22,6 +22,10 @@ int area512_console_getchar(void);
 int area512_console_getch_block(void);
 int area512_console_getch_timeout(int timeout_ms);
 
+void area512_console_write(const void *buffer, int buffer_byte_count);
+void area512_console_reset(void);
+int area512_console_had_output(void);
+
 int area512_metrics_battery_percent(void);
 int area512_metrics_vm_used_pct(void);
 int area512_metrics_dram_used_pct(void);
@@ -54,6 +58,7 @@ void area512_sprite_fill_rect(
 void area512_sprite_circle(void *p, int x, int y, int r, uint32_t color);
 void area512_sprite_fill_circle(void *p, int x, int y, int r, uint32_t color);
 void area512_sprite_text(void *p, int x, int y, const char *str, uint32_t color);
+int area512_sprite_text_width(void *p, const char *str);
 void area512_sprite_push(void *p, int x, int y);
 void area512_sprite_push_transparent(void *p, int x, int y, uint32_t transp);
 

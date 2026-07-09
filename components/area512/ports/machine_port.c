@@ -10,6 +10,7 @@
 // file is on picoruby's include path, where mrubyc's own console.h would
 // shadow ours and hide these symbols.
 void area512_console_poll(void);
+void area512_console_write(const void *buffer, int buffer_byte_count);
 void area512_display_init(void);
 void area512_input_init(void);
 
@@ -170,6 +171,11 @@ picorb_hal_write(int fd, const void *buf, int nbytes) {
   fflush(stream);
 
   flush_usb_serial_jtag();
+
+  // Only stdout is mirrored to the screen; stderr stays serial-only.
+  if (fd == 1)
+    area512_console_write(buf, nbytes);
+
   return nbytes;
 }
 
