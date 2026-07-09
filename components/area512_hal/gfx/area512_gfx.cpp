@@ -224,6 +224,14 @@ area512_sprite_text(void *p, int x, int y, const char *str, uint32_t color) {
   spr->drawString(str, x, y);
 }
 
+int
+area512_sprite_text_width(void *p, const char *str) {
+  if (p == nullptr || str == nullptr)
+    return 0;
+
+  return (int)static_cast<lgfx::v1::LGFX_Sprite *>(p)->textWidth(str);
+}
+
 // -----------------------------------------------------------------------------
 // Sprite transfer to screen
 // -----------------------------------------------------------------------------

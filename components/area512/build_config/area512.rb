@@ -70,6 +70,9 @@ MRuby::CrossBuild.new("esp32-femtoruby") do |conf|
   # Flicker-free text drawing (Sprite) for the launcher and small apps.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-sprite', __dir__)
 
+  # On-screen console: mirrors app stdout (puts) and run errors to the screen.
+  conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-console', __dir__)
+
   # Native (C) framed-console file browser. Keeps the per-frame rendering and
   # input loop out of the mruby/c heap to avoid fragmentation as it grows.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-filer', __dir__)
