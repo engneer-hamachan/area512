@@ -70,9 +70,13 @@ int
 vim_load_text(Vim *vim, const char *text, int byte_length) {
   vim_buffer_clear(BUFFER);
 
+  int content_byte_length = byte_length;
+  if (content_byte_length > 0 && text[content_byte_length - 1] == '\n')
+    content_byte_length--;
+
   int start = 0, first = 1;
-  for (int i = 0; i <= byte_length; i++) {
-    if (i == byte_length || text[i] == '\n') {
+  for (int i = 0; i <= content_byte_length; i++) {
+    if (i == content_byte_length || text[i] == '\n') {
       if (first) {
         vim_buffer_set_line(BUFFER, 0, text + start, i - start);
         first = 0;
