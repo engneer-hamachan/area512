@@ -1,7 +1,7 @@
 MRuby::Gem::Specification.new('picoruby-area512-edit') do |spec|
   spec.license = 'MIT'
   spec.author  = 'hamachan'
-  spec.summary = 'Area512 (Cardputer) native C vim-like editor'
+  spec.summary = 'Area512 (Cardputer) native C vim-like editor and Markdown viewer'
 
   # main_task.rb / filer keep using `require "vim"` and `Vim.new(path).start`.
   spec.require_name = 'vim'

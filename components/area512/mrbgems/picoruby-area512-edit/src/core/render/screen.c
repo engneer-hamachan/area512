@@ -139,14 +139,14 @@ measure_column_span_byte_range(
 
 static void
 draw_plain_row_text(
-  VimPaint *paint,
+  VimCanvas *canvas,
   int column,
   const char *text,
   int byte_length,
   int inverse
 ) {
-  paint->draw_row_text(
-    paint->paint_context,
+  canvas->draw_row_text(
+    canvas->context,
     column,
     text,
     byte_length,
@@ -158,7 +158,7 @@ draw_plain_row_text(
 
 static void
 draw_display_slice(
-  VimPaint *paint,
+  VimCanvas *canvas,
   int column,
   const char *segment,
   int segment_byte_length,
@@ -179,7 +179,7 @@ draw_display_slice(
   );
   if (byte_end > byte_begin)
     draw_plain_row_text(
-      paint,
+      canvas,
       column,
       segment + byte_begin,
       byte_end - byte_begin,
@@ -190,7 +190,7 @@ draw_display_slice(
 static void
 draw_segment(
   VimScreen *screen,
-  VimPaint *paint,
+  VimCanvas *canvas,
   int draw_column,
   int line_index,
   const char *line,
@@ -214,13 +214,13 @@ draw_segment(
 
   if (screen->syntax_highlight && !has_selection) {
     if (screen->highlight)
-      screen->highlight(paint, draw_column, segment, segment_byte_length);
+      screen->highlight(canvas, draw_column, segment, segment_byte_length);
     else
-      draw_plain_row_text(paint, draw_column, segment, segment_byte_length, 0);
+      draw_plain_row_text(canvas, draw_column, segment, segment_byte_length, 0);
     return;
   }
   if (!has_selection) {
-    draw_plain_row_text(paint, draw_column, segment, segment_byte_length, 0);
+    draw_plain_row_text(canvas, draw_column, segment, segment_byte_length, 0);
     return;
   }
 
@@ -232,14 +232,14 @@ draw_segment(
         &end_line_index,
         &end_byte_offset
       )) {
-    draw_plain_row_text(paint, draw_column, segment, segment_byte_length, 0);
+    draw_plain_row_text(canvas, draw_column, segment, segment_byte_length, 0);
     return;
   }
   if (buffer->selection_mode == VIM_SELECTION_LINE) {
     int inverse =
       (line_index >= start_line_index && line_index <= end_line_index);
     draw_plain_row_text(
-      paint,
+      canvas,
       draw_column,
       segment,
       segment_byte_length,
@@ -248,7 +248,7 @@ draw_segment(
     return;
   }
   if (line_index < start_line_index || line_index > end_line_index) {
-    draw_plain_row_text(paint, draw_column, segment, segment_byte_length, 0);
+    draw_plain_row_text(canvas, draw_column, segment, segment_byte_length, 0);
     return;
   }
 
@@ -274,12 +274,12 @@ draw_segment(
     selection_end_column = segment_end_column;
   if (selection_start_column > segment_end_column ||
       selection_end_column < start_column) {
-    draw_plain_row_text(paint, draw_column, segment, segment_byte_length, 0);
+    draw_plain_row_text(canvas, draw_column, segment, segment_byte_length, 0);
     return;
   }
   int before_width = selection_start_column - start_column;
   draw_display_slice(
-    paint,
+    canvas,
     draw_column,
     segment,
     segment_byte_length,
@@ -289,7 +289,7 @@ draw_segment(
   );
   int selection_width = selection_end_column - selection_start_column + 1;
   draw_display_slice(
-    paint,
+    canvas,
     draw_column + before_width,
     segment,
     segment_byte_length,
@@ -299,7 +299,7 @@ draw_segment(
   );
   int after_column = selection_end_column - start_column + 1;
   draw_display_slice(
-    paint,
+    canvas,
     draw_column + after_column,
     segment,
     segment_byte_length,
@@ -310,7 +310,7 @@ draw_segment(
 }
 
 static void
-draw_gutter(VimPaint *paint, int line_index, int wrap_index) {
+draw_gutter(VimCanvas *canvas, int line_index, int wrap_index) {
   if (wrap_index > 0)
     return;
   char number[8];
@@ -332,7 +332,7 @@ draw_gutter(VimPaint *paint, int line_index, int wrap_index) {
   for (int i = 0; i < number_byte_length && padded_index < VIM_GUTTER_WIDTH;
        i++)
     padded[padded_index++] = number[i];
-  draw_plain_row_text(paint, 0, padded, VIM_GUTTER_WIDTH, 0);
+  draw_plain_row_text(canvas, 0, padded, VIM_GUTTER_WIDTH, 0);
 }
 
 static void
@@ -369,7 +369,7 @@ adjust_scroll(VimScreen *screen) {
 }
 
 static void
-vim_screen_refresh_full(VimScreen *screen, VimPaint *paint) {
+vim_screen_refresh_full(VimScreen *screen, VimCanvas *canvas) {
   int content_height = screen->height - screen->footer_height;
   int content_width = screen->width - VIM_GUTTER_WIDTH;
   if (content_width <= 0)
@@ -391,11 +391,11 @@ vim_screen_refresh_full(VimScreen *screen, VimPaint *paint) {
       if (visual_offset < 0) {
         visual_offset += 1;
       } else {
-        paint->clear_row(paint->paint_context);
-        draw_gutter(paint, line_index, wrap_index);
+        canvas->clear_row(canvas->context);
+        draw_gutter(canvas, line_index, wrap_index);
         draw_segment(
           screen,
-          paint,
+          canvas,
           VIM_GUTTER_WIDTH,
           line_index,
           line,
@@ -403,7 +403,7 @@ vim_screen_refresh_full(VimScreen *screen, VimPaint *paint) {
           wrap_index * content_width,
           content_width
         );
-        paint->push_row(paint->paint_context, screen_row);
+        canvas->push_row(canvas->context, screen_row);
         screen_row += 1;
         content_height -= 1;
         if (content_height == 0)
@@ -416,16 +416,16 @@ vim_screen_refresh_full(VimScreen *screen, VimPaint *paint) {
     line_index += 1;
   }
   while (content_height > 0) {
-    paint->clear_row(paint->paint_context);
-    paint->push_row(paint->paint_context, screen_row);
+    canvas->clear_row(canvas->context);
+    canvas->push_row(canvas->context, screen_row);
     screen_row += 1;
     content_height -= 1;
   }
 
   if (screen->footer)
-    screen->footer(screen->footer_context, paint);
+    screen->footer(screen->footer_context, canvas);
   if (screen->draw_cursor)
-    screen->draw_cursor(screen->draw_cursor_context, paint);
+    screen->draw_cursor(screen->draw_cursor_context, canvas);
 }
 
 static VimRedraw
@@ -443,7 +443,7 @@ convert_dirty_to_redraw_mode(VimDirty dirty) {
 }
 
 void
-vim_screen_refresh_if_needed(VimScreen *screen, VimPaint *paint) {
+vim_screen_refresh_if_needed(VimScreen *screen, VimCanvas *canvas) {
   VimRedraw mode = convert_dirty_to_redraw_mode(screen->buffer.dirty);
   if (screen->redraw_mode != VIM_REDRAW_NONE)
     mode = screen->redraw_mode;
@@ -451,5 +451,5 @@ vim_screen_refresh_if_needed(VimScreen *screen, VimPaint *paint) {
   vim_buffer_clear_dirty(&screen->buffer);
   if (mode == VIM_REDRAW_NONE)
     return;
-  vim_screen_refresh_full(screen, paint);
+  vim_screen_refresh_full(screen, canvas);
 }

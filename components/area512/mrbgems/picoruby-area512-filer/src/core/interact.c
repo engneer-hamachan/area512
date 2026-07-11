@@ -76,6 +76,11 @@ run_filer_interaction(Filer *filer) {
         return entry->has_mrb ? ACTION_RUN_MRB : ACTION_COMPILE;
       }
 
+      if (is_selected_markdown_file(filer)) {
+        area512_filer_teardown_ui(filer);
+        return ACTION_VIEW_MARKDOWN;
+      }
+
       set_message(filer, "Not runnable");
 
       break;
@@ -97,7 +102,7 @@ run_filer_interaction(Filer *filer) {
       return ACTION_COMPILE_ALL;
 
     case KEY_EDIT:
-      if (selected_editable(filer)) {
+      if (is_selected_editable(filer)) {
         area512_filer_teardown_ui(filer);
 
         return ACTION_EDIT;

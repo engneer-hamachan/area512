@@ -532,7 +532,7 @@ cardputer_lookup_fn_sequence(char base, const char **sequence) {
     *sequence = "\x1b[C";
     return true;
   case '`':
-    *sequence = "\x1b";
+    *sequence = "`";
     return true;
   default:
     return false;

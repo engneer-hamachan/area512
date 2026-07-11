@@ -8,10 +8,10 @@
 #define VIM_GUTTER_WIDTH 4
 
 typedef struct {
-  void *paint_context;
-  void (*clear_row)(void *paint_context);
+  void *context;
+  void (*clear_row)(void *context);
   void (*draw_row_text)(
-    void *paint_context,
+    void *context,
     int column,
     const char *text,
     int byte_length,
@@ -19,23 +19,23 @@ typedef struct {
     uint32_t background,
     int inverse
   );
-  void (*push_row)(void *paint_context, int row_index);
+  void (*push_row)(void *context, int row_index);
   void (*draw_cursor)(
-    void *paint_context,
+    void *context,
     int column,
     int row_index,
     int visible
   );
-} VimPaint;
+} VimCanvas;
 
 typedef void (*vim_highlight_function)(
-  VimPaint *paint,
+  VimCanvas *canvas,
   int column,
   const char *segment,
   int segment_byte_length
 );
-typedef void (*vim_footer_function)(void *vim_context, VimPaint *paint);
-typedef void (*vim_draw_cursor_function)(void *vim_context, VimPaint *paint);
+typedef void (*vim_footer_function)(void *vim_context, VimCanvas *canvas);
+typedef void (*vim_draw_cursor_function)(void *vim_context, VimCanvas *canvas);
 
 typedef enum {
   VIM_REDRAW_NONE = 0,
@@ -66,6 +66,6 @@ typedef struct {
 void vim_screen_init(VimScreen *screen, int width, int height);
 void vim_screen_free(VimScreen *screen);
 void vim_screen_calculate_cursor(VimScreen *screen);
-void vim_screen_refresh_if_needed(VimScreen *screen, VimPaint *paint);
+void vim_screen_refresh_if_needed(VimScreen *screen, VimCanvas *canvas);
 
 #endif

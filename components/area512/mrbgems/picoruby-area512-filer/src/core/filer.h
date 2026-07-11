@@ -41,6 +41,7 @@
 #define ACTION_DELETE 10
 #define ACTION_REBOOT 11
 #define ACTION_MOVE 12
+#define ACTION_VIEW_MARKDOWN 13
 
 #define KEY_UP 1001
 #define KEY_DOWN 1002
@@ -82,7 +83,8 @@ void init_filer_state(Filer *filer);
 void clamp_index(Filer *filer);
 void move_cursor(Filer *filer, int delta);
 void jump_to(Filer *filer, int offset);
-int selected_editable(Filer *filer);
+int is_selected_editable(Filer *filer);
+int is_selected_markdown_file(Filer *filer);
 
 void fit_string(
   char *destination,
