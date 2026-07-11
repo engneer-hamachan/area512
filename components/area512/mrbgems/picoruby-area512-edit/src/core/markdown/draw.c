@@ -2,20 +2,21 @@
 #include "core/markdown/parse.h"
 #include "core/markdown/row_writer.h"
 #include "core/syntax/picoruby/highlight.h"
+#include "port/area512_editor_canvas.h"
 
 #include <stdint.h>
 
-#define MARKDOWN_BODY 0xD8D8D8
+#define MARKDOWN_BODY 0xCFA45F
 #define MARKDOWN_HEADING_PRIMARY 0xF5972D
 #define MARKDOWN_HEADING_SECONDARY 0xFFD966
 #define MARKDOWN_HEADING_TERTIARY 0xCFA45F
-#define MARKDOWN_STRONG_TEXT 0xFFFFFF
+#define MARKDOWN_STRONG_TEXT 0xFFD966
 #define MARKDOWN_EMPHASIS_TEXT 0xFFD966
-#define MARKDOWN_CODE_TEXT 0xCFA45F
-#define MARKDOWN_LINK_TEXT 0x6FB7FF
-#define MARKDOWN_QUOTE_TEXT 0x9A9A9A
+#define MARKDOWN_CODE_TEXT 0xFFD966
+#define MARKDOWN_LINK_TEXT 0xFFD966
+#define MARKDOWN_QUOTE_TEXT 0xCFA45F
 #define MARKDOWN_MARKER_TEXT 0xF5972D
-#define MARKDOWN_RULE_TEXT 0x6A6A6A
+#define MARKDOWN_RULE_TEXT 0xCFA45F
 
 static const char MARKDOWN_DASHES[MARKDOWN_COLUMNS_MAX + 1] =
   "------------------------------------------------"
@@ -86,9 +87,20 @@ select_heading_foreground(int level) {
   return MARKDOWN_HEADING_TERTIARY;
 }
 
+static int
+select_heading_font_size(int level) {
+  if (level <= 1)
+    return EDIT_HEADING1_FONT_SIZE;
+
+  if (level == 2)
+    return EDIT_HEADING2_FONT_SIZE;
+
+  return EDIT_HEADING3_FONT_SIZE;
+}
+
 void
 draw_markdown_blank(MarkdownRowWriter *writer) {
-  style_markdown_row_writer(writer, 0, 1, 0, 0);
+  style_markdown_row_writer(writer, 0, 1, 0, EDIT_BODY_FONT_SIZE, 0);
 
   begin_markdown_output_row(writer, 0);
   end_markdown_output_row(writer);
@@ -96,7 +108,7 @@ draw_markdown_blank(MarkdownRowWriter *writer) {
 
 static void
 draw_markdown_rule(MarkdownRowWriter *writer) {
-  style_markdown_row_writer(writer, 0, 0, 1, 0);
+  style_markdown_row_writer(writer, 0, 0, 1, EDIT_BODY_FONT_SIZE, 0);
 
   begin_markdown_output_row(writer, 0);
   draw_markdown_text_span(writer, 0, MARKDOWN_DASHES, writer->width, MARKDOWN_RULE_TEXT, 0);
@@ -143,7 +155,7 @@ draw_markdown_code(
   MarkdownCodeLanguage language
 ) {
 
-  style_markdown_row_writer(writer, 1, 1, 1, 0);
+  style_markdown_row_writer(writer, 1, 1, 1, EDIT_BODY_FONT_SIZE, 0);
 
   begin_markdown_output_row(writer, 1);
 
@@ -163,8 +175,9 @@ draw_markdown_code(
 static void
 draw_markdown_heading(MarkdownRowWriter *writer, const MarkdownBlock *block) {
   uint32_t foreground = select_heading_foreground(block->heading_level);
+  int font_size = select_heading_font_size(block->heading_level);
 
-  style_markdown_row_writer(writer, 0, 1, 0, 0);
+  style_markdown_row_writer(writer, 0, 1, 0, font_size, 0);
 
   begin_markdown_output_row(writer, 0);
 
@@ -182,7 +195,7 @@ draw_markdown_heading(MarkdownRowWriter *writer, const MarkdownBlock *block) {
 // Cells are squeezed rather than aligned: 40 columns cannot hold a real grid.
 static void
 draw_markdown_table(MarkdownRowWriter *writer, const MarkdownBlock *block) {
-  style_markdown_row_writer(writer, 0, 0, 0, 0);
+  style_markdown_row_writer(writer, 0, 0, 0, EDIT_BODY_FONT_SIZE, 0);
 
   begin_markdown_output_row(writer, 0);
 
@@ -244,7 +257,14 @@ draw_markdown_text(MarkdownRowWriter *writer, const MarkdownBlock *block) {
     content_foreground = MARKDOWN_QUOTE_TEXT;
   }
 
-  style_markdown_row_writer(writer, block->content_column, 1, 0, 0);
+  style_markdown_row_writer(
+    writer,
+    block->content_column,
+    1,
+    0,
+    EDIT_BODY_FONT_SIZE,
+    0
+  );
 
   begin_markdown_output_row(writer, block->marker_column);
 

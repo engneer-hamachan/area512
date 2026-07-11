@@ -122,6 +122,7 @@ c_vim_start(
   Vim *core = session->core;
   session->canvas.char_width = EDIT_CHAR_WIDTH;
   session->canvas.row_height = EDIT_ROW_HEIGHT;
+  session->canvas.font_size = EDIT_FONT_SIZE;
 
   io_raw_bang(false);
   area512_gfx_fill_screen(EDIT_BACKGROUND);
@@ -145,6 +146,7 @@ c_vim_start(
     .clear_row = clear_editor_canvas_row,
     .draw_row_text = draw_editor_canvas_row_text,
     .push_row = push_editor_canvas_row,
+    .set_font_size = set_editor_canvas_font_size,
     .draw_cursor = draw_editor_canvas_cursor,
   };
 

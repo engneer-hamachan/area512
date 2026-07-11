@@ -197,21 +197,9 @@ set_content(MarkdownBlock *block, const char *text, int byte_length) {
   block->content_byte_length = byte_length;
 }
 
-// Nesting depth is drawn as a distinct bullet glyph; the panel is too narrow to
-// indent every level.
-static const char BULLET_GLYPHS[] = {'-', '+', '*'};
-#define BULLET_GLYPH_COUNT ((int)(sizeof(BULLET_GLYPHS) / sizeof(BULLET_GLYPHS[0])))
-
 static void
-set_bullet_marker(MarkdownBlock *block, int indent_columns) {
-  int depth = indent_columns / 2;
-
-  if (depth >= BULLET_GLYPH_COUNT)
-    depth = BULLET_GLYPH_COUNT - 1;
-
-  char marker[2] = {BULLET_GLYPHS[depth], ' '};
-
-  set_marker(block, marker, 2);
+set_bullet_marker(MarkdownBlock *block) {
+  set_marker(block, "- ", 2);
 }
 
 void
@@ -332,7 +320,7 @@ parse_markdown_block(
     block->kind = MARKDOWN_BLOCK_LIST;
     block->content_column = indent_columns + 2;
 
-    set_bullet_marker(block, indent_columns);
+    set_bullet_marker(block);
     set_content(block, line + byte_offset + 2, byte_length - byte_offset - 2);
 
     return;

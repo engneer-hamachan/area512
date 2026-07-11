@@ -68,6 +68,12 @@ fetch_color_or_raise(
   return (uint32_t)fetch_integer_or_raise(virtual_machine, v, index);
 }
 
+static bool
+is_supported_font_size(int font_size) {
+  return font_size == 10 || font_size == 12 || font_size == 14 ||
+         font_size == 16 || font_size == 24;
+}
+
 static void
 c_sprite_new(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
   if (argument_count < 2) {
@@ -88,11 +94,11 @@ c_sprite_new(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
   if (argument_count >= 3) {
     int font_size = fetch_integer_or_raise(virtual_machine, v, 3);
 
-    if (font_size != 10 && font_size != 12) {
+    if (!is_supported_font_size(font_size)) {
       mrbc_raise(
         virtual_machine,
         MRBC_CLASS(ArgumentError),
-        "font size must be 10 or 12"
+        "font size must be 10, 12, 14, 16, or 24"
       );
 
       return;

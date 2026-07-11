@@ -9,6 +9,8 @@
 void
 clear_editor_canvas_row(void *context) {
   Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
+
+  area512_sprite_set_font_size(canvas->row_sprite, canvas->font_size);
   area512_sprite_fill(canvas->row_sprite, EDIT_BACKGROUND);
 }
 
@@ -77,6 +79,14 @@ void
 push_editor_canvas_row(void *context, int row_index) {
   Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
   area512_sprite_push(canvas->row_sprite, 0, row_index * canvas->row_height);
+}
+
+void
+set_editor_canvas_font_size(void *context, int font_size) {
+  Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
+
+  canvas->font_size = font_size;
+  area512_sprite_set_font_size(canvas->row_sprite, font_size);
 }
 
 void

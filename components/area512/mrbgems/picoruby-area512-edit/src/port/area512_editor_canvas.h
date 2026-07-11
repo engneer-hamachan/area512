@@ -7,6 +7,10 @@
 #include "core/render/screen.h"
 
 #define EDIT_FONT_SIZE 12
+#define EDIT_BODY_FONT_SIZE 12
+#define EDIT_HEADING1_FONT_SIZE 24
+#define EDIT_HEADING2_FONT_SIZE 16
+#define EDIT_HEADING3_FONT_SIZE 14
 #define EDIT_CHAR_WIDTH 6
 #define EDIT_ROW_HEIGHT 13
 #define EDIT_FOREGROUND 0xF5972D
@@ -18,6 +22,7 @@ typedef struct {
   void *cursor_sprite;
   int char_width;
   int row_height;
+  int font_size;
 } Area512EditorCanvas;
 
 void clear_editor_canvas_row(void *context);
@@ -33,6 +38,8 @@ void draw_editor_canvas_row_text(
 );
 
 void push_editor_canvas_row(void *context, int row_index);
+
+void set_editor_canvas_font_size(void *context, int font_size);
 
 void draw_editor_canvas_cursor(
   void *context,

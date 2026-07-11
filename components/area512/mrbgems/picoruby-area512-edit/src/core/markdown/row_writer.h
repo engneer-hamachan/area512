@@ -17,10 +17,12 @@ typedef struct {
   int column;
   int screen_row;
   int rows_remaining;
+  int row_span;
   int row_open;
 
   int wrap_text;
   int preformatted_text;
+  int font_size;
 
   // Off during measurement: token colors never change how many rows a line
   // occupies, and the Ruby lexer is far too slow to run per scroll step.
@@ -48,6 +50,7 @@ void style_markdown_row_writer(
   int left_column,
   int wrap_text,
   int preformatted_text,
+  int font_size,
   uint32_t background
 );
 

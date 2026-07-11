@@ -1,4 +1,5 @@
 #include "core/markdown/row_writer.h"
+#include "port/area512_editor_canvas.h"
 #include "core/text/utf8.h"
 
 #include <string.h>
@@ -21,7 +22,9 @@ init_markdown_row_writer(
   writer->canvas = canvas;
   writer->width = width > MARKDOWN_COLUMNS_MAX ? MARKDOWN_COLUMNS_MAX : width;
   writer->rows_remaining = rows_remaining;
+  writer->row_span = 1;
   writer->wrap_text = 1;
+  writer->font_size = EDIT_BODY_FONT_SIZE;
   writer->highlight_code_enabled = highlight_code_enabled;
 }
 
@@ -31,12 +34,21 @@ style_markdown_row_writer(
   int left_column,
   int wrap_text,
   int preformatted_text,
+  int font_size,
   uint32_t background
 ) {
 
   writer->left_column = left_column;
   writer->wrap_text = wrap_text;
   writer->preformatted_text = preformatted_text;
+  writer->font_size = font_size;
+  writer->row_span =
+    (area512_sprite_font_height(font_size) + EDIT_ROW_HEIGHT - 1) /
+    EDIT_ROW_HEIGHT;
+
+  if (writer->row_span < 1)
+    writer->row_span = 1;
+
   writer->background = background;
 }
 
@@ -63,6 +75,9 @@ draw_markdown_text_span(
 
 void
 begin_markdown_output_row(MarkdownRowWriter *writer, int start_column) {
+  if (writer->canvas->set_font_size)
+    writer->canvas->set_font_size(writer->canvas->context, writer->font_size);
+
   writer->canvas->clear_row(writer->canvas->context);
 
   if (writer->background)
@@ -80,8 +95,8 @@ end_markdown_output_row(MarkdownRowWriter *writer) {
 
   writer->canvas->push_row(writer->canvas->context, writer->screen_row);
 
-  writer->screen_row++;
-  writer->rows_remaining--;
+  writer->screen_row += writer->row_span;
+  writer->rows_remaining -= writer->row_span;
   writer->row_open = 0;
 }
 

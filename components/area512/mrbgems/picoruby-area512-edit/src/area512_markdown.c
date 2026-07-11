@@ -63,8 +63,14 @@ c_markdown_new(
 
   session->viewer = viewer;
 
-  int columns, rows;
-  compute_editor_grid(&columns, &rows);
+  int columns = area512_gfx_width() / EDIT_CHAR_WIDTH;
+  int rows = area512_gfx_height() / EDIT_ROW_HEIGHT;
+
+  if (columns < 1)
+    columns = 1;
+
+  if (rows < 1)
+    rows = 1;
 
   init_markdown_viewer(viewer, columns, rows);
 
@@ -117,6 +123,7 @@ c_markdown_show(
 
   session->canvas.char_width = EDIT_CHAR_WIDTH;
   session->canvas.row_height = EDIT_ROW_HEIGHT;
+  session->canvas.font_size = EDIT_BODY_FONT_SIZE;
 
   io_raw_bang(false);
   area512_gfx_fill_screen(EDIT_BACKGROUND);
@@ -124,8 +131,8 @@ c_markdown_show(
   session->canvas.row_sprite =
     area512_sprite_new_with_font_size(
       area512_gfx_width(),
-      EDIT_ROW_HEIGHT,
-      EDIT_FONT_SIZE
+      area512_sprite_font_height(EDIT_HEADING1_FONT_SIZE),
+      EDIT_BODY_FONT_SIZE
     );
 
   VimCanvas canvas = {
@@ -133,6 +140,7 @@ c_markdown_show(
     .clear_row = clear_editor_canvas_row,
     .draw_row_text = draw_editor_canvas_row_text,
     .push_row = push_editor_canvas_row,
+    .set_font_size = set_editor_canvas_font_size,
     .draw_cursor = NULL,
   };
 

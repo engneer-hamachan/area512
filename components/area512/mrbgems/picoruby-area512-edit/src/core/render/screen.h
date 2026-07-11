@@ -20,6 +20,7 @@ typedef struct {
     int inverse
   );
   void (*push_row)(void *context, int row_index);
+  void (*set_font_size)(void *context, int font_size);
   void (*draw_cursor)(
     void *context,
     int column,
