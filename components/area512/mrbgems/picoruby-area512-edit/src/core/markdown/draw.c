@@ -6,14 +6,12 @@
 #include <stdint.h>
 
 #define MARKDOWN_BODY 0xD8D8D8
-#define MARKDOWN_HEADING_TOP 0xFFD966
-#define MARKDOWN_HEADING_BAR 0x3A2A12
-#define MARKDOWN_HEADING_HIGH 0xF5972D
-#define MARKDOWN_HEADING_LOW 0xCFA45F
+#define MARKDOWN_HEADING_PRIMARY 0xF5972D
+#define MARKDOWN_HEADING_SECONDARY 0xFFD966
+#define MARKDOWN_HEADING_TERTIARY 0xCFA45F
 #define MARKDOWN_STRONG_TEXT 0xFFFFFF
 #define MARKDOWN_EMPHASIS_TEXT 0xFFD966
-#define MARKDOWN_CODE_TEXT 0x8CE99A
-#define MARKDOWN_CODE_BACKGROUND 0x18281C
+#define MARKDOWN_CODE_TEXT 0xCFA45F
 #define MARKDOWN_LINK_TEXT 0x6FB7FF
 #define MARKDOWN_QUOTE_TEXT 0x9A9A9A
 #define MARKDOWN_MARKER_TEXT 0xF5972D
@@ -52,7 +50,6 @@ write_markdown_inline_span(
       break;
     case MARKDOWN_INLINE_CODE:
       foreground = MARKDOWN_CODE_TEXT;
-      background = MARKDOWN_CODE_BACKGROUND;
       break;
     case MARKDOWN_INLINE_LINK:
       foreground = MARKDOWN_LINK_TEXT;
@@ -81,12 +78,12 @@ write_markdown_inline(
 static uint32_t
 select_heading_foreground(int level) {
   if (level <= 1)
-    return MARKDOWN_HEADING_TOP;
+    return MARKDOWN_HEADING_PRIMARY;
 
   if (level == 2)
-    return MARKDOWN_HEADING_HIGH;
+    return MARKDOWN_HEADING_SECONDARY;
 
-  return MARKDOWN_HEADING_LOW;
+  return MARKDOWN_HEADING_TERTIARY;
 }
 
 void
@@ -146,7 +143,7 @@ draw_markdown_code(
   MarkdownCodeLanguage language
 ) {
 
-  style_markdown_row_writer(writer, 1, 1, 1, MARKDOWN_CODE_BACKGROUND);
+  style_markdown_row_writer(writer, 1, 1, 1, 0);
 
   begin_markdown_output_row(writer, 1);
 
@@ -166,24 +163,17 @@ draw_markdown_code(
 static void
 draw_markdown_heading(MarkdownRowWriter *writer, const MarkdownBlock *block) {
   uint32_t foreground = select_heading_foreground(block->heading_level);
-  int uses_heading_bar = block->heading_level <= 1;
 
-  style_markdown_row_writer(
-    writer,
-    uses_heading_bar,
-    1,
-    0,
-    uses_heading_bar ? MARKDOWN_HEADING_BAR : 0
-  );
+  style_markdown_row_writer(writer, 0, 1, 0, 0);
 
-  begin_markdown_output_row(writer, uses_heading_bar);
+  begin_markdown_output_row(writer, 0);
 
   write_markdown_inline(
     writer,
     block->content,
     block->content_byte_length,
     foreground,
-    uses_heading_bar
+    0
   );
 
   end_markdown_output_row(writer);
