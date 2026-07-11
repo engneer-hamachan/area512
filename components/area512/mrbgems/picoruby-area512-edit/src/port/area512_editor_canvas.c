@@ -1,4 +1,4 @@
-#include "port/area512_editor_paint.h"
+#include "port/area512_editor_canvas.h"
 
 #include "core/syntax/picoruby/highlight.h"
 #include "core/text/utf8.h"
@@ -7,14 +7,16 @@
 #include <string.h>
 
 void
-clear_editor_paint_row(void *paint_context) {
-  editor_paint *paint = (editor_paint *)paint_context;
-  area512_sprite_fill(paint->row_sprite, EDIT_BACKGROUND);
+clear_editor_canvas_row(void *context) {
+  Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
+
+  area512_sprite_set_font_size(canvas->row_sprite, canvas->font_size);
+  area512_sprite_fill(canvas->row_sprite, EDIT_BACKGROUND);
 }
 
 void
-draw_editor_paint_row_text(
-  void *paint_context,
+draw_editor_canvas_row_text(
+  void *context,
   int column,
   const char *text,
   int byte_length,
@@ -23,7 +25,7 @@ draw_editor_paint_row_text(
   int inverse
 ) {
 
-  editor_paint *paint = (editor_paint *)paint_context;
+  Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
 
   if (byte_length <= 0)
     return;
@@ -42,15 +44,15 @@ draw_editor_paint_row_text(
     draw_background = previous_foreground;
   }
 
-  int pixel_left = column * paint->char_width;
+  int pixel_left = column * canvas->char_width;
 
   if (draw_background != EDIT_BACKGROUND)
     area512_sprite_fill_rect(
-      paint->row_sprite,
+      canvas->row_sprite,
       pixel_left,
       0,
-      vim_display_width(text, byte_length) * paint->char_width,
-      paint->row_height,
+      vim_display_width(text, byte_length) * canvas->char_width,
+      canvas->row_height,
       draw_background
     );
 
@@ -65,7 +67,7 @@ draw_editor_paint_row_text(
   text_buffer[copy_byte_length] = '\0';
 
   area512_sprite_text(
-    paint->row_sprite,
+    canvas->row_sprite,
     pixel_left,
     0,
     text_buffer,
@@ -74,59 +76,67 @@ draw_editor_paint_row_text(
 }
 
 void
-push_editor_paint_row(void *paint_context, int row_index) {
-  editor_paint *paint = (editor_paint *)paint_context;
-  area512_sprite_push(paint->row_sprite, 0, row_index * paint->row_height);
+push_editor_canvas_row(void *context, int row_index) {
+  Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
+  area512_sprite_push(canvas->row_sprite, 0, row_index * canvas->row_height);
 }
 
 void
-draw_editor_paint_cursor(
-  void *paint_context,
+set_editor_canvas_font_size(void *context, int font_size) {
+  Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
+
+  canvas->font_size = font_size;
+  area512_sprite_set_font_size(canvas->row_sprite, font_size);
+}
+
+void
+draw_editor_canvas_cursor(
+  void *context,
   int column,
   int row_index,
   int visible
 ) {
-  editor_paint *paint = (editor_paint *)paint_context;
+  Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
 
-  if (!visible || !paint->cursor_sprite)
+  if (!visible || !canvas->cursor_sprite)
     return;
 
-  area512_sprite_fill(paint->cursor_sprite, EDIT_CURSOR_KEY);
+  area512_sprite_fill(canvas->cursor_sprite, EDIT_CURSOR_KEY);
 
   area512_sprite_fill_rect(
-    paint->cursor_sprite,
+    canvas->cursor_sprite,
     0,
-    paint->row_height - 2,
-    paint->char_width,
+    canvas->row_height - 2,
+    canvas->char_width,
     2,
     EDIT_FOREGROUND
   );
 
   area512_sprite_push_transparent(
-    paint->cursor_sprite,
-    column * paint->char_width,
-    row_index * paint->row_height,
+    canvas->cursor_sprite,
+    column * canvas->char_width,
+    row_index * canvas->row_height,
     EDIT_CURSOR_KEY
   );
 }
 
 typedef struct {
-  VimPaint *paint;
+  VimCanvas *canvas;
   int column;
-} highlight_paint_context;
+} highlight_canvas_context;
 
 static void
-paint_highlight_segment(
+draw_highlight_segment(
   void *writer_context,
   const char *text,
   int byte_length,
   uint32_t color
 ) {
 
-  highlight_paint_context *context = (highlight_paint_context *)writer_context;
+  highlight_canvas_context *context = (highlight_canvas_context *)writer_context;
 
-  context->paint->draw_row_text(
-    context->paint->paint_context,
+  context->canvas->draw_row_text(
+    context->canvas->context,
     context->column,
     text,
     byte_length,
@@ -140,7 +150,7 @@ paint_highlight_segment(
 
 void
 highlight_edit_segment(
-  VimPaint *paint,
+  VimCanvas *canvas,
   int column,
   const char *segment,
   int segment_byte_length
@@ -149,7 +159,7 @@ highlight_edit_segment(
   if (segment_byte_length <= 0)
     return;
 
-  highlight_paint_context writer_context = {paint, column};
+  highlight_canvas_context writer_context = {canvas, column};
 
   editor_highlight_context_t highlight_context;
 
@@ -157,7 +167,7 @@ highlight_edit_segment(
     &highlight_context,
     (const uint8_t *)segment,
     segment_byte_length,
-    paint_highlight_segment,
+    draw_highlight_segment,
     &writer_context
   );
 

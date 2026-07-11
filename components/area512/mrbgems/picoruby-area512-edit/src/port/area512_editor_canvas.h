@@ -1,5 +1,5 @@
-#ifndef AREA512_EDITOR_PAINT_H
-#define AREA512_EDITOR_PAINT_H
+#ifndef AREA512_EDITOR_CANVAS_H
+#define AREA512_EDITOR_CANVAS_H
 
 #include <stdint.h>
 
@@ -7,6 +7,10 @@
 #include "core/render/screen.h"
 
 #define EDIT_FONT_SIZE 12
+#define EDIT_BODY_FONT_SIZE 12
+#define EDIT_HEADING1_FONT_SIZE 24
+#define EDIT_HEADING2_FONT_SIZE 16
+#define EDIT_HEADING3_FONT_SIZE 14
 #define EDIT_CHAR_WIDTH 6
 #define EDIT_ROW_HEIGHT 13
 #define EDIT_FOREGROUND 0xF5972D
@@ -18,12 +22,13 @@ typedef struct {
   void *cursor_sprite;
   int char_width;
   int row_height;
-} editor_paint;
+  int font_size;
+} Area512EditorCanvas;
 
-void clear_editor_paint_row(void *paint_context);
+void clear_editor_canvas_row(void *context);
 
-void draw_editor_paint_row_text(
-  void *paint_context,
+void draw_editor_canvas_row_text(
+  void *context,
   int column,
   const char *text,
   int byte_length,
@@ -32,17 +37,19 @@ void draw_editor_paint_row_text(
   int inverse
 );
 
-void push_editor_paint_row(void *paint_context, int row_index);
+void push_editor_canvas_row(void *context, int row_index);
 
-void draw_editor_paint_cursor(
-  void *paint_context,
+void set_editor_canvas_font_size(void *context, int font_size);
+
+void draw_editor_canvas_cursor(
+  void *context,
   int column,
   int row_index,
   int visible
 );
 
 void highlight_edit_segment(
-  VimPaint *paint,
+  VimCanvas *canvas,
   int column,
   const char *segment,
   int segment_byte_length

@@ -44,6 +44,7 @@ ACT_NEW_DIR = 9 unless Object.const_defined?(:ACT_NEW_DIR)
 ACT_DELETE = 10 unless Object.const_defined?(:ACT_DELETE)
 ACT_REBOOT = 11 unless Object.const_defined?(:ACT_REBOOT)
 ACT_MOVE = 12 unless Object.const_defined?(:ACT_MOVE)
+ACT_VIEW_MARKDOWN = 13 unless Object.const_defined?(:ACT_VIEW_MARKDOWN)
 
 def run_sd_error_screen(filer)
   filer.cwd = "/"
@@ -315,6 +316,15 @@ def run_selected_dir(cwd, name)
   end
 end
 
+def view_markdown(cwd, name)
+  begin
+    Markdown.new(join_path(cwd, name)).show
+    "Returned from viewer"
+  rescue => e
+    "#{e.class}: #{e.message}"
+  end
+end
+
 def edit_entry(cwd, name, type)
   src = (type == T_APP) ? join_path(cwd, "#{name}.rb") : join_path(cwd, name)
 
@@ -509,6 +519,9 @@ def run_filer(filer, root)
 
     when ACT_RUN_DIR
       msg = run_selected_dir(cwd, filer.selected_name)
+
+    when ACT_VIEW_MARKDOWN
+      msg = view_markdown(cwd, filer.selected_name)
 
     when ACT_EDIT
       msg = edit_entry(cwd, filer.selected_name, filer.selected_type)

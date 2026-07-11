@@ -109,7 +109,7 @@ typedef struct {
 void vim_init(Vim *vim, int width, int height);
 void vim_free(Vim *vim);
 void vim_set_filepath(Vim *vim, const char *text, int byte_length);
-int vim_load_text(Vim *vim, const char *text, int byte_length);
+void vim_load_text(Vim *vim, const char *text, int byte_length);
 
 VimStatus vim_handle_key(
   Vim *vim,

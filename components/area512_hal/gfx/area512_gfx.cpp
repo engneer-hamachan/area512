@@ -56,7 +56,38 @@ area512_sprite_new_with_font(int w, int h, const lgfx::v1::IFont *font) {
 
 static const lgfx::v1::IFont *
 area512_sprite_font_for_size(int font_size) {
-  return font_size == 12 ? AREA512_FILER_FONT : AREA512_SPRITE_FONT;
+  switch (font_size) {
+  case 10:
+    return AREA512_SPRITE_FONT;
+  case 12:
+    return AREA512_FILER_FONT;
+  case 14:
+    return &lgfx::v1::fonts::efontJA_14;
+  case 16:
+    return &lgfx::v1::fonts::efontJA_16;
+  case 24:
+    return &lgfx::v1::fonts::efontJA_24;
+  default:
+    return nullptr;
+  }
+}
+
+static int
+area512_sprite_font_height_for_size(int font_size) {
+  switch (font_size) {
+  case 12:
+    return 13;
+  case 14:
+    return 15;
+  case 16:
+    return 17;
+  case 24:
+    return 25;
+  case 10:
+    return 12;
+  default:
+    return 0;
+  }
 }
 
 static bool
@@ -118,11 +149,37 @@ area512_sprite_new(int w, int h) {
 
 void *
 area512_sprite_new_with_font_size(int w, int h, int font_size) {
+  const lgfx::v1::IFont *font = area512_sprite_font_for_size(font_size);
+
+  if (font == nullptr)
+    return nullptr;
+
   return area512_sprite_new_with_font(
     w,
     h,
-    area512_sprite_font_for_size(font_size)
+    font
   );
+}
+
+void
+area512_sprite_set_font_size(void *p, int font_size) {
+  if (p == nullptr)
+    return;
+
+  const lgfx::v1::IFont *font = area512_sprite_font_for_size(font_size);
+
+  if (font == nullptr)
+    return;
+
+  lgfx::v1::LGFX_Sprite *spr = static_cast<lgfx::v1::LGFX_Sprite *>(p);
+  spr->setFont(font);
+  spr->setTextSize(1);
+  spr->setTextDatum(lgfx::v1::textdatum_t::top_left);
+}
+
+int
+area512_sprite_font_height(int font_size) {
+  return area512_sprite_font_height_for_size(font_size);
 }
 
 void

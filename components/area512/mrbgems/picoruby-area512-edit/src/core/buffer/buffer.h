@@ -34,6 +34,7 @@ typedef struct {
 void vim_buffer_init(VimBuffer *buffer);
 void vim_buffer_free(VimBuffer *buffer);
 void vim_buffer_clear(VimBuffer *buffer);
+void vim_buffer_load_text(VimBuffer *buffer, const char *text, int byte_length);
 
 static inline VimString *
 vim_buffer_current_line(VimBuffer *buffer) {

@@ -1,9 +1,11 @@
 #if defined(PICORB_VM_MRUBYC)
 
+#include "area512_markdown.h"
 #include "core/editor.h"
 #include "core/text/utf8.h"
 #include "port/area512_editor_file.h"
-#include "port/area512_editor_paint.h"
+#include "port/area512_editor_host.h"
+#include "port/area512_editor_canvas.h"
 
 #include "area512_hal.h"
 #include <stdbool.h>
@@ -14,7 +16,7 @@
 
 typedef struct {
   Vim *core;
-  editor_paint paint;
+  Area512EditorCanvas canvas;
 } editor_session;
 
 static editor_session *
@@ -42,8 +44,8 @@ c_vim_new(
   }
 
   session->core = NULL;
-  session->paint.row_sprite = NULL;
-  session->paint.cursor_sprite = NULL;
+  session->canvas.row_sprite = NULL;
+  session->canvas.cursor_sprite = NULL;
 
   Vim *core = (Vim *)malloc(sizeof(Vim));
 
@@ -61,14 +63,8 @@ c_vim_new(
 
   session->core = core;
 
-  int columns = area512_gfx_width() / EDIT_CHAR_WIDTH;
-  int rows = area512_gfx_height() / EDIT_ROW_HEIGHT;
-
-  if (columns < 1)
-    columns = 1;
-
-  if (rows < 1)
-    rows = 1;
+  int columns, rows;
+  compute_editor_grid(&columns, &rows);
 
   vim_init(core, columns, rows);
 
@@ -124,37 +120,38 @@ c_vim_start(
   }
 
   Vim *core = session->core;
-  editor_paint *host_paint = &session->paint;
-  host_paint->char_width = EDIT_CHAR_WIDTH;
-  host_paint->row_height = EDIT_ROW_HEIGHT;
+  session->canvas.char_width = EDIT_CHAR_WIDTH;
+  session->canvas.row_height = EDIT_ROW_HEIGHT;
+  session->canvas.font_size = EDIT_FONT_SIZE;
 
   io_raw_bang(false);
   area512_gfx_fill_screen(EDIT_BACKGROUND);
 
-  host_paint->row_sprite =
+  session->canvas.row_sprite =
     area512_sprite_new_with_font_size(
       area512_gfx_width(),
       EDIT_ROW_HEIGHT,
       EDIT_FONT_SIZE
     );
 
-  host_paint->cursor_sprite =
+  session->canvas.cursor_sprite =
     area512_sprite_new_with_font_size(
       EDIT_CHAR_WIDTH,
       EDIT_ROW_HEIGHT,
       EDIT_FONT_SIZE
     );
 
-  VimPaint paint = {
-    .paint_context = host_paint,
-    .clear_row = clear_editor_paint_row,
-    .draw_row_text = draw_editor_paint_row_text,
-    .push_row = push_editor_paint_row,
-    .draw_cursor = draw_editor_paint_cursor,
+  VimCanvas canvas = {
+    .context = &session->canvas,
+    .clear_row = clear_editor_canvas_row,
+    .draw_row_text = draw_editor_canvas_row_text,
+    .push_row = push_editor_canvas_row,
+    .set_font_size = set_editor_canvas_font_size,
+    .draw_cursor = draw_editor_canvas_cursor,
   };
 
   core->screen.redraw_mode = VIM_REDRAW_ALL;
-  vim_screen_refresh_if_needed(&core->screen, &paint);
+  vim_screen_refresh_if_needed(&core->screen, &canvas);
 
   for (;;) {
     int first_byte = area512_console_getch_block();
@@ -165,21 +162,7 @@ c_vim_start(
 
     if (first_byte == 27) {
       char sequence[2];
-
-      int sequence_byte_length = 0;
-      int first_following = area512_console_getch_timeout(20);
-
-      if (first_following >= 0) {
-        sequence[0] = (char)first_following;
-        sequence_byte_length = 1;
-
-        int second_following = area512_console_getch_timeout(20);
-
-        if (second_following >= 0) {
-          sequence[1] = (char)second_following;
-          sequence_byte_length = 2;
-        }
-      }
+      int sequence_byte_length = read_escape_sequence(sequence);
 
       status = vim_handle_esc(core, sequence, sequence_byte_length);
 
@@ -209,7 +192,7 @@ c_vim_start(
         vim_handle_key(core, first_byte, character, character_byte_length);
     }
 
-    vim_screen_refresh_if_needed(&core->screen, &paint);
+    vim_screen_refresh_if_needed(&core->screen, &canvas);
 
     if (status == VIM_QUIT)
       break;
@@ -221,21 +204,21 @@ c_vim_start(
 
       core->screen.redraw_mode = VIM_REDRAW_ALL;
 
-      vim_screen_refresh_if_needed(&core->screen, &paint);
+      vim_screen_refresh_if_needed(&core->screen, &canvas);
 
       if (status == VIM_SAVE_QUIT && saved)
         break;
     }
   }
 
-  if (host_paint->row_sprite) {
-    area512_sprite_delete(host_paint->row_sprite);
-    host_paint->row_sprite = NULL;
+  if (session->canvas.row_sprite) {
+    area512_sprite_delete(session->canvas.row_sprite);
+    session->canvas.row_sprite = NULL;
   }
 
-  if (host_paint->cursor_sprite) {
-    area512_sprite_delete(host_paint->cursor_sprite);
-    host_paint->cursor_sprite = NULL;
+  if (session->canvas.cursor_sprite) {
+    area512_sprite_delete(session->canvas.cursor_sprite);
+    session->canvas.cursor_sprite = NULL;
   }
 
   io_cooked_bang();
@@ -249,11 +232,11 @@ mrbc_vim_free(mrbc_value *self) {
   editor_session *session = *(editor_session **)self->instance->data;
 
   if (session) {
-    if (session->paint.row_sprite)
-      area512_sprite_delete(session->paint.row_sprite);
+    if (session->canvas.row_sprite)
+      area512_sprite_delete(session->canvas.row_sprite);
 
-    if (session->paint.cursor_sprite)
-      area512_sprite_delete(session->paint.cursor_sprite);
+    if (session->canvas.cursor_sprite)
+      area512_sprite_delete(session->canvas.cursor_sprite);
 
     if (session->core) {
       vim_free(session->core);
@@ -272,6 +255,8 @@ mrbc_area512_edit_init(mrbc_vm *virtual_machine) {
   mrbc_define_destructor(vim_class, mrbc_vim_free);
   mrbc_define_method(virtual_machine, vim_class, "new", c_vim_new);
   mrbc_define_method(virtual_machine, vim_class, "start", c_vim_start);
+
+  define_markdown_class(virtual_machine);
 }
 
 #elif defined(PICORB_VM_MRUBY)

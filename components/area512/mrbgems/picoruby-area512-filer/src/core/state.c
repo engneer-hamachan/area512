@@ -79,8 +79,39 @@ jump_to(Filer *filer, int offset) {
     filer->index = index;
 }
 
+static int
+is_markdown_file_name(const char *name) {
+  const char *suffix = ".md";
+  int name_length = 0, suffix_length = 0;
+
+  while (name[name_length])
+    name_length++;
+
+  while (suffix[suffix_length])
+    suffix_length++;
+
+  if (name_length < suffix_length)
+    return 0;
+
+  for (int i = 0; i < suffix_length; i++)
+    if (name[name_length - suffix_length + i] != suffix[i])
+      return 0;
+
+  return 1;
+}
+
 int
-selected_editable(Filer *filer) {
+is_selected_markdown_file(Filer *filer) {
+  if (filer->count == 0)
+    return 0;
+
+  FileEntry *entry = &filer->entries[filer->index];
+
+  return entry->type == ENTRY_TYPE_OTHER && is_markdown_file_name(entry->name);
+}
+
+int
+is_selected_editable(Filer *filer) {
   if (filer->count == 0)
     return 0;
 

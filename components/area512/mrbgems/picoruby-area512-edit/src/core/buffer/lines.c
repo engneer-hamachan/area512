@@ -71,6 +71,30 @@ vim_buffer_clear(VimBuffer *buffer) {
   vim_buffer_move_home(buffer);
 }
 
+void
+vim_buffer_load_text(VimBuffer *buffer, const char *text, int byte_length) {
+  vim_buffer_clear(buffer);
+
+  int content_byte_length = byte_length;
+  if (content_byte_length > 0 && text[content_byte_length - 1] == '\n')
+    content_byte_length--;
+
+  int start = 0, first = 1;
+  for (int i = 0; i <= content_byte_length; i++) {
+    if (i == content_byte_length || text[i] == '\n') {
+      if (first) {
+        vim_buffer_set_line(buffer, 0, text + start, i - start);
+        first = 0;
+      } else
+        vim_buffer_insert_line(buffer, buffer->line_count, text + start, i - start);
+
+      start = i + 1;
+    }
+  }
+
+  buffer->changed = 0;
+}
+
 int
 vim_buffer_insert_line(
   VimBuffer *buffer,

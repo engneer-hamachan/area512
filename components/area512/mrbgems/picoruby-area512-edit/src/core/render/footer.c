@@ -22,7 +22,7 @@ clear_command(Vim *vim) {
 }
 
 void
-draw_vim_footer(void *vim_context, VimPaint *paint) {
+draw_vim_footer(void *vim_context, VimCanvas *canvas) {
   Vim *vim = (Vim *)vim_context;
   int width = vim->screen.width;
   int footer_row = vim->screen.height - vim->screen.footer_height;
@@ -38,10 +38,10 @@ draw_vim_footer(void *vim_context, VimPaint *paint) {
     name_byte_length = 9;
   }
 
-  paint->clear_row(paint->paint_context);
+  canvas->clear_row(canvas->context);
 
-  paint->draw_row_text(
-    paint->paint_context,
+  canvas->draw_row_text(
+    canvas->context,
     0,
     " ",
     1,
@@ -60,8 +60,8 @@ draw_vim_footer(void *vim_context, VimPaint *paint) {
   if (name_byte_length < max_name_byte_length)
     shown_byte_length = name_byte_length;
 
-  paint->draw_row_text(
-    paint->paint_context,
+  canvas->draw_row_text(
+    canvas->context,
     1,
     name,
     shown_byte_length,
@@ -80,8 +80,8 @@ draw_vim_footer(void *vim_context, VimPaint *paint) {
     padding[i] = ' ';
 
   if (padding_byte_length > 0)
-    paint->draw_row_text(
-      paint->paint_context,
+    canvas->draw_row_text(
+      canvas->context,
       1 + shown_byte_length,
       padding,
       padding_byte_length,
@@ -90,13 +90,13 @@ draw_vim_footer(void *vim_context, VimPaint *paint) {
       0
     );
 
-  paint->push_row(paint->paint_context, footer_row);
+  canvas->push_row(canvas->context, footer_row);
 
-  paint->clear_row(paint->paint_context);
+  canvas->clear_row(canvas->context);
 
   if (vim->status.has_message) {
-    paint->draw_row_text(
-      paint->paint_context,
+    canvas->draw_row_text(
+      canvas->context,
       0,
       vim->status.message.bytes,
       vim->status.message.byte_length,
@@ -110,8 +110,8 @@ draw_vim_footer(void *vim_context, VimPaint *paint) {
     vim_string_clear(&vim->status.message);
 
   } else {
-    paint->draw_row_text(
-      paint->paint_context,
+    canvas->draw_row_text(
+      canvas->context,
       0,
       vim->status.command.bytes,
       vim->status.command.byte_length,
@@ -121,11 +121,11 @@ draw_vim_footer(void *vim_context, VimPaint *paint) {
     );
   }
 
-  paint->push_row(paint->paint_context, footer_row + 1);
+  canvas->push_row(canvas->context, footer_row + 1);
 
   if (vim->input.mode == VIM_MODE_COMMAND || vim->input.mode == VIM_MODE_SEARCH)
-    paint->draw_cursor(
-      paint->paint_context,
+    canvas->draw_cursor(
+      canvas->context,
       vim->status.command.byte_length,
       vim->screen.height - 1,
       1
@@ -133,7 +133,7 @@ draw_vim_footer(void *vim_context, VimPaint *paint) {
 }
 
 void
-draw_vim_cursor(void *vim_context, VimPaint *paint) {
+draw_vim_cursor(void *vim_context, VimCanvas *canvas) {
   Vim *vim = (Vim *)vim_context;
 
   if (vim->input.mode == VIM_MODE_COMMAND || vim->input.mode == VIM_MODE_SEARCH)
@@ -141,8 +141,8 @@ draw_vim_cursor(void *vim_context, VimPaint *paint) {
 
   vim_screen_calculate_cursor(&vim->screen);
 
-  paint->draw_cursor(
-    paint->paint_context,
+  canvas->draw_cursor(
+    canvas->context,
     vim->screen.visual_cursor_column + VIM_GUTTER_WIDTH,
     vim->screen.visual_cursor_row,
     1

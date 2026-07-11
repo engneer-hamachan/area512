@@ -33,6 +33,8 @@ int area512_metrics_stack_used_pct(void);
 
 void *area512_sprite_new(int w, int h);
 void *area512_sprite_new_with_font_size(int w, int h, int font_size);
+void area512_sprite_set_font_size(void *p, int font_size);
+int area512_sprite_font_height(int font_size);
 void area512_sprite_delete(void *p);
 int area512_sprite_width(void *p);
 int area512_sprite_height(void *p);
