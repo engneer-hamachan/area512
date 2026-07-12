@@ -59,7 +59,13 @@ write_markdown_inline_span(
       break;
     }
 
-  write_markdown_wrapped_span(context->writer, text, byte_length, foreground, background);
+  write_markdown_wrapped_span(
+    context->writer,
+    text,
+    byte_length,
+    foreground,
+    background
+  );
 }
 
 static void
@@ -71,7 +77,8 @@ write_markdown_inline(
   int ignore_inline_style
 ) {
 
-  MarkdownInlineContext context = {writer, plain_foreground, ignore_inline_style};
+  MarkdownInlineContext context =
+    {writer, plain_foreground, ignore_inline_style};
 
   scan_markdown_inline(text, byte_length, write_markdown_inline_span, &context);
 }
@@ -111,7 +118,14 @@ draw_markdown_rule(MarkdownRowWriter *writer) {
   style_markdown_row_writer(writer, 0, 0, 1, EDIT_BODY_FONT_SIZE, 0);
 
   begin_markdown_output_row(writer, 0);
-  draw_markdown_text_span(writer, 0, MARKDOWN_DASHES, writer->width, MARKDOWN_RULE_TEXT, 0);
+  draw_markdown_text_span(
+    writer,
+    0,
+    MARKDOWN_DASHES,
+    writer->width,
+    MARKDOWN_RULE_TEXT,
+    0
+  );
   end_markdown_output_row(writer);
 }
 
@@ -134,7 +148,10 @@ write_markdown_code_span(
 }
 
 static void
-highlight_markdown_code_row(MarkdownRowWriter *writer, const MarkdownBlock *block) {
+highlight_markdown_code_row(
+  MarkdownRowWriter *writer,
+  const MarkdownBlock *block
+) {
   editor_highlight_context_t context;
 
   editor_highlight_init(
@@ -212,18 +229,14 @@ draw_markdown_table(MarkdownRowWriter *writer, const MarkdownBlock *block) {
 
     int cell_end_byte_offset = byte_offset;
 
-    while (
-      cell_start_byte_offset < cell_end_byte_offset &&
-      (content[cell_start_byte_offset] == ' ' ||
-       content[cell_start_byte_offset] == '\t')
-    )
+    while (cell_start_byte_offset < cell_end_byte_offset &&
+           (content[cell_start_byte_offset] == ' ' ||
+            content[cell_start_byte_offset] == '\t'))
       cell_start_byte_offset++;
 
-    while (
-      cell_end_byte_offset > cell_start_byte_offset &&
-      (content[cell_end_byte_offset - 1] == ' ' ||
-       content[cell_end_byte_offset - 1] == '\t')
-    )
+    while (cell_end_byte_offset > cell_start_byte_offset &&
+           (content[cell_end_byte_offset - 1] == ' ' ||
+            content[cell_end_byte_offset - 1] == '\t'))
       cell_end_byte_offset--;
 
     if (cell_end_byte_offset > cell_start_byte_offset) {
@@ -307,7 +320,12 @@ draw_markdown_block(
 
   MarkdownBlock block;
 
-  parse_markdown_block(bytes, byte_length, language != MARKDOWN_CODE_NONE, &block);
+  parse_markdown_block(
+    bytes,
+    byte_length,
+    language != MARKDOWN_CODE_NONE,
+    &block
+  );
 
   switch (block.kind) {
   case MARKDOWN_BLOCK_CODE_FENCE:

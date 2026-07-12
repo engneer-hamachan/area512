@@ -90,12 +90,11 @@ vim_screen_calculate_cursor(VimScreen *screen) {
   int current_line_byte_length =
     buffer->lines[buffer->cursor_line_index].byte_length;
 
-  int cursor_display_column =
-    vim_byte_to_column(
-      current_line,
-      current_line_byte_length,
-      buffer->cursor_byte_offset
-    );
+  int cursor_display_column = vim_byte_to_column(
+    current_line,
+    current_line_byte_length,
+    buffer->cursor_byte_offset
+  );
 
   screen->visual_cursor_row =
     visual_row + cursor_display_column / content_width + screen->visual_offset;
@@ -145,15 +144,8 @@ draw_plain_row_text(
   int byte_length,
   int inverse
 ) {
-  canvas->draw_row_text(
-    canvas->context,
-    column,
-    text,
-    byte_length,
-    0,
-    0,
-    inverse
-  );
+  canvas
+    ->draw_row_text(canvas->context, column, text, byte_length, 0, 0, inverse);
 }
 
 static void

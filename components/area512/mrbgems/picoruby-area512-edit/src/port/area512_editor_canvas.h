@@ -39,6 +39,15 @@ void draw_editor_canvas_row_text(
 
 void push_editor_canvas_row(void *context, int row_index);
 
+void fill_editor_canvas_row_span(
+  void *context,
+  int column,
+  int column_count,
+  uint32_t color
+);
+
+void draw_editor_canvas_row_frame(void *context, uint32_t color, int edges);
+
 int editor_canvas_font_width(int font_size);
 int editor_canvas_font_row_span(int font_size);
 int editor_canvas_font_row_height(int font_size);

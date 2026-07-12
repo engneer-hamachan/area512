@@ -3,14 +3,14 @@
 #include "area512_markdown.h"
 #include "core/editor.h"
 #include "core/text/utf8.h"
+#include "port/area512_editor_canvas.h"
 #include "port/area512_editor_file.h"
 #include "port/area512_editor_host.h"
-#include "port/area512_editor_canvas.h"
 
 #include "area512_hal.h"
-#include <stdbool.h>
 #include "io-console.h"
 #include <mrubyc.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -25,11 +25,7 @@ get_session(mrbc_value *values) {
 }
 
 static void
-c_vim_new(
-  mrbc_vm *virtual_machine,
-  mrbc_value *values,
-  int argument_count
-) {
+c_vim_new(mrbc_vm *virtual_machine, mrbc_value *values, int argument_count) {
 
   editor_session *session = (editor_session *)malloc(sizeof(editor_session));
 
@@ -70,11 +66,8 @@ c_vim_new(
 
   core->screen.highlight = highlight_edit_segment;
 
-  if (
-      argument_count >= 1 &&
-      mrbc_type(values[1]) == MRBC_TT_STRING &&
-      values[1].string->size > 0
-    ) {
+  if (argument_count >= 1 && mrbc_type(values[1]) == MRBC_TT_STRING &&
+      values[1].string->size > 0) {
 
     const char *path = (const char *)values[1].string->data;
     int path_byte_length = values[1].string->size;
@@ -102,11 +95,7 @@ c_vim_new(
 }
 
 static void
-c_vim_start(
-  mrbc_vm *virtual_machine,
-  mrbc_value *values,
-  int argument_count
-) {
+c_vim_start(mrbc_vm *virtual_machine, mrbc_value *values, int argument_count) {
 
   (void)virtual_machine;
   (void)argument_count;
@@ -127,28 +116,30 @@ c_vim_start(
   io_raw_bang(false);
   area512_gfx_fill_screen(EDIT_BACKGROUND);
 
-  session->canvas.row_sprite =
-    area512_sprite_new_with_font_size(
-      area512_gfx_width(),
-      EDIT_ROW_HEIGHT,
-      EDIT_FONT_SIZE
-    );
+  session->canvas.row_sprite = area512_sprite_new_with_font_size(
+    area512_gfx_width(),
+    EDIT_ROW_HEIGHT,
+    EDIT_FONT_SIZE
+  );
 
-  session->canvas.cursor_sprite =
-    area512_sprite_new_with_font_size(
-      EDIT_CHAR_WIDTH,
-      EDIT_ROW_HEIGHT,
-      EDIT_FONT_SIZE
-    );
+  session->canvas.cursor_sprite = area512_sprite_new_with_font_size(
+    EDIT_CHAR_WIDTH,
+    EDIT_ROW_HEIGHT,
+    EDIT_FONT_SIZE
+  );
 
   VimCanvas canvas = {
     .context = &session->canvas,
     .clear_row = clear_editor_canvas_row,
     .draw_row_text = draw_editor_canvas_row_text,
     .push_row = push_editor_canvas_row,
+    .fill_row_span = fill_editor_canvas_row_span,
+    .draw_row_frame = draw_editor_canvas_row_frame,
     .set_font_size = set_editor_canvas_font_size,
     .draw_cursor = draw_editor_canvas_cursor,
   };
+
+  core->active_canvas = &canvas;
 
   core->screen.redraw_mode = VIM_REDRAW_ALL;
   vim_screen_refresh_if_needed(&core->screen, &canvas);
@@ -220,6 +211,8 @@ c_vim_start(
     area512_sprite_delete(session->canvas.cursor_sprite);
     session->canvas.cursor_sprite = NULL;
   }
+
+  core->active_canvas = NULL;
 
   io_cooked_bang();
 

@@ -109,7 +109,7 @@ execute_command(Vim *vim) {
 VimStatus
 handle_command_mode(Vim *vim, int key) {
   switch (key) {
-  case 10: // '\n' (LF), Enter
+  case 10:   // '\n' (LF), Enter
   case 13: { // '\r' (CR), Enter
     VimStatus status = VIM_CONTINUE;
 
@@ -139,7 +139,7 @@ handle_command_mode(Vim *vim, int key) {
     return status;
   }
 
-  case 8: // '\b' (BS), Backspace
+  case 8:   // '\b' (BS), Backspace
   case 127: // DEL, Backspace
     if (vim->status.command.byte_length > 0)
       vim->status.command.byte_length -= 1;

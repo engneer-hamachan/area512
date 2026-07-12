@@ -44,11 +44,7 @@ ensure_argument_count_or_raise(
 }
 
 static int
-fetch_integer_or_raise(
-  mrbc_vm *virtual_machine,
-  mrbc_value *v,
-  int index
-) {
+fetch_integer_or_raise(mrbc_vm *virtual_machine, mrbc_value *v, int index) {
 
   if (v[index].tt != MRBC_TT_INTEGER) {
     mrbc_raise(virtual_machine, MRBC_CLASS(TypeError), "expected Integer");
@@ -59,11 +55,7 @@ fetch_integer_or_raise(
 }
 
 static uint32_t
-fetch_color_or_raise(
-  mrbc_vm *virtual_machine,
-  mrbc_value *v,
-  int index
-) {
+fetch_color_or_raise(mrbc_vm *virtual_machine, mrbc_value *v, int index) {
 
   return (uint32_t)fetch_integer_or_raise(virtual_machine, v, index);
 }
@@ -377,8 +369,7 @@ c_display_brightness_eq(
     return;
   }
 
-  area512_gfx_set_brightness(
-    fetch_integer_or_raise(virtual_machine, values, 1)
+  area512_gfx_set_brightness(fetch_integer_or_raise(virtual_machine, values, 1)
   );
 }
 
@@ -403,11 +394,10 @@ c_display_show_header_image(
     hold_milliseconds = fetch_integer_or_raise(virtual_machine, v, 2);
   }
 
-  int shown =
-    area512_gfx_show_header_image(
-      (const char *)v[1].string->data,
-      hold_milliseconds
-    );
+  int shown = area512_gfx_show_header_image(
+    (const char *)v[1].string->data,
+    hold_milliseconds
+  );
 
   SET_BOOL_RETURN(shown);
 }

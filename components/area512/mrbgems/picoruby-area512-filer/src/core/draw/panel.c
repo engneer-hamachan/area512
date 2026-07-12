@@ -164,20 +164,21 @@ draw_panel_row(Filer *filer, int row, const PanelInfo *panel_information) {
     COLOR_GREEN
   );
 
-  area512_sprite_line(filer->row, left_x, -offset, right_x, -offset, COLOR_GREEN);
+  area512_sprite_line(
+    filer->row,
+    left_x,
+    -offset,
+    right_x,
+    -offset,
+    COLOR_GREEN
+  );
 
   {
     const char *title = PANEL_TITLE;
     int title_width = (int)strlen(title) * FILER_CHAR_WIDTH;
     int title_x = left_x + (right_x - left_x - title_width) / 2;
 
-    area512_sprite_text(
-      filer->row,
-      title_x,
-      1 - offset,
-      title,
-      COLOR_GREEN
-    );
+    area512_sprite_text(filer->row, title_x, 1 - offset, title, COLOR_GREEN);
   }
 
   for (int metric_index = 0; metric_index < panel_information->count;

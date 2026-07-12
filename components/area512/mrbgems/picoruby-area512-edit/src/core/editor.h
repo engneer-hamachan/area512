@@ -98,6 +98,7 @@ typedef struct {
 
 typedef struct {
   VimScreen screen;
+  VimCanvas *active_canvas;
   VimInput input;
   VimStatusLine status;
   VimSearch search;

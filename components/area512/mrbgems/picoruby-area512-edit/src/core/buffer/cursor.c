@@ -91,8 +91,10 @@ vim_buffer_move_left(VimBuffer *buffer) {
     if (line->byte_length < buffer->cursor_byte_offset)
       buffer->cursor_byte_offset = line->byte_length;
 
-    buffer->cursor_byte_offset =
-      vim_previous_character_byte_offset(line->bytes, buffer->cursor_byte_offset);
+    buffer->cursor_byte_offset = vim_previous_character_byte_offset(
+      line->bytes,
+      buffer->cursor_byte_offset
+    );
     vim_buffer_mark_dirty(buffer, VIM_DIRTY_CURSOR);
 
   } else if (buffer->cursor_line_index > 0) {
@@ -507,7 +509,8 @@ vim_buffer_move_to_previous_word_group(VimBuffer *buffer) {
       byte_offset > 0 &&
       character_matches_text(line->bytes, line->byte_length, byte_offset, " ")
     )
-      byte_offset = vim_previous_character_byte_offset(line->bytes, byte_offset);
+      byte_offset =
+        vim_previous_character_byte_offset(line->bytes, byte_offset);
 
     while (byte_offset > 0) {
       int previous_byte_offset =
@@ -537,7 +540,8 @@ vim_buffer_move_to_previous_word_group(VimBuffer *buffer) {
       byte_offset = line->byte_length;
 
       if (byte_offset > 0)
-        byte_offset = vim_previous_character_byte_offset(line->bytes, byte_offset);
+        byte_offset =
+          vim_previous_character_byte_offset(line->bytes, byte_offset);
     } else
       break;
   }

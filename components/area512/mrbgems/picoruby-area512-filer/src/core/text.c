@@ -4,7 +4,6 @@
 
 #include <string.h>
 
-
 void
 fit_string(
   char *destination,

@@ -40,7 +40,8 @@ complete_pending(
 
   switch (pending) {
   case VIM_PENDING_REPLACE:
-    if (key >= 32 && character && character_byte_length > 0) { // printable ASCII, ' ' (space) and above
+    if (key >= 32 && character &&
+        character_byte_length > 0) { // printable ASCII, ' ' (space) and above
       vim_buffer_replace_char(BUFFER, character, character_byte_length);
 
       memcpy(
@@ -63,22 +64,20 @@ complete_pending(
       int found;
 
       if (vim->input.pending_direction > 0)
-        found =
-          vim_buffer_find_char_forward(
-            BUFFER,
-            character,
-            character_byte_length,
-            vim->input.pending_stop_before_match
-          );
+        found = vim_buffer_find_char_forward(
+          BUFFER,
+          character,
+          character_byte_length,
+          vim->input.pending_stop_before_match
+        );
 
       else
-        found =
-          vim_buffer_find_char_backward(
-            BUFFER,
-            character,
-            character_byte_length,
-            vim->input.pending_stop_before_match
-          );
+        found = vim_buffer_find_char_backward(
+          BUFFER,
+          character,
+          character_byte_length,
+          vim->input.pending_stop_before_match
+        );
 
       if (found) {
         vim_string_set(
@@ -153,7 +152,7 @@ handle_normal(
   if (vim->input.pending != VIM_PENDING_NONE)
     return complete_pending(vim, key, character, character_byte_length);
 
-  if (key >= 48 && key <= 57) { // '0' to '9'
+  if (key >= 48 && key <= 57) {               // '0' to '9'
     if (key == 48 && !vim->input.has_count) { // '0'
       vim_buffer_move_to_line_head(BUFFER);
       return VIM_CONTINUE;
@@ -291,9 +290,9 @@ handle_normal(
 
     break;
 
-  case 65: // 'A'
-  case 73: // 'I'
-  case 97: // 'a'
+  case 65:  // 'A'
+  case 73:  // 'I'
+  case 97:  // 'a'
   case 105: // 'i'
     enter_insert_from_key(vim, key);
 
@@ -302,7 +301,7 @@ handle_normal(
     break;
 
   case 111: // 'o'
-  case 79: // 'O'
+  case 79:  // 'O'
     enter_insert_from_key(vim, key);
 
     if (key == 111) // 'o'

@@ -81,6 +81,61 @@ push_editor_canvas_row(void *context, int row_index) {
   area512_sprite_push(canvas->row_sprite, 0, row_index * canvas->row_height);
 }
 
+void
+fill_editor_canvas_row_span(
+  void *context,
+  int column,
+  int column_count,
+  uint32_t color
+) {
+  Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
+
+  if (column_count <= 0)
+    return;
+
+  area512_sprite_fill_rect(
+    canvas->row_sprite,
+    column * canvas->char_width,
+    0,
+    column_count * canvas->char_width,
+    canvas->row_height,
+    color
+  );
+}
+
+void
+draw_editor_canvas_row_frame(void *context, uint32_t color, int edges) {
+  Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
+  int pixel_width = area512_gfx_width();
+  int pixel_height = canvas->row_height;
+
+  if (edges & VIM_ROW_EDGE_TOP)
+    area512_sprite_fill_rect(canvas->row_sprite, 0, 0, pixel_width, 2, color);
+
+  if (edges & VIM_ROW_EDGE_BOTTOM)
+    area512_sprite_fill_rect(
+      canvas->row_sprite,
+      0,
+      pixel_height - 2,
+      pixel_width,
+      2,
+      color
+    );
+
+  if (edges & VIM_ROW_EDGE_LEFT)
+    area512_sprite_fill_rect(canvas->row_sprite, 0, 0, 2, pixel_height, color);
+
+  if (edges & VIM_ROW_EDGE_RIGHT)
+    area512_sprite_fill_rect(
+      canvas->row_sprite,
+      pixel_width - 2,
+      0,
+      2,
+      pixel_height,
+      color
+    );
+}
+
 int
 editor_canvas_font_width(int font_size) {
   int width = (font_size + 1) / 2;
@@ -154,7 +209,8 @@ draw_highlight_segment(
   uint32_t color
 ) {
 
-  highlight_canvas_context *context = (highlight_canvas_context *)writer_context;
+  highlight_canvas_context *context =
+    (highlight_canvas_context *)writer_context;
 
   context->canvas->draw_row_text(
     context->canvas->context,

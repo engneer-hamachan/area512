@@ -43,10 +43,8 @@ void load_markdown_viewer_text(
 
 void draw_markdown_viewer(MarkdownViewer *viewer, VimCanvas *canvas);
 
-MarkdownViewerStatus handle_markdown_viewer_key(
-  MarkdownViewer *viewer,
-  int key_byte
-);
+MarkdownViewerStatus
+handle_markdown_viewer_key(MarkdownViewer *viewer, int key_byte);
 
 MarkdownViewerStatus handle_markdown_viewer_escape(
   MarkdownViewer *viewer,

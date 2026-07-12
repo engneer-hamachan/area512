@@ -1,7 +1,7 @@
 #include "core/markdown/viewer.h"
+#include "core/markdown/draw.h"
 #include "core/markdown/parse.h"
 #include "core/markdown/row_writer.h"
-#include "core/markdown/draw.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -57,7 +57,11 @@ measure_visible_content_rows(MarkdownViewer *viewer) {
 }
 
 static int
-measure_markdown_line(MarkdownViewer *viewer, int line_index, int *output_rows) {
+measure_markdown_line(
+  MarkdownViewer *viewer,
+  int line_index,
+  int *output_rows
+) {
   int pushed_rows = 0;
   VimCanvas measurement_canvas = {
     .context = &pushed_rows,
@@ -325,15 +329,17 @@ load_markdown_viewer_text(
 
   MarkdownCodeLanguage language = MARKDOWN_CODE_NONE;
 
-  for (int line_index = 0; line_index < viewer->buffer.line_count; line_index++) {
+  for (int line_index = 0; line_index < viewer->buffer.line_count;
+       line_index++) {
     VimString *line = &viewer->buffer.lines[line_index];
 
     viewer->code_language[line_index] = (uint8_t)language;
 
     if (is_markdown_code_fence(line->bytes, line->byte_length))
-      language = language == MARKDOWN_CODE_NONE
-                   ? read_markdown_code_fence_language(line->bytes, line->byte_length)
-                   : MARKDOWN_CODE_NONE;
+      language =
+        language == MARKDOWN_CODE_NONE
+          ? read_markdown_code_fence_language(line->bytes, line->byte_length)
+          : MARKDOWN_CODE_NONE;
   }
 }
 

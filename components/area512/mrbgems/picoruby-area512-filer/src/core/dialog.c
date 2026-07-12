@@ -1,7 +1,7 @@
 #if defined(PICORB_VM_MRUBYC)
 
-#include "core/filer.h"
 #include "area512_hal.h"
+#include "core/filer.h"
 
 #include <stdio.h>
 #include <string.h>

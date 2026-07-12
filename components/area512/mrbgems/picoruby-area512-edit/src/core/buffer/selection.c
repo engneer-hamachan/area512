@@ -188,11 +188,10 @@ vim_buffer_delete_selected_text(VimBuffer *buffer, VimString *yanked_text) {
     int byte_length = buffer->lines[start_line_index].byte_length;
 
     if (byte_length > 0 && buffer->cursor_byte_offset >= byte_length)
-      buffer->cursor_byte_offset =
-        vim_previous_character_byte_offset(
-          buffer->lines[start_line_index].bytes,
-          byte_length
-        );
+      buffer->cursor_byte_offset = vim_previous_character_byte_offset(
+        buffer->lines[start_line_index].bytes,
+        byte_length
+      );
 
     if (buffer->cursor_byte_offset < 0)
       buffer->cursor_byte_offset = 0;
@@ -239,11 +238,10 @@ vim_buffer_delete_selected_text(VimBuffer *buffer, VimString *yanked_text) {
     int byte_length = buffer->lines[start_line_index].byte_length;
 
     if (byte_length > 0 && buffer->cursor_byte_offset >= byte_length)
-      buffer->cursor_byte_offset =
-        vim_previous_character_byte_offset(
-          buffer->lines[start_line_index].bytes,
-          byte_length
-        );
+      buffer->cursor_byte_offset = vim_previous_character_byte_offset(
+        buffer->lines[start_line_index].bytes,
+        byte_length
+      );
 
     if (buffer->cursor_byte_offset < 0)
       buffer->cursor_byte_offset = 0;

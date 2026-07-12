@@ -55,7 +55,11 @@ c_sdfat__unmount(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
 }
 
 static void
-c_sdfat__is_exist(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
+c_sdfat__is_exist(
+  mrbc_vm *virtual_machine,
+  mrbc_value v[],
+  int argument_count
+) {
   const char *path = (const char *)GET_STRING_ARG(1);
   char full_path[AREA512_PATH_MAX];
 
@@ -139,12 +143,11 @@ c_sdfat__read(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
     return;
   }
 
-  mrbc_value result =
-    mrbc_string_new(
-      virtual_machine,
-      file_size > 0 ? (const void *)buffer : "",
-      (uint32_t)file_size
-    );
+  mrbc_value result = mrbc_string_new(
+    virtual_machine,
+    file_size > 0 ? (const void *)buffer : "",
+    (uint32_t)file_size
+  );
 
   if (buffer != NULL) {
     mrbc_free(virtual_machine, buffer);
@@ -174,12 +177,7 @@ c_sdfat__write(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
   }
 
   size_t bytes_written =
-    fwrite(
-      content.string->data,
-      1,
-      (size_t)content.string->size,
-      file_pointer
-    );
+    fwrite(content.string->data, 1, (size_t)content.string->size, file_pointer);
 
   bool closed = fclose(file_pointer) == 0;
 

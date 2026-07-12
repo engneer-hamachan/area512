@@ -211,8 +211,7 @@ editor_classify_token(
 
     return EDIT_HIGHLIGHT_DEFAULT;
   }
-  }//switch end
-
+  } // switch end
 }
 
 static void

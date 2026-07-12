@@ -1,6 +1,6 @@
 #include "core/markdown/row_writer.h"
-#include "port/area512_editor_canvas.h"
 #include "core/text/utf8.h"
+#include "port/area512_editor_canvas.h"
 
 #include <string.h>
 
@@ -20,7 +20,8 @@ init_markdown_row_writer(
   memset(writer, 0, sizeof(*writer));
 
   writer->canvas = canvas;
-  writer->base_width = width > MARKDOWN_COLUMNS_MAX ? MARKDOWN_COLUMNS_MAX : width;
+  writer->base_width =
+    width > MARKDOWN_COLUMNS_MAX ? MARKDOWN_COLUMNS_MAX : width;
   writer->width = writer->base_width;
   writer->rows_remaining = rows_remaining;
   writer->row_span = 1;
@@ -83,7 +84,14 @@ begin_markdown_output_row(MarkdownRowWriter *writer, int start_column) {
   writer->canvas->clear_row(writer->canvas->context);
 
   if (writer->background)
-    draw_markdown_text_span(writer, 0, MARKDOWN_SPACES, writer->width, 0, writer->background);
+    draw_markdown_text_span(
+      writer,
+      0,
+      MARKDOWN_SPACES,
+      writer->width,
+      0,
+      writer->background
+    );
 
   writer->column = start_column;
   writer->start_column = start_column;
@@ -226,8 +234,8 @@ write_markdown_wrapped_span(
     return;
   }
 
-  if (writer->word_byte_length > 0 &&
-      (foreground != writer->word_foreground || background != writer->word_background))
+  if (writer->word_byte_length > 0 && (foreground != writer->word_foreground ||
+                                       background != writer->word_background))
     flush_pending_markdown_word(writer);
 
   writer->word_foreground = foreground;
@@ -272,7 +280,11 @@ write_markdown_wrapped_span(
         writer->word_byte_length + character_byte_length > MARKDOWN_WORD_MAX)
       flush_pending_markdown_word(writer);
 
-    memcpy(writer->word + writer->word_byte_length, text + byte_offset, (size_t)character_byte_length);
+    memcpy(
+      writer->word + writer->word_byte_length,
+      text + byte_offset,
+      (size_t)character_byte_length
+    );
 
     writer->word_byte_length += character_byte_length;
     writer->word_columns += character_columns;

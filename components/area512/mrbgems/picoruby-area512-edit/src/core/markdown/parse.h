@@ -55,10 +55,8 @@ typedef void (*markdown_span_writer)(
 
 int is_markdown_code_fence(const char *line, int byte_length);
 
-MarkdownCodeLanguage read_markdown_code_fence_language(
-  const char *line,
-  int byte_length
-);
+MarkdownCodeLanguage
+read_markdown_code_fence_language(const char *line, int byte_length);
 
 void parse_markdown_block(
   const char *line,

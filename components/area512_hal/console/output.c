@@ -25,12 +25,11 @@ static int s_character_total_byte_count;
 static void
 ensure_row_sprite(void) {
   if (s_row_sprite == NULL) {
-    s_row_sprite =
-      area512_sprite_new_with_font_size(
-        area512_gfx_width(),
-        CONSOLE_ROW_HEIGHT,
-        CONSOLE_FONT_SIZE
-      );
+    s_row_sprite = area512_sprite_new_with_font_size(
+      area512_gfx_width(),
+      CONSOLE_ROW_HEIGHT,
+      CONSOLE_FONT_SIZE
+    );
   }
 }
 
@@ -115,8 +114,10 @@ append_character_to_current_or_next_row(
   int character_pixel_width =
     area512_sprite_text_width(s_row_sprite, character_string);
 
-  if (s_row_pixel_width[s_cursor_row_index] + character_pixel_width > area512_gfx_width() ||
-      s_row_byte_count[s_cursor_row_index] + character_byte_count >= CONSOLE_ROW_BYTES - 1) {
+  if (s_row_pixel_width[s_cursor_row_index] + character_pixel_width >
+        area512_gfx_width() ||
+      s_row_byte_count[s_cursor_row_index] + character_byte_count >=
+        CONSOLE_ROW_BYTES - 1) {
 
     advance_to_next_row();
   }

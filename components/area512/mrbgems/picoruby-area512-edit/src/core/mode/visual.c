@@ -82,14 +82,13 @@ handle_visual(Vim *vim, int key) {
   case 121: {
     int start_line_index, start_byte_offset, end_line_index, end_byte_offset;
 
-    int has_selection =
-      vim_buffer_selection_range(
-        BUFFER,
-        &start_line_index,
-        &start_byte_offset,
-        &end_line_index,
-        &end_byte_offset
-      );
+    int has_selection = vim_buffer_selection_range(
+      BUFFER,
+      &start_line_index,
+      &start_byte_offset,
+      &end_line_index,
+      &end_byte_offset
+    );
 
     vim_string_clear(&vim->paste.text);
     vim_buffer_copy_selected_text(BUFFER, &vim->paste.text);
