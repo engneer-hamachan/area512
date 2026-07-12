@@ -23,6 +23,7 @@ typedef struct {
   int width, height;
   int footer_height;
   int top_line;
+  int top_line_row;
 } MarkdownViewer;
 
 void init_markdown_viewer(MarkdownViewer *viewer, int width, int height);

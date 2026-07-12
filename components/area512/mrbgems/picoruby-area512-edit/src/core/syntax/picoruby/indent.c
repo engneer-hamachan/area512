@@ -210,7 +210,8 @@ editor_auto_indent_should_increase(
 
   if (auto_indent_is_continuation(&current_tokens) &&
       !auto_indent_is_continuation(&previous_tokens) &&
-      !auto_indent_is_block_or_brace_opener(&previous_tokens)) {
+      !auto_indent_is_block_or_brace_opener(&previous_tokens) &&
+      !auto_indent_is_delimiter_opener(&previous_tokens)) {
 
     return 1;
   }

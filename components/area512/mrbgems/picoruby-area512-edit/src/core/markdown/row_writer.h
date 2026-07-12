@@ -11,12 +11,14 @@
 typedef struct {
   VimCanvas *canvas;
 
+  int base_width;
   int width;
   int left_column;
   int start_column;
   int column;
   int screen_row;
   int rows_remaining;
+  int rows_to_skip;
   int row_span;
   int row_open;
 

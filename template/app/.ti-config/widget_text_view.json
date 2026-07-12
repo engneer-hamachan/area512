@@ -1,0 +1,123 @@
+{
+  "frame": "Builtin",
+  "class": "WidgetTextView",
+  "instance_methods": [
+    {
+      "name": "area",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Set the drawing area; default is the whole body area"
+    },
+    {
+      "name": "text=",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Set the text (copied, up to 2048 bytes)"
+    },
+    {
+      "name": "scroll",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "First visible wrapped line"
+    },
+    {
+      "name": "scroll=",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Scroll to a wrapped line (clamped)"
+    },
+    {
+      "name": "handle",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Consume UP/DOWN, k/j, ;/. scroll keys; true when consumed"
+    },
+    {
+      "name": "draw",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Draw word-wrapped text and the scrollbar when needed"
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "WidgetTextView"
+        ]
+      },
+      "document": "Create an empty text view"
+    }
+  ]
+}

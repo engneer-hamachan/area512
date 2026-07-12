@@ -81,11 +81,32 @@ push_editor_canvas_row(void *context, int row_index) {
   area512_sprite_push(canvas->row_sprite, 0, row_index * canvas->row_height);
 }
 
+int
+editor_canvas_font_width(int font_size) {
+  int width = (font_size + 1) / 2;
+
+  return width < 1 ? 1 : width;
+}
+
+int
+editor_canvas_font_row_span(int font_size) {
+  int font_height = area512_sprite_font_height(font_size);
+  int row_span = (font_height + EDIT_ROW_HEIGHT - 1) / EDIT_ROW_HEIGHT;
+
+  return row_span < 1 ? 1 : row_span;
+}
+
+int
+editor_canvas_font_row_height(int font_size) {
+  return editor_canvas_font_row_span(font_size) * EDIT_ROW_HEIGHT;
+}
+
 void
 set_editor_canvas_font_size(void *context, int font_size) {
   Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
 
   canvas->font_size = font_size;
+  canvas->char_width = editor_canvas_font_width(font_size);
   area512_sprite_set_font_size(canvas->row_sprite, font_size);
 }
 

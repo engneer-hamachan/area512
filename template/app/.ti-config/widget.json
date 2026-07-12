@@ -1,0 +1,1584 @@
+{
+  "frame": "Builtin",
+  "class": "Widget",
+  "instance_methods": [],
+  "class_methods": [
+    {
+      "name": "bg",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Theme background color (0x000000)"
+    },
+    {
+      "name": "amber",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Theme accent color for frames and bands (0xF5972D)"
+    },
+    {
+      "name": "dim",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Theme normal-text color (0xCFA45F)"
+    },
+    {
+      "name": "gold",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Theme selection/title color (0xFFD966)"
+    },
+    {
+      "name": "dark",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Theme fill color for selected rows and panels (0x241604)"
+    },
+    {
+      "name": "char_width",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "ASCII glyph width in px at font 12 (6)"
+    },
+    {
+      "name": "row_height",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Standard list/table row height (16)"
+    },
+    {
+      "name": "header_height",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Header band height (17)"
+    },
+    {
+      "name": "body_top",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "First y below the header band"
+    },
+    {
+      "name": "body_bottom",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Last y above the footer rule"
+    },
+    {
+      "name": "body_height",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Height of the content area between header and footer"
+    },
+    {
+      "name": "text_width",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Measured text width in px (correct for Japanese)"
+    },
+    {
+      "name": "clip",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Clip text to a pixel width; ends with \">\" when cut"
+    },
+    {
+      "name": "read_key",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Read one key: \"UP\" \"DOWN\" \"LEFT\" \"RIGHT\" \"ENTER\" \"ESC\" \"BS\" or a 1-char string"
+    },
+    {
+      "name": "header",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Top band: gold title, dim right-aligned text (title, right = \"\")"
+    },
+    {
+      "name": "footer",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Bottom rule + clipped message"
+    },
+    {
+      "name": "hints",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Array"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Footer-position key chips from [[key, label], ...]"
+    },
+    {
+      "name": "separator",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Full-width horizontal rule at y"
+    },
+    {
+      "name": "vseparator",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Vertical rule (x, y, h)"
+    },
+    {
+      "name": "tabs",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "[String]"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Tab bar at y; active tab highlighted (y, labels, active)"
+    },
+    {
+      "name": "battery",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Battery icon with charge level at (x, y)"
+    },
+    {
+      "name": "splash",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Full-screen title in the 24px font (title, subtitle = \"\")"
+    },
+    {
+      "name": "big_text",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Draw text in the 24px font (x, y, text, color = gold)"
+    },
+    {
+      "name": "toast",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Bottom-center message chip; the app decides how long to show it"
+    },
+    {
+      "name": "panel",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Dark fill + amber frame (x, y, w, h)"
+    },
+    {
+      "name": "titled_panel",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Panel with a gold title row (x, y, w, h, title)"
+    },
+    {
+      "name": "text_center",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Horizontally centered text (y, text, color = dim)"
+    },
+    {
+      "name": "text_right",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Right-aligned text (right_x, y, text, color = dim)"
+    },
+    {
+      "name": "center_lines",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Array"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Vertically centered lines from [[text, color?], ...]; \"\" rows are spacers"
+    },
+    {
+      "name": "wrap_text",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Word-wrapped text in a box; returns lines drawn (x, y, w, h, text, color = dim)"
+    },
+    {
+      "name": "marquee",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Horizontally scrolling text; returns text px width (x, y, w, text, offset)"
+    },
+    {
+      "name": "cell",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Table cell; selected = dark fill + gold frame (x, y, w, h, text, selected)"
+    },
+    {
+      "name": "table_header",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "[Int]"
+          ]
+        },
+        {
+          "type": [
+            "[String]"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Column header row (x, y, widths, labels)"
+    },
+    {
+      "name": "table_row",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "[Int]"
+          ]
+        },
+        {
+          "type": [
+            "[String]"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Row of cells (x, y, widths, texts, selected)"
+    },
+    {
+      "name": "field",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Settings row: dim label left, gold value right (x, y, w, label, value, focused)"
+    },
+    {
+      "name": "gauge",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Read-only progress bar (x, y, w, value, max)"
+    },
+    {
+      "name": "slider",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Track + knob (x, y, w, value, max, focused)"
+    },
+    {
+      "name": "scrollbar",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Vertical scrollbar; hidden when total <= visible (x, y, h, top, visible, total)"
+    },
+    {
+      "name": "hscrollbar",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Horizontal scrollbar (x, y, w, left, visible, total)"
+    },
+    {
+      "name": "badge",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Inverted chip: amber fill, background-color text (x, y, text)"
+    },
+    {
+      "name": "busy",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "4-phase busy marker; pass a frame counter (x, y, frame)"
+    },
+    {
+      "name": "page_dots",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Centered page-indicator dots (y, count, active)"
+    },
+    {
+      "name": "bar_chart",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "[Int]"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Bar chart; max <= 0 auto-scales to the data (x, y, w, h, values, max)"
+    },
+    {
+      "name": "line_chart",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "[Int]"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Polyline chart; max <= 0 auto-scales to the data (x, y, w, h, values, max)"
+    },
+    {
+      "name": "button",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Button with centered label (x, y, w, label, focused)"
+    },
+    {
+      "name": "checkbox",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Checkbox with label (x, y, label, checked, focused)"
+    },
+    {
+      "name": "radio",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Radio button with label (x, y, label, selected, focused)"
+    },
+    {
+      "name": "toggle",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "ON/OFF toggle pill (x, y, on, focused)"
+    },
+    {
+      "name": "spinner",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "\"< text >\" value chooser; the app handles left/right keys (x, y, w, text, focused)"
+    },
+    {
+      "name": "input",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Modal one-line text input; String on Enter, nil on ESC (label, initial = \"\")"
+    },
+    {
+      "name": "input_number",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "NilClass"
+        ]
+      },
+      "document": "Modal number input clamped to min..max; nil on ESC (label, initial, min, max)"
+    },
+    {
+      "name": "confirm",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Modal y/n question; ESC = false"
+    },
+    {
+      "name": "dialog",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "[String]"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "NilClass"
+        ]
+      },
+      "document": "Modal message with a button row; button index or nil on ESC (message, buttons)"
+    },
+    {
+      "name": "menu",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "[String]"
+          ]
+        },
+        {
+          "type": [
+            "DefaultInt"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int",
+          "NilClass"
+        ]
+      },
+      "document": "Modal item picker; item index or nil on ESC (title, items, initial = 0)"
+    },
+    {
+      "name": "alert",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Modal message; returns on any key"
+    }
+  ]
+}

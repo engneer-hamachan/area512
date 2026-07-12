@@ -20,7 +20,8 @@ init_markdown_row_writer(
   memset(writer, 0, sizeof(*writer));
 
   writer->canvas = canvas;
-  writer->width = width > MARKDOWN_COLUMNS_MAX ? MARKDOWN_COLUMNS_MAX : width;
+  writer->base_width = width > MARKDOWN_COLUMNS_MAX ? MARKDOWN_COLUMNS_MAX : width;
+  writer->width = writer->base_width;
   writer->rows_remaining = rows_remaining;
   writer->row_span = 1;
   writer->wrap_text = 1;
@@ -42,12 +43,13 @@ style_markdown_row_writer(
   writer->wrap_text = wrap_text;
   writer->preformatted_text = preformatted_text;
   writer->font_size = font_size;
-  writer->row_span =
-    (area512_sprite_font_height(font_size) + EDIT_ROW_HEIGHT - 1) /
-    EDIT_ROW_HEIGHT;
+  writer->width =
+    writer->base_width * EDIT_CHAR_WIDTH / editor_canvas_font_width(font_size);
 
-  if (writer->row_span < 1)
-    writer->row_span = 1;
+  if (writer->width < 1)
+    writer->width = 1;
+
+  writer->row_span = editor_canvas_font_row_span(font_size);
 
   writer->background = background;
 }
@@ -93,10 +95,14 @@ end_markdown_output_row(MarkdownRowWriter *writer) {
   if (!writer->row_open)
     return;
 
-  writer->canvas->push_row(writer->canvas->context, writer->screen_row);
-
-  writer->screen_row += writer->row_span;
-  writer->rows_remaining -= writer->row_span;
+  if (writer->rows_to_skip >= writer->row_span) {
+    writer->rows_to_skip -= writer->row_span;
+  } else {
+    writer->canvas->push_row(writer->canvas->context, writer->screen_row);
+    writer->screen_row += writer->row_span;
+    writer->rows_remaining -= writer->row_span;
+    writer->rows_to_skip = 0;
+  }
   writer->row_open = 0;
 }
 

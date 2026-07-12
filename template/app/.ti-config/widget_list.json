@@ -1,0 +1,237 @@
+{
+  "frame": "Builtin",
+  "class": "WidgetList",
+  "instance_methods": [
+    {
+      "name": "area",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Set the drawing area; default is the whole body area"
+    },
+    {
+      "name": "clear",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Remove all rows"
+    },
+    {
+      "name": "add",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "DefaultString"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Append a row; optional tag is drawn amber on the left (text, tag = \"\")"
+    },
+    {
+      "name": "empty_text=",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Text shown centered when the list is empty"
+    },
+    {
+      "name": "show_marks=",
+      "arguments": [
+        {
+          "type": [
+            "Bool"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Show the multi-select mark column"
+    },
+    {
+      "name": "toggle_mark",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Toggle the mark on the cursor row"
+    },
+    {
+      "name": "mark",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Bool"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Set the mark on row i"
+    },
+    {
+      "name": "marked?",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Whether row i is marked"
+    },
+    {
+      "name": "count",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Number of rows"
+    },
+    {
+      "name": "index",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Cursor row"
+    },
+    {
+      "name": "index=",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Move the cursor (clamped; scroll follows)"
+    },
+    {
+      "name": "top",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "First visible row"
+    },
+    {
+      "name": "handle",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      },
+      "document": "Consume UP/DOWN, k/j, ;/. cursor keys; true when consumed"
+    },
+    {
+      "name": "draw",
+      "arguments": [
+        {
+          "type": [
+            "Sprite"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "document": "Draw rows, selection, marks, and the scrollbar when needed"
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "WidgetList"
+        ]
+      },
+      "document": "Create an empty list (capacity 128 rows)"
+    }
+  ]
+}

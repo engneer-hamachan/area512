@@ -131,7 +131,7 @@ c_markdown_show(
   session->canvas.row_sprite =
     area512_sprite_new_with_font_size(
       area512_gfx_width(),
-      area512_sprite_font_height(EDIT_HEADING1_FONT_SIZE),
+      editor_canvas_font_row_height(EDIT_HEADING1_FONT_SIZE),
       EDIT_BODY_FONT_SIZE
     );
 
