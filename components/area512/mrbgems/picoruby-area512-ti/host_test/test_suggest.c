@@ -131,6 +131,52 @@ test_user_class_suggestion(void) {
   assert(strcmp(suggestion->detail, "bar(value)") == 0);
 }
 
+static void
+test_user_class_only_suggests_its_methods(void) {
+  TiSuggestionList suggestions = suggest_source("class Foo\n"
+                                                "  def foo_method = 1\n"
+                                                "end\n"
+                                                "class Bar\n"
+                                                "  def bar_method = 1\n"
+                                                "end\n"
+                                                "foo = Foo.new\n"
+                                                "foo.");
+
+  assert(find_suggestion(&suggestions, "foo_method"));
+  assert(!find_suggestion(&suggestions, "bar_method"));
+}
+
+static void
+test_same_method_name_in_different_classes(void) {
+  TiSuggestionList suggestions = suggest_source("class Foo\n"
+                                                "  def value(foo) = foo\n"
+                                                "end\n"
+                                                "class Bar\n"
+                                                "  def value(bar) = bar\n"
+                                                "end\n"
+                                                "bar = Bar.new\n"
+                                                "bar.val");
+  const TiSuggestion *suggestion = find_suggestion(&suggestions, "value");
+
+  assert(suggestion);
+  assert(strcmp(suggestion->detail, "value(bar)") == 0);
+}
+
+static void
+test_nested_class_methods_have_separate_owners(void) {
+  TiSuggestionList suggestions = suggest_source("class Outer\n"
+                                                "  def outer_method = 1\n"
+                                                "  class Inner\n"
+                                                "    def inner_method = 1\n"
+                                                "  end\n"
+                                                "end\n"
+                                                "outer = Outer.new\n"
+                                                "outer.");
+
+  assert(find_suggestion(&suggestions, "outer_method"));
+  assert(!find_suggestion(&suggestions, "inner_method"));
+}
+
 int
 main(void) {
   test_string_suggestion();
@@ -141,6 +187,9 @@ main(void) {
   test_union_skips_user_class();
   test_static_method_suggestion();
   test_user_class_suggestion();
+  test_user_class_only_suggests_its_methods();
+  test_same_method_name_in_different_classes();
+  test_nested_class_methods_have_separate_owners();
 
   return 0;
 }

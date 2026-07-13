@@ -22,14 +22,24 @@ ti_initialize_define_infos(void) {
 }
 
 TiDefineInfo *
-ti_set_define_info(uint16_t name_id, uint16_t define_row, int is_class) {
+ti_set_define_info(
+  uint16_t name_id,
+  uint16_t owner_class_name_id,
+  uint16_t define_row,
+  int is_class
+) {
   if (name_id == 0)
     return NULL;
 
   for (int index = 0; index < define_info_count; index++) {
     TiDefineInfo *define_info = &define_infos[index];
 
-    if (define_info->name_id == name_id && define_info->is_class == is_class) {
+    if (
+        define_info->name_id == name_id &&
+        define_info->owner_class_name_id == owner_class_name_id &&
+        define_info->is_class == is_class
+      ) {
+
       return define_info;
     }
   }
@@ -38,8 +48,11 @@ ti_set_define_info(uint16_t name_id, uint16_t define_row, int is_class) {
     return NULL;
 
   TiDefineInfo *define_info = &define_infos[define_info_count++];
+
   memset(define_info, 0, sizeof(*define_info));
+
   define_info->name_id = name_id;
+  define_info->owner_class_name_id = owner_class_name_id;
   define_info->define_row = define_row;
   define_info->is_class = is_class ? 1U : 0U;
 

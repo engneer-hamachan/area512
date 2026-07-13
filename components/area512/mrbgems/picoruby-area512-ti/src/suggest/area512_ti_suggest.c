@@ -205,7 +205,7 @@ append_define_info_suggestions(
 ) {
   int user_class_index = class_id - TI_CLASS_USER_BASE;
   int current_class_index = 0;
-  uint16_t class_define_row = 0;
+  uint16_t class_name_id = 0;
 
   for (int index = 0; index < ti_get_define_info_count(); index++) {
     TiDefineInfo *define_info = ti_get_define_info(index);
@@ -214,14 +214,14 @@ append_define_info_suggestions(
       continue;
 
     if (current_class_index == user_class_index) {
-      class_define_row = define_info->define_row;
+      class_name_id = define_info->name_id;
       break;
     }
 
     current_class_index++;
   }
 
-  if (class_define_row == 0)
+  if (class_name_id == 0)
     return;
 
   for (int index = 0;
@@ -230,7 +230,7 @@ append_define_info_suggestions(
     TiDefineInfo *define_info = ti_get_define_info(index);
 
     if (!define_info || define_info->is_class ||
-        define_info->define_row <= class_define_row) {
+        define_info->owner_class_name_id != class_name_id) {
       continue;
     }
 

@@ -12,7 +12,7 @@ MRuby::Gem::Specification.new('picoruby-area512-edit') do |spec|
   spec.add_dependency 'picoruby-io-console'
   spec.cc.include_paths << "#{spec.dir}/../../../area512_hal/include"
   spec.cc.include_paths << "#{MRUBY_ROOT}/mrbgems/mruby-compiler2/lib/prism/include"
-  spec.cc.include_paths << "#{spec.dir}/../picoruby-area512-ti/src/core"
+  spec.cc.include_paths << "#{spec.dir}/../picoruby-area512-ti/src/eval"
 
   # mruby's default source glob is non-recursive; pick up src/ subdirectories.
   spec.cc.include_paths << "#{spec.dir}/src"

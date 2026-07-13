@@ -3,8 +3,8 @@
 #include "port/area512_editor_canvas.h"
 
 #include "area512_hal.h"
-#include "io-console.h"
 #include <stdbool.h>
+#include "io-console.h"
 
 void
 compute_editor_grid(int *columns, int *rows) {

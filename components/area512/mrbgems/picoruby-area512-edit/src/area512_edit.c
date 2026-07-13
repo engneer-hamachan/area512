@@ -8,9 +8,9 @@
 #include "port/area512_editor_host.h"
 
 #include "area512_hal.h"
+#include <stdbool.h>
 #include "io-console.h"
 #include <mrubyc.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
