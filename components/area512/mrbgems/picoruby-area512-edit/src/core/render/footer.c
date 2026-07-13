@@ -3,7 +3,7 @@
 
 #define FOOTER_FOREGROUND 0xFFFFFF
 #define FOOTER_BACKGROUND 0x4E4E4E
-#define FOOTER_MESSAGE 0xCD0000
+#define FOOTER_MESSAGE 0xFFFFFF
 
 void
 show_message(Vim *vim, const char *text, int byte_length) {
