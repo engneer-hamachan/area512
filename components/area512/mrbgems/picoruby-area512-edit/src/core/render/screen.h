@@ -7,11 +7,6 @@
 
 #define VIM_GUTTER_WIDTH 4
 
-#define VIM_ROW_EDGE_TOP 1
-#define VIM_ROW_EDGE_BOTTOM 2
-#define VIM_ROW_EDGE_LEFT 4
-#define VIM_ROW_EDGE_RIGHT 8
-
 typedef struct {
   void *context;
   void (*clear_row)(void *context);
@@ -31,7 +26,6 @@ typedef struct {
     int column_count,
     uint32_t color
   );
-  void (*draw_row_frame)(void *context, uint32_t color, int edges);
   void (*set_font_size)(void *context, int font_size);
   void (*draw_cursor)(void *context, int column, int row_index, int visible);
 } VimCanvas;

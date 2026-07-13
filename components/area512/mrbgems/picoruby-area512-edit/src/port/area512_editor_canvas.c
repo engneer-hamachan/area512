@@ -103,39 +103,6 @@ fill_editor_canvas_row_span(
   );
 }
 
-void
-draw_editor_canvas_row_frame(void *context, uint32_t color, int edges) {
-  Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
-  int pixel_width = area512_gfx_width();
-  int pixel_height = canvas->row_height;
-
-  if (edges & VIM_ROW_EDGE_TOP)
-    area512_sprite_fill_rect(canvas->row_sprite, 0, 0, pixel_width, 2, color);
-
-  if (edges & VIM_ROW_EDGE_BOTTOM)
-    area512_sprite_fill_rect(
-      canvas->row_sprite,
-      0,
-      pixel_height - 2,
-      pixel_width,
-      2,
-      color
-    );
-
-  if (edges & VIM_ROW_EDGE_LEFT)
-    area512_sprite_fill_rect(canvas->row_sprite, 0, 0, 2, pixel_height, color);
-
-  if (edges & VIM_ROW_EDGE_RIGHT)
-    area512_sprite_fill_rect(
-      canvas->row_sprite,
-      pixel_width - 2,
-      0,
-      2,
-      pixel_height,
-      color
-    );
-}
-
 int
 editor_canvas_font_width(int font_size) {
   int width = (font_size + 1) / 2;

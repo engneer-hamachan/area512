@@ -7,12 +7,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#define COMPLETE_VISIBLE_ROWS 2
+#define COMPLETE_VISIBLE_ROWS 3
 #define COMPLETE_TEXT_START_COLUMN 1
 #define COMPLETE_WRAP_EXTRA_INDENT 1
 
 #define COMPLETE_PANEL_BACKGROUND 0x402808
-#define COMPLETE_FRAME_COLOR 0xFFD966
 #define COMPLETE_NAME_COLOR 0xFFD966
 #define COMPLETE_SIGNATURE_COLOR 0xCFA45F
 #define COMPLETE_ORIGIN_COLOR 0xF5972D
@@ -77,18 +76,6 @@ paint_complete_row_background(Vim *vim, int selected) {
     );
 }
 
-static void
-frame_complete_row_edges(Vim *vim, int extra_edges) {
-  VimCanvas *canvas = vim->active_canvas;
-
-  if (canvas->draw_row_frame)
-    canvas->draw_row_frame(
-      canvas->context,
-      COMPLETE_FRAME_COLOR,
-      VIM_ROW_EDGE_LEFT | VIM_ROW_EDGE_RIGHT | extra_edges
-    );
-}
-
 static int
 draw_complete_detail_part(
   Vim *vim,
@@ -141,8 +128,7 @@ draw_complete_suggestion(
   int screen_row,
   int rows_available,
   const TiSuggestion *suggestion,
-  int selected,
-  int is_last_visible
+  int selected
 ) {
   VimCanvas *canvas = vim->active_canvas;
   int width = vim->screen.width;
@@ -188,10 +174,6 @@ draw_complete_suggestion(
     );
   }
 
-  frame_complete_row_edges(
-    vim,
-    is_last_visible && rows_needed == 1 ? VIM_ROW_EDGE_BOTTOM : 0
-  );
   canvas->push_row(canvas->context, screen_row);
 
   if (rows_needed == 2) {
@@ -211,7 +193,6 @@ draw_complete_suggestion(
       name_byte_length,
       selected
     );
-    frame_complete_row_edges(vim, is_last_visible ? VIM_ROW_EDGE_BOTTOM : 0);
     canvas->push_row(canvas->context, screen_row + 1);
   }
 
@@ -222,7 +203,8 @@ static void
 show_complete_status(
   Vim *vim,
   const TiSuggestionList *suggestions,
-  int selected_index
+  int selected_index,
+  int document_scroll
 ) {
   char position[24];
   int position_length = snprintf(
@@ -238,8 +220,17 @@ show_complete_status(
   vim_string_append(&message, position, position_length);
 
   const char *document = suggestions->items[selected_index].document;
-  if (document)
-    vim_string_append_c_string(&message, document);
+  if (document) {
+    int document_length = (int)strlen(document);
+    int document_start =
+      vim_column_to_byte(document, document_length, document_scroll);
+
+    vim_string_append(
+      &message,
+      document + document_start,
+      document_length - document_start
+    );
+  }
 
   show_message(vim, message.bytes, message.byte_length);
   vim_string_free(&message);
@@ -264,28 +255,14 @@ count_complete_rows_between(
 }
 
 static void
-draw_complete_border_row(Vim *vim, int screen_row, int edge) {
-  VimCanvas *canvas = vim->active_canvas;
-
-  if (screen_row < 0)
-    return;
-
-  canvas->clear_row(canvas->context);
-
-  if (canvas->draw_row_frame)
-    canvas->draw_row_frame(canvas->context, COMPLETE_FRAME_COLOR, edge);
-
-  canvas->push_row(canvas->context, screen_row);
-}
-
-static void
 draw_complete_popup(
   Vim *vim,
   const TiSuggestionList *suggestions,
   int selected_index,
-  int *window_start
+  int *window_start,
+  int document_scroll
 ) {
-  int available_rows = vim->screen.height - vim->screen.footer_height - 1;
+  int available_rows = vim->screen.height - vim->screen.footer_height;
   int content_budget =
     minimum_complete_value(COMPLETE_VISIBLE_ROWS, available_rows);
 
@@ -324,12 +301,8 @@ draw_complete_popup(
       break;
   }
 
-  int first_content_row =
+  int screen_row =
     vim->screen.height - vim->screen.footer_height - used_rows;
-
-  draw_complete_border_row(vim, first_content_row - 1, VIM_ROW_EDGE_BOTTOM);
-
-  int screen_row = first_content_row;
 
   for (int offset = 0; offset < visible_count; offset++) {
     int suggestion_index = *window_start + offset;
@@ -339,14 +312,41 @@ draw_complete_popup(
       screen_row,
       suggestion_rows[offset],
       &suggestions->items[suggestion_index],
-      suggestion_index == selected_index,
-      offset == visible_count - 1
+      suggestion_index == selected_index
     );
 
     screen_row += suggestion_rows[offset];
   }
 
-  show_complete_status(vim, suggestions, selected_index);
+  show_complete_status(vim, suggestions, selected_index, document_scroll);
+}
+
+static int
+maximum_complete_document_scroll(
+  Vim *vim,
+  const TiSuggestionList *suggestions,
+  int selected_index
+) {
+  const char *document = suggestions->items[selected_index].document;
+  if (!document)
+    return 0;
+
+  int document_width = vim_display_width(document, (int)strlen(document));
+  char position[24];
+  int position_width = snprintf(
+    position,
+    sizeof(position),
+    "[%d/%d] ",
+    selected_index + 1,
+    suggestions->count
+  );
+  int visible_width = vim->screen.width - position_width;
+
+  if (visible_width < 1)
+    visible_width = 1;
+
+  int maximum = document_width - visible_width;
+  return maximum > 0 ? maximum : 0;
 }
 
 static int
@@ -408,7 +408,14 @@ show_complete_popup(
 
   int selected_index = 0;
   int window_start = 0;
-  draw_complete_popup(vim, suggestions, selected_index, &window_start);
+  int document_scroll = 0;
+  draw_complete_popup(
+    vim,
+    suggestions,
+    selected_index,
+    &window_start,
+    document_scroll
+  );
 
   for (;;) {
     int key = area512_console_getch_block();
@@ -418,7 +425,14 @@ show_complete_popup(
 
     if (key == 14) {
       selected_index = (selected_index + 1) % suggestions->count;
-      draw_complete_popup(vim, suggestions, selected_index, &window_start);
+      document_scroll = 0;
+      draw_complete_popup(
+        vim,
+        suggestions,
+        selected_index,
+        &window_start,
+        document_scroll
+      );
       continue;
     }
 
@@ -443,13 +457,61 @@ show_complete_popup(
           selected_index--;
           if (selected_index < 0)
             selected_index = suggestions->count - 1;
-          draw_complete_popup(vim, suggestions, selected_index, &window_start);
+          document_scroll = 0;
+          draw_complete_popup(
+            vim,
+            suggestions,
+            selected_index,
+            &window_start,
+            document_scroll
+          );
           continue;
         }
 
         if (sequence[1] == 'B') {
           selected_index = (selected_index + 1) % suggestions->count;
-          draw_complete_popup(vim, suggestions, selected_index, &window_start);
+          document_scroll = 0;
+          draw_complete_popup(
+            vim,
+            suggestions,
+            selected_index,
+            &window_start,
+            document_scroll
+          );
+          continue;
+        }
+
+        if (sequence[1] == 'C') {
+          int maximum = maximum_complete_document_scroll(
+            vim,
+            suggestions,
+            selected_index
+          );
+
+          if (document_scroll < maximum)
+            document_scroll++;
+
+          draw_complete_popup(
+            vim,
+            suggestions,
+            selected_index,
+            &window_start,
+            document_scroll
+          );
+          continue;
+        }
+
+        if (sequence[1] == 'D') {
+          if (document_scroll > 0)
+            document_scroll--;
+
+          draw_complete_popup(
+            vim,
+            suggestions,
+            selected_index,
+            &window_start,
+            document_scroll
+          );
           continue;
         }
       }

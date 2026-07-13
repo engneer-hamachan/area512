@@ -46,8 +46,6 @@ void fill_editor_canvas_row_span(
   uint32_t color
 );
 
-void draw_editor_canvas_row_frame(void *context, uint32_t color, int edges);
-
 int editor_canvas_font_width(int font_size);
 int editor_canvas_font_row_span(int font_size);
 int editor_canvas_font_row_height(int font_size);
