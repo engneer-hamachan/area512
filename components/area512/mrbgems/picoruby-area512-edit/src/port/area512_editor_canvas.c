@@ -75,10 +75,24 @@ draw_editor_canvas_row_text(
   );
 }
 
+static int
+compute_row_pixel_top(Area512EditorCanvas *canvas, int row_index) {
+  int last_row_index = area512_gfx_height() / canvas->row_height - 1;
+
+  if (row_index == last_row_index)
+    return area512_gfx_height() - canvas->row_height;
+
+  return row_index * canvas->row_height;
+}
+
 void
 push_editor_canvas_row(void *context, int row_index) {
   Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
-  area512_sprite_push(canvas->row_sprite, 0, row_index * canvas->row_height);
+  area512_sprite_push(
+    canvas->row_sprite,
+    0,
+    compute_row_pixel_top(canvas, row_index)
+  );
 }
 
 void
@@ -158,7 +172,7 @@ draw_editor_canvas_cursor(
   area512_sprite_push_transparent(
     canvas->cursor_sprite,
     column * canvas->char_width,
-    row_index * canvas->row_height,
+    compute_row_pixel_top(canvas, row_index),
     EDIT_CURSOR_KEY
   );
 }

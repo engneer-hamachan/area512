@@ -3,7 +3,6 @@
 
 #define FOOTER_FOREGROUND 0xFFFFFF
 #define FOOTER_BACKGROUND 0x4E4E4E
-#define FOOTER_MESSAGE 0xFFFFFF
 
 void
 show_message(Vim *vim, const char *text, int byte_length) {
@@ -27,101 +26,49 @@ draw_vim_footer(void *vim_context, VimCanvas *canvas) {
   int width = vim->screen.width;
   int footer_row = vim->screen.height - vim->screen.footer_height;
 
-  const char *name;
-  int name_byte_length;
-
-  if (vim->filepath.byte_length > 0) {
-    name = vim->filepath.bytes;
-    name_byte_length = vim->filepath.byte_length;
-  } else {
-    name = "[No Name]";
-    name_byte_length = 9;
-  }
-
-  canvas->clear_row(canvas->context);
-
-  canvas->draw_row_text(
-    canvas->context,
-    0,
-    " ",
-    1,
-    FOOTER_FOREGROUND,
-    FOOTER_BACKGROUND,
-    0
-  );
-
-  int max_name_byte_length = width - 1;
-
-  if (max_name_byte_length < 0)
-    max_name_byte_length = 0;
-
-  int shown_byte_length = max_name_byte_length;
-
-  if (name_byte_length < max_name_byte_length)
-    shown_byte_length = name_byte_length;
-
-  canvas->draw_row_text(
-    canvas->context,
-    1,
-    name,
-    shown_byte_length,
-    FOOTER_FOREGROUND,
-    FOOTER_BACKGROUND,
-    0
-  );
-
-  char padding[64];
-  int padding_byte_length = max_name_byte_length - shown_byte_length;
-
-  if (padding_byte_length > (int)sizeof(padding))
-    padding_byte_length = (int)sizeof(padding);
-
-  for (int i = 0; i < padding_byte_length; i++)
-    padding[i] = ' ';
-
-  if (padding_byte_length > 0)
-    canvas->draw_row_text(
-      canvas->context,
-      1 + shown_byte_length,
-      padding,
-      padding_byte_length,
-      FOOTER_FOREGROUND,
-      FOOTER_BACKGROUND,
-      0
-    );
-
-  canvas->push_row(canvas->context, footer_row);
-
-  canvas->clear_row(canvas->context);
+  const char *text;
+  int text_byte_length;
+  int column = 0;
 
   if (vim->status.has_message) {
-    canvas->draw_row_text(
-      canvas->context,
-      0,
-      vim->status.message.bytes,
-      vim->status.message.byte_length,
-      FOOTER_MESSAGE,
-      0,
-      0
-    );
-
-    vim->status.has_message = 0;
-
-    vim_string_clear(&vim->status.message);
-
+    text = vim->status.message.bytes;
+    text_byte_length = vim->status.message.byte_length;
+  } else if (vim->status.command.byte_length > 0) {
+    text = vim->status.command.bytes;
+    text_byte_length = vim->status.command.byte_length;
+  } else if (vim->filepath.byte_length > 0) {
+    text = vim->filepath.bytes;
+    text_byte_length = vim->filepath.byte_length;
+    column = 1;
   } else {
-    canvas->draw_row_text(
-      canvas->context,
-      0,
-      vim->status.command.bytes,
-      vim->status.command.byte_length,
-      0,
-      0,
-      0
-    );
+    text = "[No Name]";
+    text_byte_length = 9;
+    column = 1;
   }
 
-  canvas->push_row(canvas->context, footer_row + 1);
+  int max_byte_length = width - column;
+  if (max_byte_length < 0)
+    max_byte_length = 0;
+  if (text_byte_length > max_byte_length)
+    text_byte_length = max_byte_length;
+
+  canvas->clear_row(canvas->context);
+  canvas->fill_row_span(canvas->context, 0, width, FOOTER_BACKGROUND);
+  canvas->draw_row_text(
+    canvas->context,
+    column,
+    text,
+    text_byte_length,
+    FOOTER_FOREGROUND,
+    FOOTER_BACKGROUND,
+    0
+  );
+  canvas->push_row(canvas->context, footer_row);
+
+  if (vim->status.has_message) {
+    vim->status.has_message = 0;
+    vim_string_clear(&vim->status.message);
+  }
 
   if (vim->input.mode == VIM_MODE_COMMAND || vim->input.mode == VIM_MODE_SEARCH)
     canvas->draw_cursor(

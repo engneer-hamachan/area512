@@ -30,7 +30,7 @@ void
 vim_init(Vim *vim, int width, int height) {
   memset(vim, 0, sizeof(*vim));
   vim_screen_init(&vim->screen, width, height);
-  vim->screen.footer_height = 2;
+  vim->screen.footer_height = 1;
 
   vim->screen.syntax_highlight = 0;
   vim->screen.footer = draw_vim_footer;
