@@ -56,6 +56,33 @@ test_unknown_receiver(void) {
 }
 
 static void
+test_receiverless_suggestion(void) {
+  TiSuggestionList suggestions = suggest_source("pri");
+
+  assert(find_suggestion(&suggestions, "print"));
+  assert(!find_suggestion(&suggestions, "puts"));
+}
+
+static void
+test_receiverless_top_level_method_suggestion(void) {
+  TiSuggestionList suggestions = suggest_source("def hello(name) = name\nhe");
+  const TiSuggestion *suggestion = find_suggestion(&suggestions, "hello");
+
+  assert(suggestion);
+  assert(strcmp(suggestion->detail, "hello(name)") == 0);
+}
+
+static void
+test_receiverless_user_class_suggestion(void) {
+  TiSuggestionList suggestions = suggest_source("class User\n"
+                                                "  def hoge = 1\n"
+                                                "  def fuga\n"
+                                                "    ho");
+
+  assert(find_suggestion(&suggestions, "hoge"));
+}
+
+static void
 test_union_suggestion(void) {
   TiSuggestionList suggestions = suggest_source("v = 1\nv = \"s\"\nv.");
   const TiSuggestion *integer_suggestion = find_suggestion(&suggestions, "abs");
@@ -182,6 +209,9 @@ main(void) {
   test_string_suggestion();
   test_prefix_suggestion();
   test_unknown_receiver();
+  test_receiverless_suggestion();
+  test_receiverless_top_level_method_suggestion();
+  test_receiverless_user_class_suggestion();
   test_union_suggestion();
   test_union_prefix_suggestion();
   test_union_skips_user_class();

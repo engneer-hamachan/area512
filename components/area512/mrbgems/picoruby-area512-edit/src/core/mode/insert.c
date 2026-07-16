@@ -283,8 +283,12 @@ handle_insert(
       vim_buffer_put_string(BUFFER, character, character_byte_length);
       maybe_outdent_current_line(vim);
 
-      if (character_byte_length == 1 && character[0] == '.')
+      if (character_byte_length == 1 && character[0] == '.') {
+        if (vim->active_canvas)
+          vim_screen_refresh_if_needed(&vim->screen, vim->active_canvas);
+
         start_completion(vim);
+      }
     }
 
     break;

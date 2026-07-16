@@ -13,6 +13,12 @@ typedef struct {
   size_t target_length;
 } SuggestTargetSearch;
 
+typedef struct {
+  const uint8_t *cursor;
+  const pm_class_node_t *target;
+  size_t target_length;
+} EnclosingClassSearch;
+
 static int
 is_identifier_byte(uint8_t byte) {
   return (byte >= 'a' && byte <= 'z') || (byte >= 'A' && byte <= 'Z') ||
@@ -26,7 +32,8 @@ find_suggest_prefix(
   int cursor_byte_offset,
   size_t *dot_offset,
   const uint8_t **prefix,
-  size_t *prefix_length
+  size_t *prefix_length,
+  int *has_receiver
 ) {
   size_t cursor = (size_t)cursor_byte_offset;
   size_t start = cursor;
@@ -34,14 +41,33 @@ find_suggest_prefix(
   while (start > 0 && is_identifier_byte(context->source[start - 1]))
     start--;
 
-  if (start == 0 || context->source[start - 1] != '.')
-    return 0;
-
-  *dot_offset = start - 1;
+  *has_receiver = start > 0 && context->source[start - 1] == '.';
+  *dot_offset = *has_receiver ? start - 1 : start;
   *prefix = context->source + start;
   *prefix_length = cursor - start;
 
   return 1;
+}
+
+static bool
+find_enclosing_class_on_visit(const pm_node_t *node, void *data) {
+  EnclosingClassSearch *search = data;
+
+  if (PM_NODE_TYPE(node) != PM_CLASS_NODE)
+    return true;
+
+  if (node->location.start > search->cursor ||
+      node->location.end < search->cursor) {
+    return true;
+  }
+
+  size_t length = (size_t)(node->location.end - node->location.start);
+  if (!search->target || length < search->target_length) {
+    search->target = (const pm_class_node_t *)node;
+    search->target_length = length;
+  }
+
+  return true;
 }
 
 static bool
@@ -196,34 +222,13 @@ make_signature_content(
 }
 
 static void
-append_define_info_suggestions(
+append_define_info_suggestions_for_owner(
   TiContext *context,
-  uint8_t class_id,
+  uint16_t class_name_id,
   const uint8_t *prefix,
   size_t prefix_length,
   TiSuggestionList *out
 ) {
-  int user_class_index = class_id - TI_CLASS_USER_BASE;
-  int current_class_index = 0;
-  uint16_t class_name_id = 0;
-
-  for (int index = 0; index < ti_get_define_info_count(); index++) {
-    TiDefineInfo *define_info = ti_get_define_info(index);
-
-    if (!define_info || !define_info->is_class)
-      continue;
-
-    if (current_class_index == user_class_index) {
-      class_name_id = define_info->name_id;
-      break;
-    }
-
-    current_class_index++;
-  }
-
-  if (class_name_id == 0)
-    return;
-
   for (int index = 0;
        index < ti_get_define_info_count() && out->count < TI_MAX_SUGGESTIONS;
        index++) {
@@ -260,6 +265,38 @@ append_define_info_suggestions(
   }
 }
 
+static void
+append_define_info_suggestions(
+  TiContext *context,
+  uint8_t class_id,
+  const uint8_t *prefix,
+  size_t prefix_length,
+  TiSuggestionList *out
+) {
+  int user_class_index = class_id - TI_CLASS_USER_BASE;
+  int current_class_index = 0;
+
+  for (int index = 0; index < ti_get_define_info_count(); index++) {
+    TiDefineInfo *define_info = ti_get_define_info(index);
+
+    if (!define_info || !define_info->is_class)
+      continue;
+
+    if (current_class_index == user_class_index) {
+      append_define_info_suggestions_for_owner(
+        context,
+        define_info->name_id,
+        prefix,
+        prefix_length,
+        out
+      );
+      return;
+    }
+
+    current_class_index++;
+  }
+}
+
 int
 ti_collect_suggestions(
   TiContext *context,
@@ -270,15 +307,71 @@ ti_collect_suggestions(
   size_t dot_offset;
   const uint8_t *prefix;
   size_t prefix_length;
+  int has_receiver;
 
   if (!find_suggest_prefix(
         context,
         cursor_byte_offset,
         &dot_offset,
         &prefix,
-        &prefix_length
+        &prefix_length,
+        &has_receiver
       )) {
     return 0;
+  }
+
+  if (!has_receiver) {
+    append_define_info_suggestions_for_owner(
+      context,
+      0,
+      prefix,
+      prefix_length,
+      out
+    );
+
+    EnclosingClassSearch class_search = {
+      .cursor = context->source + cursor_byte_offset,
+      .target = NULL,
+      .target_length = 0,
+    };
+    pm_visit_node(root, find_enclosing_class_on_visit, &class_search);
+
+    if (class_search.target) {
+      uint16_t class_name_id;
+      if (ti_convert_constant_id(
+            class_search.target->name,
+            &class_name_id
+          )) {
+        uint8_t class_id = ti_get_defined_class_id(class_name_id);
+        if (class_id != TI_CLASS_NONE) {
+          append_define_info_suggestions(
+            context,
+            class_id,
+            prefix,
+            prefix_length,
+            out
+          );
+        }
+      }
+    }
+
+    append_builtin_suggestions(
+      TI_CLASS_OBJECT,
+      0,
+      0,
+      prefix,
+      prefix_length,
+      out
+    );
+    append_builtin_suggestions(
+      TI_CLASS_KERNEL,
+      0,
+      0,
+      prefix,
+      prefix_length,
+      out
+    );
+    return out->count;
   }
 
   SuggestTargetSearch search = {
