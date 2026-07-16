@@ -1,9 +1,11 @@
 #include "area512_ti_suggest.h"
 #include "area512_ti_arena.h"
 #include "area512_ti_builtin.h"
+#include "area512_ti_context.h"
 #include "area512_ti_define_info.h"
-#include "area512_ti_eval_expression.h"
+#include "area512_ti_eval.h"
 #include "area512_ti_t.h"
+#include "area512_ti_type.h"
 #include <stddef.h>
 #include <string.h>
 
@@ -58,6 +60,7 @@ find_enclosing_class_on_visit(const pm_node_t *node, void *data) {
 
   if (node->location.start > search->cursor ||
       node->location.end < search->cursor) {
+
     return true;
   }
 
@@ -78,6 +81,7 @@ find_suggest_target_on_visit(const pm_node_t *node, void *data) {
     return true;
 
   size_t length = (size_t)(node->location.end - node->location.start);
+
   if (!search->target || length < search->target_length) {
     search->target = node;
     search->target_length = length;
@@ -179,6 +183,20 @@ make_signature_content(
   const TiDefineInfo *define_info,
   const pm_constant_t *name
 ) {
+  char return_type[TI_TYPE_STRING_CAPACITY];
+  size_t return_type_length =
+    (size_t)ti_type_to_string(
+      context,
+      define_info->return_t_index,
+      return_type,
+      sizeof(return_type)
+    );
+
+  if (return_type_length == 0) {
+    memcpy(return_type, "untyped", sizeof("untyped"));
+    return_type_length = sizeof("untyped") - 1;
+  }
+
   size_t length = name->length + 2;
 
   for (int index = 0; index < define_info->define_arg_count; index++) {
@@ -190,6 +208,8 @@ make_signature_content(
     if (index > 0)
       length += 2;
   }
+
+  length += sizeof(" -> ") - 1 + return_type_length;
 
   char *detail = ti_allocate_from_arena(length + 1);
   if (!detail)
@@ -216,6 +236,10 @@ make_signature_content(
   }
 
   detail[offset++] = ')';
+  memcpy(detail + offset, " -> ", sizeof(" -> ") - 1);
+  offset += sizeof(" -> ") - 1;
+  memcpy(detail + offset, return_type, return_type_length);
+  offset += return_type_length;
   detail[offset] = '\0';
 
   return detail;
@@ -297,13 +321,14 @@ append_define_info_suggestions(
   }
 }
 
-int
-ti_collect_suggestions(
+static int
+collect_suggestions(
   TiContext *context,
   const pm_node_t *root,
   int cursor_byte_offset,
   TiSuggestionList *out
 ) {
+
   size_t dot_offset;
   const uint8_t *prefix;
   size_t prefix_length;
@@ -317,6 +342,7 @@ ti_collect_suggestions(
         &prefix_length,
         &has_receiver
       )) {
+
     return 0;
   }
 
@@ -334,15 +360,19 @@ ti_collect_suggestions(
       .target = NULL,
       .target_length = 0,
     };
+
     pm_visit_node(root, find_enclosing_class_on_visit, &class_search);
 
     if (class_search.target) {
       uint16_t class_name_id;
+
       if (ti_convert_constant_id(
             class_search.target->name,
             &class_name_id
           )) {
+
         uint8_t class_id = ti_get_defined_class_id(class_name_id);
+
         if (class_id != TI_CLASS_NONE) {
           append_define_info_suggestions(
             context,
@@ -363,6 +393,7 @@ ti_collect_suggestions(
       prefix_length,
       out
     );
+
     append_builtin_suggestions(
       TI_CLASS_KERNEL,
       0,
@@ -371,6 +402,7 @@ ti_collect_suggestions(
       prefix_length,
       out
     );
+
     return out->count;
   }
 
@@ -379,6 +411,7 @@ ti_collect_suggestions(
     .target = NULL,
     .target_length = 0,
   };
+
   pm_visit_node(root, find_suggest_target_on_visit, &search);
 
   if (!search.target)
@@ -415,6 +448,60 @@ ti_collect_suggestions(
     }
 
     target_t = ti_get_t(target_t->union_next);
+  }
+
+  return out->count;
+}
+
+int
+ti_fill_suggestions_at_cursor(
+  const char *source,
+  int source_byte_length,
+  int cursor_byte_offset,
+  TiSuggestionList *out
+) {
+
+  if (out)
+    memset(out, 0, sizeof(*out));
+
+  if (!source || source_byte_length < 0 || !out || cursor_byte_offset < 0 ||
+      cursor_byte_offset > source_byte_length) {
+
+    return 0;
+  }
+
+  pm_parser_t parser;
+
+  pm_parser_init(
+    &parser,
+    (const uint8_t *)source,
+    (size_t)source_byte_length,
+    NULL
+  );
+
+  pm_node_t *root = pm_parse(&parser);
+
+  if (!root) {
+    pm_parser_free(&parser);
+    return 0;
+  }
+
+  TiContext context = {
+    .parser = &parser,
+    .source = (const uint8_t *)source,
+    .source_length = (size_t)source_byte_length,
+  };
+
+  if (ti_evaluation_loop(&context, root) && !ti_did_arena_overflow()) {
+    collect_suggestions(&context, root, cursor_byte_offset, out);
+  }
+
+  pm_node_destroy(&parser, root);
+  pm_parser_free(&parser);
+
+  if (context.failed || ti_did_arena_overflow()) {
+    memset(out, 0, sizeof(*out));
+    return 0;
   }
 
   return out->count;

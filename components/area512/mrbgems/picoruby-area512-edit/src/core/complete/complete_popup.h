@@ -1,7 +1,7 @@
 #ifndef AREA512_EDIT_COMPLETE_POPUP_H
 #define AREA512_EDIT_COMPLETE_POPUP_H
 
-#include "area512_ti_eval.h"
+#include "area512_ti_suggest.h"
 #include "core/editor.h"
 
 int show_complete_popup(

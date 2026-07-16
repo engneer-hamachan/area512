@@ -1,12 +1,24 @@
 #ifndef AREA512_TI_SUGGEST_H
 #define AREA512_TI_SUGGEST_H
 
-#include "area512_ti_context.h"
-#include "area512_ti_eval.h"
+#define TI_MAX_SUGGESTIONS 64
 
-int ti_collect_suggestions(
-  TiContext *context,
-  const pm_node_t *root,
+typedef struct {
+  const char *contents;
+  int contents_length;
+  const char *detail;
+  const char *document;
+  const char *class_name;
+} TiSuggestion;
+
+typedef struct {
+  TiSuggestion items[TI_MAX_SUGGESTIONS];
+  int count;
+} TiSuggestionList;
+
+int ti_fill_suggestions_at_cursor(
+  const char *source,
+  int source_byte_length,
   int cursor_byte_offset,
   TiSuggestionList *out
 );

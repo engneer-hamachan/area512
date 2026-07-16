@@ -1,5 +1,5 @@
 #include "core/mode/normal.h"
-#include "area512_ti_eval.h"
+#include "area512_ti_hover.h"
 #include "core/mode/insert.h"
 #include "core/register/paste.h"
 #include "core/register/repeat.h"

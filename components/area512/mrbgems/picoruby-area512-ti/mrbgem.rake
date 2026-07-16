@@ -11,6 +11,7 @@ MRuby::Gem::Specification.new('picoruby-area512-ti') do |spec|
   spec.cc.include_paths << "#{spec.dir}/src/eval"
   spec.cc.include_paths << "#{spec.dir}/src/eval/method_evaluator"
   spec.cc.include_paths << "#{spec.dir}/src/generated"
+  spec.cc.include_paths << "#{spec.dir}/src/hover"
   spec.cc.include_paths << "#{spec.dir}/src/suggest"
   spec.cc.include_paths << "#{MRUBY_ROOT}/mrbgems/mruby-compiler2/lib/prism/include"
 

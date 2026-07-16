@@ -1,4 +1,4 @@
-#include "area512_ti_eval.h"
+#include "area512_ti_suggest.h"
 #include <assert.h>
 #include <string.h>
 
@@ -69,7 +69,7 @@ test_receiverless_top_level_method_suggestion(void) {
   const TiSuggestion *suggestion = find_suggestion(&suggestions, "hello");
 
   assert(suggestion);
-  assert(strcmp(suggestion->detail, "hello(name)") == 0);
+  assert(strcmp(suggestion->detail, "hello(name) -> untyped") == 0);
 }
 
 static void
@@ -155,7 +155,7 @@ test_user_class_suggestion(void) {
   const TiSuggestion *suggestion = find_suggestion(&suggestions, "bar");
 
   assert(suggestion);
-  assert(strcmp(suggestion->detail, "bar(value)") == 0);
+  assert(strcmp(suggestion->detail, "bar(value) -> untyped") == 0);
 }
 
 static void
@@ -186,7 +186,7 @@ test_same_method_name_in_different_classes(void) {
   const TiSuggestion *suggestion = find_suggestion(&suggestions, "value");
 
   assert(suggestion);
-  assert(strcmp(suggestion->detail, "value(bar)") == 0);
+  assert(strcmp(suggestion->detail, "value(bar) -> untyped") == 0);
 }
 
 static void

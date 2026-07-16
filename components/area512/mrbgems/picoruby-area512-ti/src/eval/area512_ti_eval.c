@@ -1,84 +1,183 @@
 #include "area512_ti_eval.h"
 #include "area512_ti_arena.h"
 #include "area512_ti_bind.h"
+#include "area512_ti_builtin.h"
 #include "area512_ti_class.h"
-#include "area512_ti_context.h"
 #include "area512_ti_def.h"
 #include "area512_ti_define_info.h"
-#include "area512_ti_suggest.h"
-#include "area512_ti_builtin.h"
+#include "area512_ti_eval_handlers.h"
+#include "area512_ti_ifunless.h"
+#include "area512_ti_method_evaluator.h"
+#include "area512_ti_return.h"
+#include "area512_ti_square_bracket.h"
 #include "area512_ti_t.h"
 #include "area512_ti_t_frame.h"
-#include <prism.h>
-#include <string.h>
 
-typedef struct {
-  const uint8_t *source;
-  int cursor_byte_offset;
-  pm_constant_id_t name;
-  pm_location_t location;
-} TiTypeSearch;
+static uint16_t
+new_builtin_t(uint8_t class_id) {
+  return ti_new_t(class_id, 0, 0, 0);
+}
 
-static bool
-find_type_target(const pm_node_t *node, void *data) {
-  TiTypeSearch *search = data;
-  pm_constant_id_t name = 0;
-  pm_location_t location = node->location;
+static uint16_t
+eval_statements(
+  TiContext *context,
+  const pm_statements_node_t *statements,
+  int depth
+) {
+  if (statements->body.size == 0)
+    return new_builtin_t(TI_CLASS_NIL);
+
+  uint16_t last_t_index = new_builtin_t(TI_CLASS_NIL);
+
+  for (size_t index = 0; index < statements->body.size; index++)
+    last_t_index =
+      ti_eval_expression(
+        context,
+        statements->body.nodes[index],
+        depth + 1
+      );
+
+  return last_t_index;
+}
+
+uint16_t
+ti_eval_expression(TiContext *context, const pm_node_t *node, int depth) {
+
+  if (!node || depth > TI_EVAL_DEPTH_LIMIT || context->failed)
+    return 0;
 
   switch (PM_NODE_TYPE(node)) {
-  case PM_LOCAL_VARIABLE_READ_NODE:
-    name = ((const pm_local_variable_read_node_t *)node)->name;
-    break;
-  case PM_INSTANCE_VARIABLE_READ_NODE:
-    name = ((const pm_instance_variable_read_node_t *)node)->name;
-    break;
-  case PM_GLOBAL_VARIABLE_READ_NODE:
-    name = ((const pm_global_variable_read_node_t *)node)->name;
-    break;
-  case PM_CONSTANT_READ_NODE:
-    name = ((const pm_constant_read_node_t *)node)->name;
-    break;
+  case PM_INTEGER_NODE:
+    return new_builtin_t(TI_CLASS_INTEGER);
+
+  case PM_FLOAT_NODE:
+    return new_builtin_t(TI_CLASS_FLOAT);
+
+  case PM_STRING_NODE:
+  case PM_INTERPOLATED_STRING_NODE:
+    return new_builtin_t(TI_CLASS_STRING);
+
+  case PM_SYMBOL_NODE:
+  case PM_INTERPOLATED_SYMBOL_NODE:
+    return new_builtin_t(TI_CLASS_SYMBOL);
+
+  case PM_TRUE_NODE:
+    return new_builtin_t(TI_CLASS_TRUE);
+
+  case PM_FALSE_NODE:
+    return new_builtin_t(TI_CLASS_FALSE);
+
+  case PM_NIL_NODE:
+    return new_builtin_t(TI_CLASS_NIL);
+
+  case PM_ARRAY_NODE:
+    return ti_make_array(context, (const pm_array_node_t *)node, depth);
+
   case PM_LOCAL_VARIABLE_WRITE_NODE: {
     const pm_local_variable_write_node_t *write =
       (const pm_local_variable_write_node_t *)node;
-    name = write->name;
-    location = write->name_loc;
-    break;
+    return ti_bind_scalar_assignment(
+      context,
+      write->name,
+      write->value,
+      depth
+    );
   }
+
   case PM_INSTANCE_VARIABLE_WRITE_NODE: {
     const pm_instance_variable_write_node_t *write =
       (const pm_instance_variable_write_node_t *)node;
-    name = write->name;
-    location = write->name_loc;
-    break;
+    return ti_bind_scalar_assignment(
+      context,
+      write->name,
+      write->value,
+      depth
+    );
   }
+
   case PM_GLOBAL_VARIABLE_WRITE_NODE: {
     const pm_global_variable_write_node_t *write =
       (const pm_global_variable_write_node_t *)node;
-    name = write->name;
-    location = write->name_loc;
-    break;
+    return ti_bind_scalar_assignment(
+      context,
+      write->name,
+      write->value,
+      depth
+    );
   }
+
   case PM_CONSTANT_WRITE_NODE: {
     const pm_constant_write_node_t *write =
       (const pm_constant_write_node_t *)node;
-    name = write->name;
-    location = write->name_loc;
-    break;
+    return ti_bind_scalar_assignment(
+      context,
+      write->name,
+      write->value,
+      depth
+    );
   }
+
+  case PM_HASH_NODE:
+  case PM_KEYWORD_HASH_NODE:
+    return new_builtin_t(TI_CLASS_HASH);
+
+  case PM_RANGE_NODE:
+    return new_builtin_t(TI_CLASS_RANGE);
+
+  case PM_LAMBDA_NODE:
+  case PM_BLOCK_NODE:
+    return new_builtin_t(TI_CLASS_PROC);
+
+  case PM_LOCAL_VARIABLE_READ_NODE:
+    return ti_handle_identifier(
+      ((const pm_local_variable_read_node_t *)node)->name
+    );
+
+  case PM_INSTANCE_VARIABLE_READ_NODE:
+    return ti_handle_identifier(
+      ((const pm_instance_variable_read_node_t *)node)->name
+    );
+
+  case PM_GLOBAL_VARIABLE_READ_NODE:
+    return ti_handle_identifier(
+      ((const pm_global_variable_read_node_t *)node)->name
+    );
+
+  case PM_CONSTANT_READ_NODE:
+    return ti_handle_const_evaluation(
+      context,
+      (const pm_constant_read_node_t *)node
+    );
+
+  case PM_CALL_NODE:
+    return ti_eval_method(context, (const pm_call_node_t *)node, depth);
+
+  case PM_PARENTHESES_NODE:
+    return ti_eval_expression(
+      context,
+      ((const pm_parentheses_node_t *)node)->body,
+      depth + 1
+    );
+
+  case PM_STATEMENTS_NODE:
+    return eval_statements(context, (const pm_statements_node_t *)node, depth);
+
+  case PM_IF_NODE:
+    return ti_eval_ifunless(context, (const pm_if_node_t *)node, depth);
+
+  case PM_ELSE_NODE:
+    return ti_eval_expression(
+      context,
+      (const pm_node_t *)((const pm_else_node_t *)node)->statements,
+      depth + 1
+    );
+
+  case PM_RETURN_NODE:
+    return ti_eval_return(context, (const pm_return_node_t *)node, depth);
+
   default:
-    return true;
+    return 0;
   }
-
-  int start = (int)(location.start - search->source);
-  int end = (int)(location.end - search->source);
-
-  if (search->cursor_byte_offset < start || search->cursor_byte_offset >= end)
-    return true;
-
-  search->name = name;
-  search->location = location;
-  return false;
 }
 
 static bool
@@ -156,258 +255,22 @@ eval(const pm_node_t *node, void *data) {
   return !context->failed;
 }
 
-static int
-initialize_evaluator(void) {
+int
+ti_evaluation_loop(TiContext *context, const pm_node_t *root) {
   ti_reset_arena();
 
-  return ti_initialize_t() && ti_initialize_t_frame() &&
-         ti_initialize_define_infos();
-}
-
-int
-ti_fill_suggestions_at_cursor(
-  const char *source,
-  int source_byte_length,
-  int cursor_byte_offset,
-  TiSuggestionList *out
-) {
-  if (out)
-    memset(out, 0, sizeof(*out));
-
-  if (!source || source_byte_length < 0 || !out || cursor_byte_offset < 0 ||
-      cursor_byte_offset > source_byte_length) {
+  if (!ti_initialize_t() || !ti_initialize_t_frame() ||
+      !ti_initialize_define_infos()) {
     return 0;
   }
 
-  if (!initialize_evaluator())
-    return 0;
+  context->round = 1;
+  pm_visit_node(root, eval, context);
 
-  pm_parser_t parser;
-  pm_parser_init(
-    &parser,
-    (const uint8_t *)source,
-    (size_t)source_byte_length,
-    NULL
-  );
-  pm_node_t *root = pm_parse(&parser);
-
-  if (!root) {
-    pm_parser_free(&parser);
-    return 0;
+  if (!context->failed) {
+    context->round = 2;
+    pm_visit_node(root, eval, context);
   }
 
-  TiContext context = {
-    .parser = &parser,
-    .source = (const uint8_t *)source,
-    .source_length = (size_t)source_byte_length,
-    .round = 1,
-    .failed = 0,
-  };
-
-  pm_visit_node(root, eval, &context);
-  context.round = 2;
-
-  if (!context.failed)
-    pm_visit_node(root, eval, &context);
-
-  if (!context.failed && !ti_did_arena_overflow()) {
-    ti_collect_suggestions(&context, root, cursor_byte_offset, out);
-  }
-
-  pm_node_destroy(&parser, root);
-  pm_parser_free(&parser);
-
-  if (context.failed || ti_did_arena_overflow()) {
-    memset(out, 0, sizeof(*out));
-    return 0;
-  }
-
-  return out->count;
-}
-
-static void
-append_text(char *buffer, size_t capacity, size_t *length, const char *text) {
-  if (!text)
-    return;
-
-  while (*text && *length + 1 < capacity)
-    buffer[(*length)++] = *text++;
-
-  if (capacity > 0)
-    buffer[*length] = '\0';
-}
-
-static void
-append_class_name(
-  const TiContext *context,
-  uint8_t class_id,
-  char *buffer,
-  size_t capacity,
-  size_t *length
-) {
-  const char *builtin_name = ti_get_builtin_class_name(class_id);
-  if (builtin_name) {
-    append_text(buffer, capacity, length, builtin_name);
-    return;
-  }
-
-  int user_class_index = (int)class_id - TI_CLASS_USER_BASE;
-  int current_user_class_index = 0;
-
-  for (int index = 0; index < ti_get_define_info_count(); index++) {
-    TiDefineInfo *define_info = ti_get_define_info(index);
-    if (!define_info || !define_info->is_class)
-      continue;
-
-    if (current_user_class_index++ != user_class_index)
-      continue;
-
-    const pm_constant_t *constant =
-      ti_get_constant(context, define_info->name_id);
-    if (!constant)
-      break;
-
-    for (size_t offset = 0;
-         offset < constant->length && *length + 1 < capacity;
-         offset++) {
-      buffer[(*length)++] = (char)constant->start[offset];
-    }
-    buffer[*length] = '\0';
-    return;
-  }
-
-  append_text(buffer, capacity, length, "untyped");
-}
-
-static void
-format_single_t(
-  const TiContext *context,
-  const T *t,
-  char *buffer,
-  size_t capacity,
-  size_t *length
-) {
-  append_class_name(
-    context,
-    t->object_class_id,
-    buffer,
-    capacity,
-    length
-  );
-
-  if (t->object_class_id == TI_CLASS_ARRAY && t->variant1 != 0) {
-    append_text(buffer, capacity, length, "<");
-    const T *variant = ti_get_t(t->variant1);
-    if (variant)
-      format_single_t(context, variant, buffer, capacity, length);
-    append_text(buffer, capacity, length, ">");
-  }
-}
-
-static int
-format_t(
-  const TiContext *context,
-  uint16_t t_index,
-  char *buffer,
-  size_t capacity
-) {
-  if (!buffer || capacity == 0)
-    return 0;
-
-  buffer[0] = '\0';
-  const T *first = ti_get_t(t_index);
-  if (!first)
-    return 0;
-
-  size_t length = 0;
-  int is_union = first->union_next != 0;
-  if (is_union)
-    append_text(buffer, capacity, &length, "Union<");
-
-  const T *current = first;
-  while (current) {
-    if (current != first)
-      append_text(buffer, capacity, &length, " ");
-
-    format_single_t(context, current, buffer, capacity, &length);
-    current = ti_get_t(current->union_next);
-  }
-
-  if (is_union)
-    append_text(buffer, capacity, &length, ">");
-
-  return (int)length;
-}
-
-int
-ti_find_type_at_cursor(
-  const char *source,
-  int source_byte_length,
-  int cursor_byte_offset,
-  TiTypeInfo *out
-) {
-  if (out)
-    memset(out, 0, sizeof(*out));
-
-  if (!source || source_byte_length < 0 || !out || cursor_byte_offset < 0 ||
-      cursor_byte_offset > source_byte_length || !initialize_evaluator()) {
-    return 0;
-  }
-
-  pm_parser_t parser;
-  pm_parser_init(
-    &parser,
-    (const uint8_t *)source,
-    (size_t)source_byte_length,
-    NULL
-  );
-  pm_node_t *root = pm_parse(&parser);
-  if (!root) {
-    pm_parser_free(&parser);
-    return 0;
-  }
-
-  TiContext context = {
-    .parser = &parser,
-    .source = (const uint8_t *)source,
-    .source_length = (size_t)source_byte_length,
-    .round = 1,
-  };
-
-  pm_visit_node(root, eval, &context);
-  context.round = 2;
-  if (!context.failed)
-    pm_visit_node(root, eval, &context);
-
-  TiTypeSearch search = {
-    .source = (const uint8_t *)source,
-    .cursor_byte_offset = cursor_byte_offset,
-  };
-  if (!context.failed && !ti_did_arena_overflow())
-    pm_visit_node(root, find_type_target, &search);
-
-  uint16_t name_id;
-  if (search.name != 0 && ti_convert_constant_id(search.name, &name_id)) {
-    const pm_constant_t *constant = ti_get_constant(&context, search.name);
-    uint16_t t_index = ti_get_value_t(name_id);
-
-    if (constant && t_index != 0 &&
-        format_t(
-          &context,
-          t_index,
-          out->type_name,
-          sizeof(out->type_name)
-        ) > 0) {
-      size_t name_length = constant->length;
-      if (name_length >= sizeof(out->variable_name))
-        name_length = sizeof(out->variable_name) - 1;
-      memcpy(out->variable_name, constant->start, name_length);
-      out->variable_name[name_length] = '\0';
-      out->found = 1;
-    }
-  }
-
-  pm_node_destroy(&parser, root);
-  pm_parser_free(&parser);
-  return out->found;
+  return !context->failed;
 }

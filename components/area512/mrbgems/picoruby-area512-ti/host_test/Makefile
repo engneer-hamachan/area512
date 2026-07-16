@@ -1,7 +1,7 @@
 PROJECT_ROOT := ../../../../..
 PRISM_ROOT := $(PROJECT_ROOT)/R2P2-ESP32/components/picoruby-esp32/picoruby/mrbgems/mruby-compiler2/lib/prism
 SOURCE_ROOT := ../src
-SOURCE_DIRS := base builtin context eval eval/method_evaluator suggest
+SOURCE_DIRS := base builtin context eval eval/method_evaluator hover suggest
 ENGINE_SOURCES := \
   $(foreach source_dir,$(SOURCE_DIRS),$(wildcard $(SOURCE_ROOT)/$(source_dir)/*.c))
 GENERATED_SOURCE := $(SOURCE_ROOT)/generated/area512_ti_builtin_db.c

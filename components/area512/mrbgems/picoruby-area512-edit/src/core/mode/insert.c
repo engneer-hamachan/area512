@@ -1,5 +1,5 @@
 #include "core/mode/insert.h"
-#include "area512_ti_eval.h"
+#include "area512_ti_suggest.h"
 #include "core/complete/complete_popup.h"
 #include "core/syntax/picoruby/highlight.h"
 #include "core/syntax/picoruby/indent.h"
@@ -158,12 +158,14 @@ start_completion(Vim *vim) {
 
     TiSuggestionList suggestions;
     int cursor_offset = calculate_completion_cursor_offset(vim);
-    int suggestion_count = ti_fill_suggestions_at_cursor(
-      content.bytes,
-      content.byte_length,
-      cursor_offset,
-      &suggestions
-    );
+
+    int suggestion_count =
+      ti_fill_suggestions_at_cursor(
+        content.bytes,
+        content.byte_length,
+        cursor_offset,
+        &suggestions
+      );
 
     if (suggestion_count <= 0) {
       vim_string_free(&content);

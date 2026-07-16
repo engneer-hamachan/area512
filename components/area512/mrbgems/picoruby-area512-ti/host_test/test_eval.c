@@ -1,4 +1,5 @@
-#include "area512_ti_eval.h"
+#include "area512_ti_hover.h"
+#include "area512_ti_suggest.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

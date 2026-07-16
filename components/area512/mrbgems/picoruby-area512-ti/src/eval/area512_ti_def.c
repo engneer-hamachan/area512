@@ -1,6 +1,6 @@
 #include "area512_ti_def.h"
 #include "area512_ti_define_info.h"
-#include "area512_ti_eval_expression.h"
+#include "area512_ti_eval.h"
 #include "area512_ti_t.h"
 #include "area512_ti_t_frame.h"
 #include <stdint.h>
@@ -50,12 +50,14 @@ ti_eval_def(TiContext *context, const pm_def_node_t *def_node) {
 
   uint16_t define_row =
     ti_calculate_row(context, def_node->base.location.start);
-  TiDefineInfo *define_info = ti_set_define_info(
-    name_id,
-    context->current_class_name_id,
-    define_row,
-    0
-  );
+
+  TiDefineInfo *define_info =
+    ti_set_define_info(
+      name_id,
+      context->current_class_name_id,
+      define_row,
+      0
+    );
 
   if (!define_info)
     return;
@@ -66,6 +68,7 @@ ti_eval_def(TiContext *context, const pm_def_node_t *def_node) {
   context->return_t_index = 0;
 
   uint16_t body_t_index = ti_eval_expression(context, def_node->body, 0);
+
   uint16_t return_t_index =
     ti_make_union(context->return_t_index, body_t_index);
 
@@ -75,6 +78,7 @@ ti_eval_def(TiContext *context, const pm_def_node_t *def_node) {
     return;
 
   define_info->return_t_index = return_t_index;
+
   if (!ti_set_value_t(name_id, return_t_index))
     context->failed = 1;
 }
