@@ -1,9 +1,11 @@
 #include "core/mode/normal.h"
+#include "area512_ti_eval.h"
 #include "core/mode/insert.h"
 #include "core/register/paste.h"
 #include "core/register/repeat.h"
 #include "core/register/search.h"
 #include "core/render/footer.h"
+#include "core/syntax/picoruby/highlight.h"
 #include <stddef.h>
 #include <string.h>
 
@@ -25,6 +27,48 @@ move_cursor_lines(Vim *vim, int count) {
   else
     for (int i = 0; i < -count; i++)
       vim_buffer_put_key(BUFFER, VIM_PUT_UP);
+}
+
+static int
+calculate_cursor_offset(Vim *vim) {
+  int offset = BUFFER->cursor_byte_offset;
+
+  for (int index = 0; index < BUFFER->cursor_line_index; index++)
+    offset += BUFFER->lines[index].byte_length + 1;
+
+  return offset;
+}
+
+static void
+show_type_at_cursor(Vim *vim) {
+  if (!editor_is_ruby_filename(vim->filepath.bytes, vim->filepath.byte_length))
+    return;
+
+  VimString content;
+  vim_string_init(&content);
+  vim_write_content(vim, &content);
+
+  TiTypeInfo type_info;
+  int found = ti_find_type_at_cursor(
+    content.bytes,
+    content.byte_length,
+    calculate_cursor_offset(vim),
+    &type_info
+  );
+
+  if (found) {
+    VimString message;
+    vim_string_init(&message);
+    vim_string_append_c_string(&message, type_info.variable_name);
+    vim_string_append_c_string(&message, ": ");
+    vim_string_append_c_string(&message, type_info.type_name);
+    show_message(vim, message.bytes, message.byte_length);
+    vim_string_free(&message);
+  } else {
+    show_message_c_string(vim, "Type information is unavailable");
+  }
+
+  vim_string_free(&content);
 }
 
 static VimStatus
@@ -362,6 +406,11 @@ handle_normal(
       REDRAW(VIM_REDRAW_ALL);
     }
 
+    break;
+
+  case 75: // 'K'
+    show_type_at_cursor(vim);
+    REDRAW(VIM_REDRAW_FOOTER);
     break;
 
   case 78: // 'N'

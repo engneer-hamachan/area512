@@ -68,6 +68,82 @@ test_definition_return(void) {
 }
 
 static void
+test_definition_binding_return(void) {
+  TiSuggestionList suggestions = suggest_source(
+    "def message\n"
+    "  value = \"x\"\n"
+    "  value\n"
+    "end\n"
+    "message().sp"
+  );
+  assert(has_suggestion(&suggestions, "split"));
+}
+
+static void
+test_if_return(void) {
+  TiSuggestionList suggestions = suggest_source(
+    "def mixed\n"
+    "  if condition\n"
+    "    1\n"
+    "  else\n"
+    "    \"x\"\n"
+    "  end\n"
+    "end\n"
+    "mixed()."
+  );
+  assert(has_suggestion(&suggestions, "abs"));
+  assert(has_suggestion(&suggestions, "bytes"));
+}
+
+static void
+test_explicit_return(void) {
+  TiSuggestionList suggestions = suggest_source(
+    "def mixed\n"
+    "  return 1\n"
+    "  \"x\"\n"
+    "end\n"
+    "mixed()."
+  );
+  assert(has_suggestion(&suggestions, "abs"));
+  assert(has_suggestion(&suggestions, "bytes"));
+}
+
+static void
+test_type_at_cursor(void) {
+  const char *source = "value = 1\nvalue\n";
+  const char *target = strrchr(source, 'v');
+  assert(target);
+
+  TiTypeInfo type_info;
+  int found = ti_find_type_at_cursor(
+    source,
+    (int)strlen(source),
+    (int)(target - source),
+    &type_info
+  );
+
+  assert(found);
+  assert(strcmp(type_info.variable_name, "value") == 0);
+  assert(strcmp(type_info.type_name, "Integer") == 0);
+}
+
+static void
+test_union_type_at_cursor(void) {
+  const char *source = "value = 1\nvalue = \"x\"\nvalue\n";
+  const char *target = strrchr(source, 'v');
+  assert(target);
+
+  TiTypeInfo type_info;
+  assert(ti_find_type_at_cursor(
+    source,
+    (int)strlen(source),
+    (int)(target - source),
+    &type_info
+  ));
+  assert(strcmp(type_info.type_name, "Union<Integer String>") == 0);
+}
+
+static void
 test_forward_definition(void) {
   TiSuggestionList suggestions =
     suggest_source("x = my_method()\ndef my_method() = \"x\"\nx.sp");
@@ -130,6 +206,11 @@ main(void) {
   test_method_chain();
   test_instance_variable();
   test_definition_return();
+  test_definition_binding_return();
+  test_if_return();
+  test_explicit_return();
+  test_type_at_cursor();
+  test_union_type_at_cursor();
   test_forward_definition();
   test_union_binding();
   test_unknown_return();

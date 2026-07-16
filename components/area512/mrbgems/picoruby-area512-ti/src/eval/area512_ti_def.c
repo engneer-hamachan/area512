@@ -1,6 +1,7 @@
 #include "area512_ti_def.h"
 #include "area512_ti_define_info.h"
 #include "area512_ti_eval_expression.h"
+#include "area512_ti_t.h"
 #include "area512_ti_t_frame.h"
 #include <stdint.h>
 
@@ -61,7 +62,14 @@ ti_eval_def(TiContext *context, const pm_def_node_t *def_node) {
 
   set_define_args(context, define_info, def_node->parameters);
 
-  uint16_t return_t_index = ti_eval_expression(context, def_node->body, 0);
+  uint16_t outer_return_t_index = context->return_t_index;
+  context->return_t_index = 0;
+
+  uint16_t body_t_index = ti_eval_expression(context, def_node->body, 0);
+  uint16_t return_t_index =
+    ti_make_union(context->return_t_index, body_t_index);
+
+  context->return_t_index = outer_return_t_index;
 
   if (return_t_index == 0)
     return;
