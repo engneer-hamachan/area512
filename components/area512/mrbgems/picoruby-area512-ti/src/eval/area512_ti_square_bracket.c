@@ -26,8 +26,8 @@ ti_make_array(TiContext *context, const pm_array_node_t *array, int depth) {
   }
 
   if (has_unknown_element || element_t_index == 0) {
-    element_t_index = ti_new_t(TI_CLASS_UNTYPED, 0, 0, 0);
+    element_t_index = ti_new_t(TI_CLASS_UNTYPED, 0, 0);
   }
 
-  return ti_new_t(TI_CLASS_ARRAY, 0, element_t_index, 0);
+  return ti_new_t(TI_CLASS_ARRAY, 0, element_t_index);
 }

@@ -16,8 +16,10 @@ make_method_return(const TiBuiltinMethod *method) {
   uint16_t return_variant_t_index = 0;
 
   for (int index = 0; index < return_variant_class_count; index++) {
-    uint16_t member = ti_new_t(return_variant_class_ids[index], 0, 0, 0);
-    return_variant_t_index = ti_make_union(return_variant_t_index, member);
+    uint16_t union_next_t_index =
+      ti_new_t(return_variant_class_ids[index], 0, 0);
+    return_variant_t_index =
+      ti_make_union(return_variant_t_index, union_next_t_index);
 
     if (return_variant_t_index == 0)
       return 0;
@@ -28,8 +30,9 @@ make_method_return(const TiBuiltinMethod *method) {
   for (int index = 0; index < return_class_count; index++) {
     uint16_t parameter =
       return_class_ids[index] == TI_CLASS_ARRAY ? return_variant_t_index : 0;
-    uint16_t member = ti_new_t(return_class_ids[index], 0, parameter, 0);
-    result = ti_make_union(result, member);
+    uint16_t union_next_t_index =
+      ti_new_t(return_class_ids[index], 0, parameter);
+    result = ti_make_union(result, union_next_t_index);
 
     if (result == 0)
       return 0;
@@ -60,21 +63,20 @@ ti_eval_method(TiContext *context, const pm_call_node_t *call, int depth) {
     return 0;
 
   if (name->length == 3 && memcmp(name->start, "new", 3) == 0 &&
-      (receiver_t->flags & TI_T_FLAG_STATIC) != 0) {
+      (receiver_t->t_flags & TI_T_FLAG_STATIC) != 0) {
     return ti_new_t(
       receiver_t->object_class_id,
-      receiver_t->flags & TI_T_FLAG_DEFINED_CLASS,
-      receiver_t->variant1,
-      receiver_t->variant2
+      receiver_t->t_flags & TI_T_FLAG_DEFINED_CLASS,
+      receiver_t->variants
     );
   }
 
-  if ((receiver_t->flags & TI_T_FLAG_DEFINED_CLASS) != 0)
+  if ((receiver_t->t_flags & TI_T_FLAG_DEFINED_CLASS) != 0)
     return ti_get_value_t(name_id);
 
   const TiBuiltinMethod *method;
 
-  if ((receiver_t->flags & TI_T_FLAG_STATIC) != 0) {
+  if ((receiver_t->t_flags & TI_T_FLAG_STATIC) != 0) {
     method = ti_get_builtin_static_method(
       receiver_t->object_class_id,
       name->start,

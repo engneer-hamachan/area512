@@ -9,7 +9,7 @@ ti_eval_return(
   const pm_return_node_t *return_node,
   int depth
 ) {
-  uint16_t return_t_index = ti_new_t(TI_CLASS_NIL, 0, 0, 0);
+  uint16_t return_t_index = ti_new_t(TI_CLASS_NIL, 0, 0);
 
   if (return_node->arguments && return_node->arguments->arguments.size > 0) {
     return_t_index = 0;

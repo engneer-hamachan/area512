@@ -15,7 +15,7 @@
 
 static uint16_t
 new_builtin_t(uint8_t class_id) {
-  return ti_new_t(class_id, 0, 0, 0);
+  return ti_new_t(class_id, 0, 0);
 }
 
 static uint16_t

@@ -19,36 +19,37 @@ ti_initialize_t(void) {
 }
 
 static int
-matches_type(
+is_equal_t_with_next(
   const T *node,
   uint8_t object_class_id,
-  uint8_t flags,
-  uint16_t variant1,
-  uint16_t variant2,
+  uint8_t t_flags,
+  uint16_t variants,
   uint16_t union_next
 ) {
-  return node->object_class_id == object_class_id && node->flags == flags &&
-         node->variant1 == variant1 && node->variant2 == variant2 &&
-         node->union_next == union_next;
+
+  return node->object_class_id == object_class_id && node->t_flags == t_flags &&
+         node->variants == variants && node->union_next == union_next;
 }
 
 static uint16_t
 new_t_with_next(
   uint8_t object_class_id,
-  uint8_t flags,
-  uint16_t variant1,
-  uint16_t variant2,
+  uint8_t t_flags,
+  uint16_t variants,
   uint16_t union_next
 ) {
+
   for (uint16_t index = 1; index < t_count; index++) {
-    if (matches_type(
+    if (
+        is_equal_t_with_next(
           &t_nodes[index],
           object_class_id,
-          flags,
-          variant1,
-          variant2,
+          t_flags,
+          variants,
           union_next
-        )) {
+        )
+    ) {
+
       return index;
     }
   }
@@ -57,10 +58,10 @@ new_t_with_next(
     return 0;
 
   uint16_t index = t_count++;
+
   t_nodes[index].object_class_id = object_class_id;
-  t_nodes[index].flags = flags;
-  t_nodes[index].variant1 = variant1;
-  t_nodes[index].variant2 = variant2;
+  t_nodes[index].t_flags = t_flags;
+  t_nodes[index].variants = variants;
   t_nodes[index].union_next = union_next;
 
   return index;
@@ -69,33 +70,29 @@ new_t_with_next(
 uint16_t
 ti_new_t(
   uint8_t object_class_id,
-  uint8_t flags,
-  uint16_t variant1,
-  uint16_t variant2
+  uint8_t t_flags,
+  uint16_t variants
 ) {
+
   if (object_class_id == 0)
     return 0;
 
-  return new_t_with_next(object_class_id, flags, variant1, variant2, 0);
+  return new_t_with_next(object_class_id, t_flags, variants, 0);
 }
 
 static int
-compare_types(const T *first, const T *second) {
-  if (first->object_class_id != second->object_class_id)
-    return (int)first->object_class_id - (int)second->object_class_id;
-  if (first->flags != second->flags)
-    return (int)first->flags - (int)second->flags;
-  if (first->variant1 != second->variant1)
-    return (int)first->variant1 - (int)second->variant1;
-  return (int)first->variant2 - (int)second->variant2;
+is_equal_t(const T *first, const T *second) {
+  return first->object_class_id == second->object_class_id &&
+         first->t_flags == second->t_flags &&
+         first->variants == second->variants;
 }
 
 static int
-contains_variant(uint16_t t_index, const T *member) {
+contains_union_next(uint16_t t_index, const T *union_next_t) {
   while (t_index != 0) {
     const T *current = &t_nodes[t_index];
 
-    if (compare_types(current, member) == 0)
+    if (is_equal_t(current, union_next_t))
       return 1;
 
     t_index = current->union_next;
@@ -105,30 +102,45 @@ contains_variant(uint16_t t_index, const T *member) {
 }
 
 static uint16_t
-append_variant(uint16_t t_index, const T *member) {
-  if (t_index == 0) {
-    return new_t_with_next(
-      member->object_class_id,
-      member->flags,
-      member->variant1,
-      member->variant2,
-      0
-    );
+append_union_next(uint16_t t_index, const T *union_next_t) {
+  uint16_t indexes[TI_T_CAPACITY];
+  uint16_t count = 0;
+
+  while (t_index != 0) {
+    if (count >= TI_T_CAPACITY)
+      return 0;
+
+    indexes[count++] = t_index;
+    t_index = t_nodes[t_index].union_next;
   }
 
-  const T *current = &t_nodes[t_index];
-  uint16_t next = append_variant(current->union_next, member);
+  uint16_t union_next_index =
+    new_t_with_next(
+      union_next_t->object_class_id,
+      union_next_t->t_flags,
+      union_next_t->variants,
+      0
+    );
 
-  if (next == 0)
+  if (union_next_index == 0)
     return 0;
 
-  return new_t_with_next(
-    current->object_class_id,
-    current->flags,
-    current->variant1,
-    current->variant2,
-    next
-  );
+  while (count > 0) {
+    const T *current = &t_nodes[indexes[--count]];
+
+    union_next_index =
+      new_t_with_next(
+        current->object_class_id,
+        current->t_flags,
+        current->variants,
+        union_next_index
+      );
+
+    if (union_next_index == 0)
+      return 0;
+  }
+
+  return union_next_index;
 }
 
 uint16_t
@@ -139,18 +151,18 @@ ti_make_union(uint16_t first_t_index, uint16_t second_t_index) {
     return first_t_index;
 
   uint16_t result = first_t_index;
-  uint16_t member_index = second_t_index;
+  uint16_t union_next_index = second_t_index;
 
-  while (member_index != 0) {
-    T member = t_nodes[member_index];
+  while (union_next_index != 0) {
+    T union_next_t = t_nodes[union_next_index];
 
-    if (!contains_variant(result, &member)) {
-      result = append_variant(result, &member);
+    if (!contains_union_next(result, &union_next_t)) {
+      result = append_union_next(result, &union_next_t);
       if (result == 0)
         return 0;
     }
 
-    member_index = member.union_next;
+    union_next_index = union_next_t.union_next;
   }
 
   return result;

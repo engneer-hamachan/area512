@@ -426,8 +426,8 @@ collect_suggestions(
   int show_class_name = target_t->union_next != 0;
 
   while (target_t) {
-    if ((target_t->flags & TI_T_FLAG_DEFINED_CLASS) != 0) {
-      if (!show_class_name && (target_t->flags & TI_T_FLAG_STATIC) == 0) {
+    if ((target_t->t_flags & TI_T_FLAG_DEFINED_CLASS) != 0) {
+      if (!show_class_name && (target_t->t_flags & TI_T_FLAG_STATIC) == 0) {
         append_define_info_suggestions(
           context,
           target_t->object_class_id,
@@ -439,7 +439,7 @@ collect_suggestions(
     } else if (target_t->object_class_id != TI_CLASS_UNTYPED) {
       append_builtin_suggestions(
         target_t->object_class_id,
-        (target_t->flags & TI_T_FLAG_STATIC) != 0,
+        (target_t->t_flags & TI_T_FLAG_STATIC) != 0,
         show_class_name,
         prefix,
         prefix_length,

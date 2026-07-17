@@ -22,7 +22,7 @@ ti_eval_class(TiContext *context, const pm_class_node_t *class_node) {
   if (!define_info)
     return;
 
-  uint16_t class_t_index = ti_new_t(TI_CLASS_CLASS, TI_T_FLAG_STATIC, 0, 0);
+  uint16_t class_t_index = ti_new_t(TI_CLASS_CLASS, TI_T_FLAG_STATIC, 0);
 
   if (class_t_index == 0 || !ti_set_value_t(name_id, class_t_index))
     context->failed = 1;

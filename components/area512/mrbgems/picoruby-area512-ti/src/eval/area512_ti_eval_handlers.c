@@ -26,7 +26,7 @@ ti_handle_const_evaluation(
       ti_get_builtin_class_id(constant->start, constant->length);
 
     if (class_id != TI_CLASS_NONE) {
-      return ti_new_t(class_id, TI_T_FLAG_STATIC, 0, 0);
+      return ti_new_t(class_id, TI_T_FLAG_STATIC, 0);
     }
   }
 
@@ -39,7 +39,6 @@ ti_handle_const_evaluation(
     return ti_new_t(
       user_class_id,
       TI_T_FLAG_DEFINED_CLASS | TI_T_FLAG_STATIC,
-      0,
       0
     );
   }

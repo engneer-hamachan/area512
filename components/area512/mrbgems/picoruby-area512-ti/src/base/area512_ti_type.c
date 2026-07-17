@@ -77,7 +77,7 @@ array_type_to_string(
   object_class_to_string(context, t->object_class_id, buffer, capacity, length);
   write_text(buffer, capacity, length, "<");
 
-  const T *variant = ti_get_t(t->variant1);
+  const T *variant = ti_get_t(t->variants);
   if (variant)
     type_to_string(context, variant, buffer, capacity, length);
 
@@ -92,7 +92,7 @@ type_to_string(
   size_t capacity,
   size_t *length
 ) {
-  if (t->object_class_id == TI_CLASS_ARRAY && t->variant1 != 0) {
+  if (t->object_class_id == TI_CLASS_ARRAY && t->variants != 0) {
     array_type_to_string(context, t, buffer, capacity, length);
     return;
   }
