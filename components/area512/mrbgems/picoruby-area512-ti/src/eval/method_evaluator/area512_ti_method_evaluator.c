@@ -8,31 +8,32 @@
 static uint16_t
 make_method_return(const TiBuiltinMethod *method) {
   uint8_t return_class_ids[4];
-  uint8_t return_variant_class_ids[4];
+  uint8_t return_array_variant_class_ids[4];
   int return_class_count =
     ti_get_builtin_return_classes(method, return_class_ids);
-  int return_variant_class_count =
-    ti_get_builtin_return_variant_classes(method, return_variant_class_ids);
-  uint16_t return_variant_t_node_index = 0;
+  int return_array_variant_class_count =
+    ti_get_builtin_return_array_variant_classes(method, return_array_variant_class_ids);
+  uint16_t return_array_variant_t_node_index = 0;
 
-  for (int index = 0; index < return_variant_class_count; index++) {
+  for (int index = 0; index < return_array_variant_class_count; index++) {
     uint16_t union_next_t_node_index =
-      ti_new_t(return_variant_class_ids[index], 0, 0);
-    return_variant_t_node_index =
-      ti_make_union(return_variant_t_node_index, union_next_t_node_index);
+      ti_new_t(return_array_variant_class_ids[index], 0, 0);
+    return_array_variant_t_node_index =
+      ti_make_union(return_array_variant_t_node_index, union_next_t_node_index);
 
-    if (return_variant_t_node_index == 0)
+    if (return_array_variant_t_node_index == 0)
       return 0;
   }
 
   uint16_t result = 0;
 
   for (int index = 0; index < return_class_count; index++) {
-    uint16_t parameter = return_class_ids[index] == TI_CLASS_ARRAY
-                           ? return_variant_t_node_index
-                           : 0;
+    uint16_t array_variant_t_node_index =
+      return_class_ids[index] == TI_CLASS_ARRAY
+        ? return_array_variant_t_node_index
+        : 0;
     uint16_t union_next_t_node_index =
-      ti_new_t(return_class_ids[index], 0, parameter);
+      ti_new_t(return_class_ids[index], 0, array_variant_t_node_index);
     result = ti_make_union(result, union_next_t_node_index);
 
     if (result == 0)

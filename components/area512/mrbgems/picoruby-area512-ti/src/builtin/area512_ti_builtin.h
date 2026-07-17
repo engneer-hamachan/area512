@@ -16,11 +16,11 @@ const TiBuiltinMethod *ti_get_builtin_static_method(
   const uint8_t *name,
   size_t length
 );
-int ti_collect_builtin_methods_with_prefix(
+int ti_collect_builtin_methods_matching_partial_method_name(
   uint8_t class_id,
   int use_static_methods,
-  const uint8_t *prefix,
-  size_t prefix_length,
+  const uint8_t *partial_method_name,
+  size_t partial_method_name_length,
   const TiBuiltinMethod **out,
   int out_capacity
 );
@@ -32,7 +32,7 @@ int ti_get_builtin_return_classes(
   const TiBuiltinMethod *method,
   uint8_t out_class_ids[4]
 );
-int ti_get_builtin_return_variant_classes(
+int ti_get_builtin_return_array_variant_classes(
   const TiBuiltinMethod *method,
   uint8_t out_class_ids[4]
 );

@@ -106,8 +106,8 @@ func TestResolveTypes(t *testing.T) {
 	}
 
 	array := generator.resolveTypes([]string{"[String]"}, "Array")
-	if len(array.paramIDs) != 1 ||
-		array.paramIDs[0] != generator.classIDs["String"] {
+	if len(array.arrayVariantClassIDs) != 1 ||
+		array.arrayVariantClassIDs[0] != generator.classIDs["String"] {
 		t.Fatalf("unexpected array resolution: %#v", array)
 	}
 }

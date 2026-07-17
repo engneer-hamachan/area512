@@ -125,9 +125,9 @@ type classConfig struct {
 }
 
 type typeResult struct {
-	classIDs []uint8
-	paramIDs []uint8
-	display  string
+	classIDs             []uint8
+	arrayVariantClassIDs []uint8
+	display              string
 }
 
 type flatMethod struct {
@@ -136,15 +136,15 @@ type flatMethod struct {
 }
 
 type generatedMethod struct {
-	nameOffset         uint16
-	signatureOffset    uint16
-	documentOffset     uint16
-	returnClassID      uint8
-	returnParamClassID uint8
-	returnUnionIndex   uint8
-	paramUnionIndex    uint8
-	blockParamClassID  uint8
-	originClassID      uint8
+	nameOffset                uint16
+	signatureOffset           uint16
+	documentOffset            uint16
+	returnClassID             uint8
+	returnArrayVariantClassID uint8
+	returnUnionIndex          uint8
+	arrayVariantUnionIndex    uint8
+	blockParamClassID         uint8
+	originClassID             uint8
 }
 
 type generatedClass struct {
@@ -472,10 +472,10 @@ func (generator *generator) generateMethods(
 				err,
 			)
 		}
-		paramUnionIndex, err := generator.unions.add(returnType.paramIDs)
+		arrayVariantUnionIndex, err := generator.unions.add(returnType.arrayVariantClassIDs)
 		if err != nil {
 			return nil, fmt.Errorf(
-				"%s#%s parameter type: %w",
+				"%s#%s array variant type: %w",
 				ownerClass,
 				flat.method.Name,
 				err,
@@ -497,9 +497,9 @@ func (generator *generator) generateMethods(
 		if len(returnType.classIDs) > 0 {
 			returnClassID = returnType.classIDs[0]
 		}
-		returnParamClassID := uint8(0)
-		if len(returnType.paramIDs) > 0 {
-			returnParamClassID = returnType.paramIDs[0]
+		returnArrayVariantClassID := uint8(0)
+		if len(returnType.arrayVariantClassIDs) > 0 {
+			returnArrayVariantClassID = returnType.arrayVariantClassIDs[0]
 		}
 
 		originClassID, found := generator.classIDs[flat.origin]
@@ -508,15 +508,15 @@ func (generator *generator) generateMethods(
 		}
 
 		result = append(result, generatedMethod{
-			nameOffset:         generator.namePool.add(flat.method.Name),
-			signatureOffset:    generator.signaturePool.add(generator.signature(flat.method, ownerClass)),
-			documentOffset:     generator.documentPool.add(flat.method.Document),
-			returnClassID:      returnClassID,
-			returnParamClassID: returnParamClassID,
-			returnUnionIndex:   returnUnionIndex,
-			paramUnionIndex:    paramUnionIndex,
-			blockParamClassID:  blockParameterClassID,
-			originClassID:      originClassID,
+			nameOffset:                generator.namePool.add(flat.method.Name),
+			signatureOffset:           generator.signaturePool.add(generator.signature(flat.method, ownerClass)),
+			documentOffset:            generator.documentPool.add(flat.method.Document),
+			returnClassID:             returnClassID,
+			returnArrayVariantClassID: returnArrayVariantClassID,
+			returnUnionIndex:          returnUnionIndex,
+			arrayVariantUnionIndex:    arrayVariantUnionIndex,
+			blockParamClassID:         blockParameterClassID,
+			originClassID:             originClassID,
 		})
 	}
 
@@ -593,24 +593,24 @@ func (generator *generator) resolveTypes(values []string, ownerClass string) typ
 	}
 
 	classIDs := make([]uint8, 0)
-	paramIDs := make([]uint8, 0)
+	arrayVariantClassIDs := make([]uint8, 0)
 	displays := make([]string, 0)
 
 	for _, value := range values {
 		resolved := generator.resolveType(value, ownerClass)
 		classIDs = append(classIDs, resolved.classIDs...)
-		paramIDs = append(paramIDs, resolved.paramIDs...)
+		arrayVariantClassIDs = append(arrayVariantClassIDs, resolved.arrayVariantClassIDs...)
 		displays = append(displays, resolved.display)
 	}
 
 	classIDs = uniqueSortedClassIDs(classIDs)
-	paramIDs = uniqueSortedClassIDs(paramIDs)
+	arrayVariantClassIDs = uniqueSortedClassIDs(arrayVariantClassIDs)
 	displays = uniqueStrings(displays)
 
 	return typeResult{
-		classIDs: classIDs,
-		paramIDs: paramIDs,
-		display:  strings.Join(displays, "|"),
+		classIDs:             classIDs,
+		arrayVariantClassIDs: arrayVariantClassIDs,
+		display:              strings.Join(displays, "|"),
 	}
 }
 
@@ -625,9 +625,9 @@ func (generator *generator) resolveType(value string, ownerClass string) typeRes
 		element := strings.TrimSpace(value[1 : len(value)-1])
 		elementType := generator.resolveType(element, ownerClass)
 		return typeResult{
-			classIDs: []uint8{generator.classIDs["Array"]},
-			paramIDs: elementType.classIDs,
-			display:  "[" + elementType.display + "]",
+			classIDs:             []uint8{generator.classIDs["Array"]},
+			arrayVariantClassIDs: elementType.classIDs,
+			display:              "[" + elementType.display + "]",
 		}
 	}
 
@@ -665,19 +665,19 @@ func (generator *generator) resolveType(value string, ownerClass string) typeRes
 
 	if alias, found := aliases[value]; found {
 		if strings.HasSuffix(value, "Array") && value != "DefaultArray" {
-			parameterName := "Untyped"
+			arrayVariantClassName := "Untyped"
 			switch value {
 			case "IntArray":
-				parameterName = "Integer"
+				arrayVariantClassName = "Integer"
 			case "StringArray":
-				parameterName = "String"
+				arrayVariantClassName = "String"
 			case "SelfArray":
-				parameterName = ownerClass
+				arrayVariantClassName = ownerClass
 			}
 			return typeResult{
-				classIDs: []uint8{generator.classIDs["Array"]},
-				paramIDs: []uint8{generator.classIDs[parameterName]},
-				display:  "[" + parameterName + "]",
+				classIDs:             []uint8{generator.classIDs["Array"]},
+				arrayVariantClassIDs: []uint8{generator.classIDs[arrayVariantClassName]},
+				display:              "[" + arrayVariantClassName + "]",
 			}
 		}
 		value = alias
@@ -778,9 +778,9 @@ typedef struct {
   uint16_t signature_offset;
   uint16_t document_offset;
   uint8_t return_class_id;
-  uint8_t return_variant_class_id;
+  uint8_t return_array_variant_class_id;
   uint8_t return_union_index;
-  uint8_t variant_union_index;
+  uint8_t array_variant_union_index;
   uint8_t block_parameter_class_id;
   uint8_t origin_class_id;
 } TiBuiltinMethod;
@@ -848,9 +848,9 @@ func (generator *generator) generateSource(
 			methodEntry.signatureOffset,
 			methodEntry.documentOffset,
 			methodEntry.returnClassID,
-			methodEntry.returnParamClassID,
+			methodEntry.returnArrayVariantClassID,
 			methodEntry.returnUnionIndex,
-			methodEntry.paramUnionIndex,
+			methodEntry.arrayVariantUnionIndex,
 			methodEntry.blockParamClassID,
 			methodEntry.originClassID,
 		)

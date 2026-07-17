@@ -25,7 +25,7 @@ ti_get_builtin_class_id(
     const TiBuiltinClass *builtin_class = &ti_builtin_classes[class_id];
 
     const char *builtin_class_name =
-      ti_builtin_name_pool + builtin_class->name_offset;
+      &ti_builtin_name_pool[builtin_class->name_offset];
 
     if (
         builtin_name_matches(
@@ -73,47 +73,22 @@ find_builtin_method_in_range(
   const uint8_t *method_name,
   size_t method_name_length
 ) {
-
-  uint16_t lower_bound_index = 0;
-  uint16_t upper_bound_index = method_count;
-
-  while (lower_bound_index < upper_bound_index) {
-    uint16_t middle_index =
-      lower_bound_index +
-      (uint16_t)((upper_bound_index - lower_bound_index) / 2U);
-
+  for (uint16_t index = 0; index < method_count; index++) {
     const TiBuiltinMethod *builtin_method =
-      &ti_builtin_methods[method_start_index + middle_index];
+      &ti_builtin_methods[method_start_index + index];
 
     if (
-        strncmp(
+        builtin_name_matches(
           ti_get_builtin_method_name(builtin_method),
-          (const char *)method_name,
+          method_name,
           method_name_length
-        ) < 0
+        )
     ) {
-      lower_bound_index = middle_index + 1U;
-    } else {
-      upper_bound_index = middle_index;
+      return builtin_method;
     }
   }
 
-  if (lower_bound_index >= method_count)
-    return NULL;
-
-  const TiBuiltinMethod *builtin_method =
-    &ti_builtin_methods[method_start_index + lower_bound_index];
-  if (
-      !builtin_name_matches(
-        ti_get_builtin_method_name(builtin_method),
-        method_name,
-        method_name_length
-      )
-  ) {
-    return NULL;
-  }
-
-  return builtin_method;
+  return NULL;
 }
 
 const TiBuiltinMethod *
@@ -167,21 +142,26 @@ ti_get_builtin_static_method(
 }
 
 static int
-has_builtin_name_prefix(
-  const char *builtin_name,
-  const uint8_t *prefix,
-  size_t prefix_length
+matches_partial_method_name(
+  const char *builtin_method_name,
+  const uint8_t *partial_method_name,
+  size_t partial_method_name_length
 ) {
-  return strlen(builtin_name) >= prefix_length &&
-         memcmp(builtin_name, prefix, prefix_length) == 0;
+
+  return strlen(builtin_method_name) >= partial_method_name_length &&
+         memcmp(
+           builtin_method_name,
+           partial_method_name,
+           partial_method_name_length
+         ) == 0;
 }
 
 int
-ti_collect_builtin_methods_with_prefix(
+ti_collect_builtin_methods_matching_partial_method_name(
   uint8_t class_id,
   int use_class_methods,
-  const uint8_t *prefix,
-  size_t prefix_length,
+  const uint8_t *partial_method_name,
+  size_t partial_method_name_length,
   const TiBuiltinMethod **output_methods,
   int output_capacity
 ) {
@@ -199,46 +179,24 @@ ti_collect_builtin_methods_with_prefix(
     &method_count
   );
 
-  uint16_t first_matching_index = 0;
-  if (prefix_length > 0) {
-    uint16_t upper_bound_index = method_count;
-
-    while (first_matching_index < upper_bound_index) {
-      uint16_t middle_index =
-        first_matching_index +
-        (uint16_t)((upper_bound_index - first_matching_index) / 2U);
-      const TiBuiltinMethod *builtin_method =
-        &ti_builtin_methods[method_start_index + middle_index];
-      if (
-          strncmp(
-            ti_get_builtin_method_name(builtin_method),
-            (const char *)prefix,
-            prefix_length
-          ) < 0
-      ) {
-        first_matching_index = middle_index + 1U;
-      } else {
-        upper_bound_index = middle_index;
-      }
-    }
-  }
-
   int collected_method_count = 0;
 
-  for (uint16_t index = first_matching_index; index < method_count; index++) {
+  for (uint16_t index = 0; index < method_count; index++) {
     const TiBuiltinMethod *builtin_method =
       &ti_builtin_methods[method_start_index + index];
 
-    if (prefix_length > 0 &&
-        !has_builtin_name_prefix(
+    if (partial_method_name_length > 0 &&
+        !matches_partial_method_name(
           ti_get_builtin_method_name(builtin_method),
-          prefix,
-          prefix_length
+          partial_method_name,
+          partial_method_name_length
         )) {
-      break;
+
+      continue;
     }
 
     output_methods[collected_method_count++] = builtin_method;
+
     if (collected_method_count >= output_capacity)
       break;
   }
@@ -248,17 +206,17 @@ ti_collect_builtin_methods_with_prefix(
 
 const char *
 ti_get_builtin_method_name(const TiBuiltinMethod *builtin_method) {
-  return ti_builtin_name_pool + builtin_method->name_offset;
+  return &ti_builtin_name_pool[builtin_method->name_offset];
 }
 
 const char *
 ti_get_builtin_signature(const TiBuiltinMethod *builtin_method) {
-  return ti_builtin_signature_pool + builtin_method->signature_offset;
+  return &ti_builtin_signature_pool[builtin_method->signature_offset];
 }
 
 const char *
 ti_get_builtin_document(const TiBuiltinMethod *builtin_method) {
-  return ti_builtin_document_pool + builtin_method->document_offset;
+  return &ti_builtin_document_pool[builtin_method->document_offset];
 }
 
 const char *
@@ -266,14 +224,15 @@ ti_get_builtin_class_name(uint8_t class_id) {
   if (class_id == TI_CLASS_NONE || class_id >= ti_builtin_class_count)
     return NULL;
 
-  return ti_builtin_name_pool + ti_builtin_classes[class_id].name_offset;
+  return &ti_builtin_name_pool[ti_builtin_classes[class_id].name_offset];
 }
 
 static int
-copy_builtin_union_class_ids(
+collect_builtin_union_class_ids(
   uint8_t builtin_union_index,
   uint8_t output_class_ids[4]
 ) {
+
   if (
       builtin_union_index == 0 ||
       builtin_union_index >= ti_builtin_union_count
@@ -282,6 +241,7 @@ copy_builtin_union_class_ids(
   }
 
   int member_class_count = 0;
+
   const TiBuiltinUnion *builtin_union =
     &ti_builtin_unions[builtin_union_index];
 
@@ -289,8 +249,10 @@ copy_builtin_union_class_ids(
       member_class_count < 4 &&
       builtin_union->member_class_ids[member_class_count] != 0
   ) {
+
     output_class_ids[member_class_count] =
       builtin_union->member_class_ids[member_class_count];
+
     member_class_count++;
   }
 
@@ -302,13 +264,16 @@ ti_get_builtin_return_classes(
   const TiBuiltinMethod *builtin_method,
   uint8_t output_class_ids[4]
 ) {
+
   if (!builtin_method || !output_class_ids)
     return 0;
 
-  int return_class_count = copy_builtin_union_class_ids(
-    builtin_method->return_union_index,
-    output_class_ids
-  );
+  int return_class_count =
+    collect_builtin_union_class_ids(
+      builtin_method->return_union_index,
+      output_class_ids
+    );
+
   if (return_class_count > 0)
     return return_class_count;
 
@@ -316,27 +281,32 @@ ti_get_builtin_return_classes(
     return 0;
 
   output_class_ids[0] = builtin_method->return_class_id;
+
   return 1;
 }
 
 int
-ti_get_builtin_return_variant_classes(
+ti_get_builtin_return_array_variant_classes(
   const TiBuiltinMethod *builtin_method,
   uint8_t output_class_ids[4]
 ) {
+
   if (!builtin_method || !output_class_ids)
     return 0;
 
-  int return_parameter_class_count = copy_builtin_union_class_ids(
-    builtin_method->variant_union_index,
-    output_class_ids
-  );
-  if (return_parameter_class_count > 0)
-    return return_parameter_class_count;
+  int return_array_variant_class_count =
+    collect_builtin_union_class_ids(
+      builtin_method->array_variant_union_index,
+      output_class_ids
+    );
 
-  if (builtin_method->return_variant_class_id == TI_CLASS_NONE)
+  if (return_array_variant_class_count > 0)
+    return return_array_variant_class_count;
+
+  if (builtin_method->return_array_variant_class_id == TI_CLASS_NONE)
     return 0;
 
-  output_class_ids[0] = builtin_method->return_variant_class_id;
+  output_class_ids[0] = builtin_method->return_array_variant_class_id;
+
   return 1;
 }

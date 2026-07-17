@@ -45,9 +45,9 @@ typedef struct {
   uint16_t signature_offset;
   uint16_t document_offset;
   uint8_t return_class_id;
-  uint8_t return_variant_class_id;
+  uint8_t return_array_variant_class_id;
   uint8_t return_union_index;
-  uint8_t variant_union_index;
+  uint8_t array_variant_union_index;
   uint8_t block_parameter_class_id;
   uint8_t origin_class_id;
 } TiBuiltinMethod;

@@ -132,7 +132,7 @@ append_builtin_suggestions(
   if (out->count >= TI_MAX_SUGGESTIONS)
     return;
 
-  int method_count = ti_collect_builtin_methods_with_prefix(
+  int method_count = ti_collect_builtin_methods_matching_partial_method_name(
     class_id,
     use_static_methods,
     prefix,

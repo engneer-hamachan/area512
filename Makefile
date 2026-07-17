@@ -3,6 +3,8 @@ PICORB     := $(ROOT)/R2P2-ESP32/components/picoruby-esp32/picoruby
 PICORB_ESP := $(ROOT)/components/area512
 PICORBC    := $(PICORB)/bin/picorbc
 HOME_DIR   := $(ROOT)/storage/home
+TI_CONFIG  := $(ROOT)/template/app/.ti-config
+TI_GENERATED := $(ROOT)/components/area512/mrbgems/picoruby-area512-ti/src/generated
 
 FIRMWARE   := $(ROOT)/firmware
 
@@ -18,7 +20,7 @@ FMT_FILES := $(shell find $(ROOT)/main $(ROOT)/components \
 	-not -path '*/M5Unified/*' \
 	-not -path '*/managed_components/*')
 
-.PHONY: build flash monitor clean fullclean compile-home-mrb flash-firmware save-firmware format format-check help
+.PHONY: build flash monitor clean fullclean compile-home-mrb flash-firmware save-firmware gendb format format-check help
 
 help:
 	@echo "Targets:"
@@ -30,6 +32,7 @@ help:
 	@echo "                    (storage/ is the seed copied to the SD card's Area512_data/ on first boot)"
 	@echo "  make flash-firmware   - flash committed firmware/ binaries (no rebuild)"
 	@echo "  make save-firmware    - copy build/ artifacts into firmware/ (refresh snapshot)"
+	@echo "  make gendb            - regenerate the built-in TI database"
 	@echo "  make fullclean  - nuke everything: build/, picoruby/build/ (esp32-*, host, repos),"
 	@echo "                    generated mrb/*.c. Use after editing build_config/*.rb."
 	@echo "  make format     - clang-format -i over our own C/C++ (skips vendored trees)"
@@ -64,6 +67,9 @@ clean:
 compile-home-mrb:
 	test -x $(PICORBC)
 	find $(HOME_DIR) -type f -name '*.rb' -exec $(PICORBC) {} \;
+
+gendb:
+	go run ./tools/tidbgen/main.go -config $(TI_CONFIG) -out $(TI_GENERATED)
 
 fullclean:
 	rm -rf $(ROOT)/build

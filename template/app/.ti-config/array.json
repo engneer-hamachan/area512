@@ -35,7 +35,7 @@
       ],
       "return_type": {
         "type": [
-          "Self"
+          "Untyped"
         ]
       },
       "document": "Get element at specified position"

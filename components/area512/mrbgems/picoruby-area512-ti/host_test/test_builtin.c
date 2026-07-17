@@ -36,14 +36,14 @@ test_flattened_methods(void) {
 }
 
 static void
-test_self_return_type(void) {
+test_array_reference_return_type(void) {
   const TiBuiltinMethod *method =
     ti_get_builtin_instance_method(TI_CLASS_ARRAY, (const uint8_t *)"[]", 2);
   uint8_t return_class_ids[4] = {0};
 
   assert(method);
   assert(ti_get_builtin_return_classes(method, return_class_ids) == 1);
-  assert(return_class_ids[0] == TI_CLASS_ARRAY);
+  assert(return_class_ids[0] == TI_CLASS_UNTYPED);
 }
 
 static void
@@ -61,7 +61,7 @@ test_union_return_type(void) {
 static void
 test_prefix_lookup(void) {
   const TiBuiltinMethod *methods[64];
-  int count = ti_collect_builtin_methods_with_prefix(
+  int count = ti_collect_builtin_methods_matching_partial_method_name(
     TI_CLASS_STRING,
     0,
     (const uint8_t *)"s",
@@ -139,7 +139,7 @@ int
 main(void) {
   test_string_method_lookup();
   test_flattened_methods();
-  test_self_return_type();
+  test_array_reference_return_type();
   test_union_return_type();
   test_prefix_lookup();
   test_pool_boundaries();
