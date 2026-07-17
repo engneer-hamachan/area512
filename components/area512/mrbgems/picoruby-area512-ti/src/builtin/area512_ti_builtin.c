@@ -2,28 +2,14 @@
 #include <string.h>
 
 static int
-compare_builtin_name(
+builtin_name_matches(
   const char *builtin_name,
-  const uint8_t *candidate_name,
-  size_t candidate_name_length
+  const uint8_t *target_name,
+  size_t target_name_length
 ) {
-  size_t builtin_name_length = strlen(builtin_name);
-  size_t comparison_length = builtin_name_length;
 
-  if (candidate_name_length < comparison_length)
-    comparison_length = candidate_name_length;
-
-  int comparison =
-    memcmp(builtin_name, candidate_name, comparison_length);
-
-  if (comparison != 0)
-    return comparison;
-  if (builtin_name_length < candidate_name_length)
-    return -1;
-  if (builtin_name_length > candidate_name_length)
-    return 1;
-
-  return 0;
+  return strlen(builtin_name) == target_name_length &&
+         memcmp(builtin_name, target_name, target_name_length) == 0;
 }
 
 uint8_t
@@ -31,20 +17,22 @@ ti_get_builtin_class_id(
   const uint8_t *class_name,
   size_t class_name_length
 ) {
+
   if (!class_name || class_name_length == 0)
     return TI_CLASS_NONE;
 
   for (uint8_t class_id = 1; class_id < ti_builtin_class_count; class_id++) {
     const TiBuiltinClass *builtin_class = &ti_builtin_classes[class_id];
+
     const char *builtin_class_name =
       ti_builtin_name_pool + builtin_class->name_offset;
 
     if (
-        compare_builtin_name(
+        builtin_name_matches(
           builtin_class_name,
           class_name,
           class_name_length
-        ) == 0
+        )
     ) {
       return class_id;
     }
@@ -56,10 +44,11 @@ ti_get_builtin_class_id(
 static void
 get_builtin_method_range(
   uint8_t class_id,
-  int use_static_methods,
+  int use_class_methods,
   uint16_t *method_start_index,
   uint16_t *method_count
 ) {
+
   *method_start_index = 0;
   *method_count = 0;
 
@@ -68,7 +57,7 @@ get_builtin_method_range(
 
   const TiBuiltinClass *builtin_class = &ti_builtin_classes[class_id];
 
-  if (use_static_methods) {
+  if (use_class_methods) {
     *method_start_index = builtin_class->static_method_start;
     *method_count = builtin_class->static_method_count;
   } else {
@@ -84,6 +73,7 @@ find_builtin_method_in_range(
   const uint8_t *method_name,
   size_t method_name_length
 ) {
+
   uint16_t lower_bound_index = 0;
   uint16_t upper_bound_index = method_count;
 
@@ -91,18 +81,21 @@ find_builtin_method_in_range(
     uint16_t middle_index =
       lower_bound_index +
       (uint16_t)((upper_bound_index - lower_bound_index) / 2U);
+
     const TiBuiltinMethod *builtin_method =
       &ti_builtin_methods[method_start_index + middle_index];
-    int comparison = compare_builtin_name(
-      ti_get_builtin_method_name(builtin_method),
-      method_name,
-      method_name_length
-    );
 
-    if (comparison < 0)
+    if (
+        strncmp(
+          ti_get_builtin_method_name(builtin_method),
+          (const char *)method_name,
+          method_name_length
+        ) < 0
+    ) {
       lower_bound_index = middle_index + 1U;
-    else
+    } else {
       upper_bound_index = middle_index;
+    }
   }
 
   if (lower_bound_index >= method_count)
@@ -111,11 +104,11 @@ find_builtin_method_in_range(
   const TiBuiltinMethod *builtin_method =
     &ti_builtin_methods[method_start_index + lower_bound_index];
   if (
-      compare_builtin_name(
+      !builtin_name_matches(
         ti_get_builtin_method_name(builtin_method),
         method_name,
         method_name_length
-      ) != 0
+      )
   ) {
     return NULL;
   }
@@ -129,8 +122,10 @@ ti_get_builtin_instance_method(
   const uint8_t *method_name,
   size_t method_name_length
 ) {
+
   uint16_t method_start_index;
   uint16_t method_count;
+
   get_builtin_method_range(
     class_id,
     0,
@@ -152,8 +147,10 @@ ti_get_builtin_static_method(
   const uint8_t *method_name,
   size_t method_name_length
 ) {
+
   uint16_t method_start_index;
   uint16_t method_count;
+
   get_builtin_method_range(
     class_id,
     1,
@@ -182,20 +179,22 @@ has_builtin_name_prefix(
 int
 ti_collect_builtin_methods_with_prefix(
   uint8_t class_id,
-  int use_static_methods,
+  int use_class_methods,
   const uint8_t *prefix,
   size_t prefix_length,
   const TiBuiltinMethod **output_methods,
   int output_capacity
 ) {
+
   if (!output_methods || output_capacity <= 0)
     return 0;
 
   uint16_t method_start_index;
   uint16_t method_count;
+
   get_builtin_method_range(
     class_id,
-    use_static_methods,
+    use_class_methods,
     &method_start_index,
     &method_count
   );
@@ -210,16 +209,17 @@ ti_collect_builtin_methods_with_prefix(
         (uint16_t)((upper_bound_index - first_matching_index) / 2U);
       const TiBuiltinMethod *builtin_method =
         &ti_builtin_methods[method_start_index + middle_index];
-      int comparison = compare_builtin_name(
-        ti_get_builtin_method_name(builtin_method),
-        prefix,
-        prefix_length
-      );
-
-      if (comparison < 0)
+      if (
+          strncmp(
+            ti_get_builtin_method_name(builtin_method),
+            (const char *)prefix,
+            prefix_length
+          ) < 0
+      ) {
         first_matching_index = middle_index + 1U;
-      else
+      } else {
         upper_bound_index = middle_index;
+      }
     }
   }
 
@@ -327,12 +327,12 @@ ti_get_builtin_return_variant_classes(
   if (!builtin_method || !output_class_ids)
     return 0;
 
-  int return_variant_class_count = copy_builtin_union_class_ids(
+  int return_parameter_class_count = copy_builtin_union_class_ids(
     builtin_method->variant_union_index,
     output_class_ids
   );
-  if (return_variant_class_count > 0)
-    return return_variant_class_count;
+  if (return_parameter_class_count > 0)
+    return return_parameter_class_count;
 
   if (builtin_method->return_variant_class_id == TI_CLASS_NONE)
     return 0;
