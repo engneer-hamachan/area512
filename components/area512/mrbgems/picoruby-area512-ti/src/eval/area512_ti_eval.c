@@ -27,17 +27,13 @@ eval_statements(
   if (statements->body.size == 0)
     return new_builtin_t(TI_CLASS_NIL);
 
-  uint16_t last_t_index = new_builtin_t(TI_CLASS_NIL);
+  uint16_t last_t_node_index = new_builtin_t(TI_CLASS_NIL);
 
   for (size_t index = 0; index < statements->body.size; index++)
-    last_t_index =
-      ti_eval_expression(
-        context,
-        statements->body.nodes[index],
-        depth + 1
-      );
+    last_t_node_index =
+      ti_eval_expression(context, statements->body.nodes[index], depth + 1);
 
-  return last_t_index;
+  return last_t_node_index;
 }
 
 uint16_t
@@ -76,45 +72,25 @@ ti_eval_expression(TiContext *context, const pm_node_t *node, int depth) {
   case PM_LOCAL_VARIABLE_WRITE_NODE: {
     const pm_local_variable_write_node_t *write =
       (const pm_local_variable_write_node_t *)node;
-    return ti_bind_scalar_assignment(
-      context,
-      write->name,
-      write->value,
-      depth
-    );
+    return ti_bind_scalar_assignment(context, write->name, write->value, depth);
   }
 
   case PM_INSTANCE_VARIABLE_WRITE_NODE: {
     const pm_instance_variable_write_node_t *write =
       (const pm_instance_variable_write_node_t *)node;
-    return ti_bind_scalar_assignment(
-      context,
-      write->name,
-      write->value,
-      depth
-    );
+    return ti_bind_scalar_assignment(context, write->name, write->value, depth);
   }
 
   case PM_GLOBAL_VARIABLE_WRITE_NODE: {
     const pm_global_variable_write_node_t *write =
       (const pm_global_variable_write_node_t *)node;
-    return ti_bind_scalar_assignment(
-      context,
-      write->name,
-      write->value,
-      depth
-    );
+    return ti_bind_scalar_assignment(context, write->name, write->value, depth);
   }
 
   case PM_CONSTANT_WRITE_NODE: {
     const pm_constant_write_node_t *write =
       (const pm_constant_write_node_t *)node;
-    return ti_bind_scalar_assignment(
-      context,
-      write->name,
-      write->value,
-      depth
-    );
+    return ti_bind_scalar_assignment(context, write->name, write->value, depth);
   }
 
   case PM_HASH_NODE:

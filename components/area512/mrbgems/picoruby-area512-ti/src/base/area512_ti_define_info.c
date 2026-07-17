@@ -15,7 +15,6 @@ ti_initialize_define_infos(void) {
   if (!define_infos)
     return 0;
 
-  memset(define_infos, 0, sizeof(TiDefineInfo) * TI_DEFINE_INFO_CAPACITY);
   define_info_count = 0;
 
   return 1;
@@ -28,17 +27,16 @@ ti_set_define_info(
   uint16_t define_row,
   int is_class
 ) {
+
   if (name_id == 0)
     return NULL;
 
   for (int index = 0; index < define_info_count; index++) {
     TiDefineInfo *define_info = &define_infos[index];
 
-    if (
-        define_info->name_id == name_id &&
+    if (define_info->name_id == name_id &&
         define_info->owner_class_name_id == owner_class_name_id &&
-        define_info->is_class == is_class
-      ) {
+        define_info->is_class == is_class) {
 
       return define_info;
     }

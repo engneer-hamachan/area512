@@ -9,7 +9,7 @@
 
 int ti_type_to_string(
   const TiContext *context,
-  uint16_t t_index,
+  uint16_t t_node_index,
   char *buffer,
   size_t capacity
 );

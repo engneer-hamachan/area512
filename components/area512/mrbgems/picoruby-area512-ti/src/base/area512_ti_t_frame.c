@@ -8,7 +8,7 @@
 
 typedef struct {
   uint16_t name_id;
-  uint16_t t_index;
+  uint16_t t_node_index;
 } t_frame_entry;
 
 static t_frame_entry *t_frame;
@@ -21,6 +21,7 @@ ti_initialize_t_frame(void) {
     return 0;
 
   memset(t_frame, 0, sizeof(t_frame_entry) * TI_T_FRAME_CAPACITY);
+
   return 1;
 }
 
@@ -28,7 +29,9 @@ static t_frame_entry *
 find_t_frame_entry(uint16_t name_id) {
   unsigned int index = name_id % TI_T_FRAME_CAPACITY;
 
-  for (int probe = 0; probe < TI_T_FRAME_CAPACITY; probe++) {
+  for (int checked_slot_count = 0; checked_slot_count < TI_T_FRAME_CAPACITY;
+       checked_slot_count++) {
+
     t_frame_entry *entry = &t_frame[index];
 
     if (entry->name_id == name_id || entry->name_id == 0)
@@ -41,8 +44,8 @@ find_t_frame_entry(uint16_t name_id) {
 }
 
 int
-ti_set_value_t(uint16_t name_id, uint16_t t_index) {
-  if (name_id == 0 || t_index == 0)
+ti_set_value_t(uint16_t name_id, uint16_t t_node_index) {
+  if (name_id == 0 || t_node_index == 0)
     return 1;
 
   t_frame_entry *entry = find_t_frame_entry(name_id);
@@ -52,16 +55,19 @@ ti_set_value_t(uint16_t name_id, uint16_t t_index) {
 
   if (entry->name_id == 0) {
     entry->name_id = name_id;
-    entry->t_index = t_index;
+    entry->t_node_index = t_node_index;
+
     return 1;
   }
 
-  uint16_t union_t_index = ti_make_union(entry->t_index, t_index);
+  uint16_t union_t_node_index =
+    ti_make_union(entry->t_node_index, t_node_index);
 
-  if (union_t_index == 0)
+  if (union_t_node_index == 0)
     return 0;
 
-  entry->t_index = union_t_index;
+  entry->t_node_index = union_t_node_index;
+
   return 1;
 }
 
@@ -75,5 +81,5 @@ ti_get_value_t(uint16_t name_id) {
   if (!entry || entry->name_id != name_id)
     return 0;
 
-  return entry->t_index;
+  return entry->t_node_index;
 }

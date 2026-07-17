@@ -52,33 +52,28 @@ ti_eval_def(TiContext *context, const pm_def_node_t *def_node) {
     ti_calculate_row(context, def_node->base.location.start);
 
   TiDefineInfo *define_info =
-    ti_set_define_info(
-      name_id,
-      context->current_class_name_id,
-      define_row,
-      0
-    );
+    ti_set_define_info(name_id, context->current_class_name_id, define_row, 0);
 
   if (!define_info)
     return;
 
   set_define_args(context, define_info, def_node->parameters);
 
-  uint16_t outer_return_t_index = context->return_t_index;
-  context->return_t_index = 0;
+  uint16_t outer_return_t_node_index = context->return_t_node_index;
+  context->return_t_node_index = 0;
 
-  uint16_t body_t_index = ti_eval_expression(context, def_node->body, 0);
+  uint16_t body_t_node_index = ti_eval_expression(context, def_node->body, 0);
 
-  uint16_t return_t_index =
-    ti_make_union(context->return_t_index, body_t_index);
+  uint16_t return_t_node_index =
+    ti_make_union(context->return_t_node_index, body_t_node_index);
 
-  context->return_t_index = outer_return_t_index;
+  context->return_t_node_index = outer_return_t_node_index;
 
-  if (return_t_index == 0)
+  if (return_t_node_index == 0)
     return;
 
-  define_info->return_t_index = return_t_index;
+  define_info->return_t_node_index = return_t_node_index;
 
-  if (!ti_set_value_t(name_id, return_t_index))
+  if (!ti_set_value_t(name_id, return_t_node_index))
     context->failed = 1;
 }

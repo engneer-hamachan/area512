@@ -8,7 +8,7 @@ typedef struct {
   const uint8_t *source;
   size_t source_length;
   uint16_t current_class_name_id;
-  uint16_t return_t_index;
+  uint16_t return_t_node_index;
   int round;
   int failed;
 } TiContext;

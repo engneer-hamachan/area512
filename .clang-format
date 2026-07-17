@@ -1,4 +1,5 @@
 BasedOnStyle: LLVM
+SortIncludes: false
 AlwaysBreakAfterReturnType: TopLevelDefinitions
 BinPackParameters: false
 BinPackArguments: false

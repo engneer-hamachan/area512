@@ -18,10 +18,10 @@ ti_bind_scalar_assignment(
     return 0;
   }
 
-  uint16_t t_index = ti_eval_expression(context, value, depth + 1);
+  uint16_t t_node_index = ti_eval_expression(context, value, depth + 1);
 
-  if (t_index != 0 && !ti_set_value_t(name_id, t_index))
+  if (t_node_index != 0 && !ti_set_value_t(name_id, t_node_index))
     context->failed = 1;
 
-  return t_index;
+  return t_node_index;
 }

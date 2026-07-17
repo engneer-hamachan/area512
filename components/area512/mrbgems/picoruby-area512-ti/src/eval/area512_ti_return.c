@@ -9,25 +9,25 @@ ti_eval_return(
   const pm_return_node_t *return_node,
   int depth
 ) {
-  uint16_t return_t_index = ti_new_t(TI_CLASS_NIL, 0, 0);
+  uint16_t return_t_node_index = ti_new_t(TI_CLASS_NIL, 0, 0);
 
   if (return_node->arguments && return_node->arguments->arguments.size > 0) {
-    return_t_index = 0;
+    return_t_node_index = 0;
 
-    for (size_t index = 0;
-         index < return_node->arguments->arguments.size;
+    for (size_t index = 0; index < return_node->arguments->arguments.size;
          index++) {
-      uint16_t argument_t_index = ti_eval_expression(
+      uint16_t argument_t_node_index = ti_eval_expression(
         context,
         return_node->arguments->arguments.nodes[index],
         depth + 1
       );
-      return_t_index = ti_make_union(return_t_index, argument_t_index);
+      return_t_node_index =
+        ti_make_union(return_t_node_index, argument_t_node_index);
     }
   }
 
-  context->return_t_index =
-    ti_make_union(context->return_t_index, return_t_index);
+  context->return_t_node_index =
+    ti_make_union(context->return_t_node_index, return_t_node_index);
 
-  return return_t_index;
+  return return_t_node_index;
 }

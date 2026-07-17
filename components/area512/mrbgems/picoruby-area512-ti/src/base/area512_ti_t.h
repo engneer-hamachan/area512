@@ -15,13 +15,10 @@ typedef struct {
 } T;
 
 int ti_initialize_t(void);
-uint16_t ti_new_t(
-  uint8_t object_class_id,
-  uint8_t t_flags,
-  uint16_t variants
-);
-uint16_t ti_make_union(uint16_t first_t_index, uint16_t second_t_index);
-const T *ti_get_t(uint16_t t_index);
+uint16_t ti_new_t(uint8_t object_class_id, uint8_t t_flags, uint16_t variants);
+uint16_t
+ti_make_union(uint16_t first_t_node_index, uint16_t second_t_node_index);
+const T *ti_get_t(uint16_t t_node_index);
 int ti_get_t_count(void);
 
 #endif

@@ -5,8 +5,7 @@
 #include <stdint.h>
 
 uint16_t ti_handle_identifier(pm_constant_id_t constant_id);
-uint16_t
-ti_handle_const_evaluation(
+uint16_t ti_handle_const_evaluation(
   TiContext *context,
   const pm_constant_read_node_t *constant_read
 );

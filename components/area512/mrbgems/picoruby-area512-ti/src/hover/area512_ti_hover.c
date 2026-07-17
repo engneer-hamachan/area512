@@ -122,12 +122,12 @@ ti_find_type_at_cursor(
   uint16_t name_id;
   if (search.name != 0 && ti_convert_constant_id(search.name, &name_id)) {
     const pm_constant_t *constant = ti_get_constant(&context, search.name);
-    uint16_t t_index = ti_get_value_t(name_id);
+    uint16_t t_node_index = ti_get_value_t(name_id);
 
-    if (constant && t_index != 0 &&
+    if (constant && t_node_index != 0 &&
         ti_type_to_string(
           &context,
-          t_index,
+          t_node_index,
           out->type_name,
           sizeof(out->type_name)
         ) > 0) {

@@ -181,8 +181,8 @@ test_same_method_name_in_different_classes(void) {
                                                 "class Bar\n"
                                                 "  def value(bar) = bar\n"
                                                 "end\n"
-                                                "bar = Bar.new\n"
-                                                "bar.val");
+                                                "bar_instance = Bar.new\n"
+                                                "bar_instance.val");
   const TiSuggestion *suggestion = find_suggestion(&suggestions, "value");
 
   assert(suggestion);

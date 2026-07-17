@@ -13,26 +13,27 @@ make_method_return(const TiBuiltinMethod *method) {
     ti_get_builtin_return_classes(method, return_class_ids);
   int return_variant_class_count =
     ti_get_builtin_return_variant_classes(method, return_variant_class_ids);
-  uint16_t return_variant_t_index = 0;
+  uint16_t return_variant_t_node_index = 0;
 
   for (int index = 0; index < return_variant_class_count; index++) {
-    uint16_t union_next_t_index =
+    uint16_t union_next_t_node_index =
       ti_new_t(return_variant_class_ids[index], 0, 0);
-    return_variant_t_index =
-      ti_make_union(return_variant_t_index, union_next_t_index);
+    return_variant_t_node_index =
+      ti_make_union(return_variant_t_node_index, union_next_t_node_index);
 
-    if (return_variant_t_index == 0)
+    if (return_variant_t_node_index == 0)
       return 0;
   }
 
   uint16_t result = 0;
 
   for (int index = 0; index < return_class_count; index++) {
-    uint16_t parameter =
-      return_class_ids[index] == TI_CLASS_ARRAY ? return_variant_t_index : 0;
-    uint16_t union_next_t_index =
+    uint16_t parameter = return_class_ids[index] == TI_CLASS_ARRAY
+                           ? return_variant_t_node_index
+                           : 0;
+    uint16_t union_next_t_node_index =
       ti_new_t(return_class_ids[index], 0, parameter);
-    result = ti_make_union(result, union_next_t_index);
+    result = ti_make_union(result, union_next_t_node_index);
 
     if (result == 0)
       return 0;
@@ -51,9 +52,9 @@ ti_eval_method(TiContext *context, const pm_call_node_t *call, int depth) {
   if (!call->receiver)
     return ti_get_value_t(name_id);
 
-  uint16_t receiver_t_index =
+  uint16_t receiver_t_node_index =
     ti_eval_expression(context, call->receiver, depth + 1);
-  const T *receiver_t = ti_get_t(receiver_t_index);
+  const T *receiver_t = ti_get_t(receiver_t_node_index);
 
   if (!receiver_t || receiver_t->union_next != 0)
     return 0;

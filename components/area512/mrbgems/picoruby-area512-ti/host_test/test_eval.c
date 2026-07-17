@@ -70,41 +70,35 @@ test_definition_return(void) {
 
 static void
 test_definition_binding_return(void) {
-  TiSuggestionList suggestions = suggest_source(
-    "def message\n"
-    "  value = \"x\"\n"
-    "  value\n"
-    "end\n"
-    "message().sp"
-  );
+  TiSuggestionList suggestions = suggest_source("def message\n"
+                                                "  value = \"x\"\n"
+                                                "  value\n"
+                                                "end\n"
+                                                "message().sp");
   assert(has_suggestion(&suggestions, "split"));
 }
 
 static void
 test_if_return(void) {
-  TiSuggestionList suggestions = suggest_source(
-    "def mixed\n"
-    "  if condition\n"
-    "    1\n"
-    "  else\n"
-    "    \"x\"\n"
-    "  end\n"
-    "end\n"
-    "mixed()."
-  );
+  TiSuggestionList suggestions = suggest_source("def mixed\n"
+                                                "  if condition\n"
+                                                "    1\n"
+                                                "  else\n"
+                                                "    \"x\"\n"
+                                                "  end\n"
+                                                "end\n"
+                                                "mixed().");
   assert(has_suggestion(&suggestions, "abs"));
   assert(has_suggestion(&suggestions, "bytes"));
 }
 
 static void
 test_explicit_return(void) {
-  TiSuggestionList suggestions = suggest_source(
-    "def mixed\n"
-    "  return 1\n"
-    "  \"x\"\n"
-    "end\n"
-    "mixed()."
-  );
+  TiSuggestionList suggestions = suggest_source("def mixed\n"
+                                                "  return 1\n"
+                                                "  \"x\"\n"
+                                                "end\n"
+                                                "mixed().");
   assert(has_suggestion(&suggestions, "abs"));
   assert(has_suggestion(&suggestions, "bytes"));
 }

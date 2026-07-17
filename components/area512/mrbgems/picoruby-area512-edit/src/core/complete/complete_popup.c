@@ -301,8 +301,7 @@ draw_complete_popup(
       break;
   }
 
-  int screen_row =
-    vim->screen.height - vim->screen.footer_height - used_rows;
+  int screen_row = vim->screen.height - vim->screen.footer_height - used_rows;
 
   for (int offset = 0; offset < visible_count; offset++) {
     int suggestion_index = *window_start + offset;
@@ -482,11 +481,8 @@ show_complete_popup(
         }
 
         if (sequence[1] == 'C') {
-          int maximum = maximum_complete_document_scroll(
-            vim,
-            suggestions,
-            selected_index
-          );
+          int maximum =
+            maximum_complete_document_scroll(vim, suggestions, selected_index);
 
           if (document_scroll < maximum)
             document_scroll++;

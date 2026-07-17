@@ -2,10 +2,10 @@
 // the Area512 console: keyboard read, display/input init, and yielding the
 // input drain to a foreground session (e.g. Filer).
 #include "hal.h"
-#include <stdbool.h>
 #include "io-console.h"
 #include "machine.h"
 #include "ringbuffer.h"
+#include <stdbool.h>
 
 // Area512 console HAL hooks. Declared locally rather than via console.h: this
 // file is on picoruby's include path, where mrubyc's own console.h would

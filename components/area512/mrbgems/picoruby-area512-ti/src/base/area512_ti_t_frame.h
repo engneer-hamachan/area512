@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 int ti_initialize_t_frame(void);
-int ti_set_value_t(uint16_t name_id, uint16_t t_index);
+int ti_set_value_t(uint16_t name_id, uint16_t t_node_index);
 uint16_t ti_get_value_t(uint16_t name_id);
 
 #endif

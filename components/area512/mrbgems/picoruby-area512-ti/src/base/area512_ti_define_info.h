@@ -9,7 +9,7 @@
 typedef struct {
   uint16_t name_id;
   uint16_t owner_class_name_id;
-  uint16_t return_t_index;
+  uint16_t return_t_node_index;
   uint16_t define_row;
   uint8_t define_arg_count;
   uint8_t is_class;
@@ -17,8 +17,7 @@ typedef struct {
 } TiDefineInfo;
 
 int ti_initialize_define_infos(void);
-TiDefineInfo *
-ti_set_define_info(
+TiDefineInfo *ti_set_define_info(
   uint16_t name_id,
   uint16_t owner_class_name_id,
   uint16_t define_row,

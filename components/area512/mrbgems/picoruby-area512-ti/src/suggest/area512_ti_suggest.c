@@ -184,13 +184,12 @@ make_signature_content(
   const pm_constant_t *name
 ) {
   char return_type[TI_TYPE_STRING_CAPACITY];
-  size_t return_type_length =
-    (size_t)ti_type_to_string(
-      context,
-      define_info->return_t_index,
-      return_type,
-      sizeof(return_type)
-    );
+  size_t return_type_length = (size_t)ti_type_to_string(
+    context,
+    define_info->return_t_node_index,
+    return_type,
+    sizeof(return_type)
+  );
 
   if (return_type_length == 0) {
     memcpy(return_type, "untyped", sizeof("untyped"));
@@ -366,10 +365,7 @@ collect_suggestions(
     if (class_search.target) {
       uint16_t class_name_id;
 
-      if (ti_convert_constant_id(
-            class_search.target->name,
-            &class_name_id
-          )) {
+      if (ti_convert_constant_id(class_search.target->name, &class_name_id)) {
 
         uint8_t class_id = ti_get_defined_class_id(class_name_id);
 
@@ -417,8 +413,8 @@ collect_suggestions(
   if (!search.target)
     return 0;
 
-  uint16_t target_t_index = ti_eval_expression(context, search.target, 0);
-  const T *target_t = ti_get_t(target_t_index);
+  uint16_t target_t_node_index = ti_eval_expression(context, search.target, 0);
+  const T *target_t = ti_get_t(target_t_node_index);
 
   if (!target_t)
     return 0;
