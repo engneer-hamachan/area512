@@ -49,15 +49,18 @@ show_type_at_cursor(Vim *vim) {
   vim_write_content(vim, &content);
 
   TiTypeInfo type_info;
-  int found = ti_find_type_at_cursor(
-    content.bytes,
-    content.byte_length,
-    calculate_cursor_offset(vim),
-    &type_info
-  );
+
+  int found =
+    ti_find_type_at_cursor(
+      content.bytes,
+      content.byte_length,
+      calculate_cursor_offset(vim),
+      &type_info
+    );
 
   if (found) {
     VimString message;
+
     vim_string_init(&message);
     vim_string_append_c_string(&message, type_info.variable_name);
     vim_string_append_c_string(&message, ": ");

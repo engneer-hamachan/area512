@@ -86,10 +86,12 @@ draw_complete_detail_part(
   int name_byte_length,
   int selected
 ) {
+
   VimCanvas *canvas = vim->active_canvas;
 
   if (start_byte < name_byte_length && start_byte < end_byte) {
-    int part_end = minimum_complete_value(end_byte, name_byte_length);
+    int part_end =
+      minimum_complete_value(end_byte, name_byte_length);
 
     canvas->draw_row_text(
       canvas->context,
@@ -130,13 +132,16 @@ draw_complete_suggestion(
   const TiSuggestion *suggestion,
   int selected
 ) {
+
   VimCanvas *canvas = vim->active_canvas;
+
   int width = vim->screen.width;
   const char *detail = suggestion->detail;
   int detail_byte_length = (int)strlen(detail);
   int detail_width = vim_display_width(detail, detail_byte_length);
 
   int name_byte_length = suggestion->contents_length;
+
   if (name_byte_length > detail_byte_length)
     name_byte_length = detail_byte_length;
 
@@ -146,11 +151,14 @@ draw_complete_suggestion(
   if (rows_needed > rows_available)
     rows_needed = rows_available;
 
-  int first_columns = minimum_complete_value(detail_width, first_limit);
+  int first_columns =
+    minimum_complete_value(detail_width, first_limit);
+
   int first_bytes =
     vim_column_to_byte(detail, detail_byte_length, first_columns);
 
   paint_complete_row_background(vim, selected);
+
   draw_complete_detail_part(
     vim,
     COMPLETE_TEXT_START_COLUMN,
@@ -162,6 +170,7 @@ draw_complete_suggestion(
   );
 
   int class_name_width = measure_complete_class_name_width(suggestion);
+
   if (class_name_width > 0 && class_name_width < width - 1) {
     canvas->draw_row_text(
       canvas->context,
@@ -179,11 +188,14 @@ draw_complete_suggestion(
   if (rows_needed == 2) {
     int second_limit =
       usable_complete_columns(vim) - COMPLETE_WRAP_EXTRA_INDENT;
+
     int remaining_bytes = detail_byte_length - first_bytes;
+
     int second_bytes =
       vim_column_to_byte(detail + first_bytes, remaining_bytes, second_limit);
 
     paint_complete_row_background(vim, selected);
+
     draw_complete_detail_part(
       vim,
       COMPLETE_TEXT_START_COLUMN + COMPLETE_WRAP_EXTRA_INDENT,
@@ -193,6 +205,7 @@ draw_complete_suggestion(
       name_byte_length,
       selected
     );
+
     canvas->push_row(canvas->context, screen_row + 1);
   }
 
@@ -206,22 +219,28 @@ show_complete_status(
   int selected_index,
   int document_scroll
 ) {
+
   char position[24];
-  int position_length = snprintf(
-    position,
-    sizeof(position),
-    "[%d/%d] ",
-    selected_index + 1,
-    suggestions->count
-  );
+
+  int position_length =
+    snprintf(
+      position,
+      sizeof(position),
+      "[%d/%d] ",
+      selected_index + 1,
+      suggestions->count
+    );
 
   VimString message;
+
   vim_string_init(&message);
   vim_string_append(&message, position, position_length);
 
   const char *document = suggestions->items[selected_index].document;
+
   if (document) {
     int document_length = (int)strlen(document);
+
     int document_start =
       vim_column_to_byte(document, document_length, document_scroll);
 
@@ -246,6 +265,7 @@ count_complete_rows_between(
   int from_index,
   int to_index
 ) {
+
   int rows = 0;
 
   for (int index = from_index; index <= to_index; index++)
@@ -262,7 +282,9 @@ draw_complete_popup(
   int *window_start,
   int document_scroll
 ) {
+
   int available_rows = vim->screen.height - vim->screen.footer_height;
+
   int content_budget =
     minimum_complete_value(COMPLETE_VISIBLE_ROWS, available_rows);
 
@@ -278,6 +300,7 @@ draw_complete_popup(
            *window_start,
            selected_index
          ) > content_budget) {
+
     (*window_start)++;
   }
 
@@ -326,25 +349,32 @@ maximum_complete_document_scroll(
   const TiSuggestionList *suggestions,
   int selected_index
 ) {
+
   const char *document = suggestions->items[selected_index].document;
+
   if (!document)
     return 0;
 
   int document_width = vim_display_width(document, (int)strlen(document));
+
   char position[24];
-  int position_width = snprintf(
-    position,
-    sizeof(position),
-    "[%d/%d] ",
-    selected_index + 1,
-    suggestions->count
-  );
+
+  int position_width =
+    snprintf(
+      position,
+      sizeof(position),
+      "[%d/%d] ",
+      selected_index + 1,
+      suggestions->count
+    );
+
   int visible_width = vim->screen.width - position_width;
 
   if (visible_width < 1)
     visible_width = 1;
 
   int maximum = document_width - visible_width;
+
   return maximum > 0 ? maximum : 0;
 }
 
@@ -354,10 +384,12 @@ read_complete_printable(
   char character[4],
   int *character_byte_length
 ) {
+
   int byte_length = vim_utf8_byte_length((uint8_t)first_byte);
 
   if (byte_length < 1)
     byte_length = 1;
+
   if (byte_length > 4)
     byte_length = 4;
 

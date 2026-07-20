@@ -157,14 +157,16 @@ start_completion(Vim *vim) {
     vim_write_content(vim, &content);
 
     TiSuggestionList suggestions;
+
     int cursor_offset = calculate_completion_cursor_offset(vim);
 
-    int suggestion_count = ti_fill_suggestions_at_cursor(
-      content.bytes,
-      content.byte_length,
-      cursor_offset,
-      &suggestions
-    );
+    int suggestion_count =
+      ti_fill_suggestions_at_cursor(
+        content.bytes,
+        content.byte_length,
+        cursor_offset,
+        &suggestions
+      );
 
     if (suggestion_count <= 0) {
       vim_string_free(&content);
@@ -175,13 +177,14 @@ start_completion(Vim *vim) {
     char next_character[4] = {0};
     int next_character_byte_length = 0;
 
-    int redispatch = show_complete_popup(
-      vim,
-      &suggestions,
-      &next_key,
-      next_character,
-      &next_character_byte_length
-    );
+    int redispatch =
+      show_complete_popup(
+        vim,
+        &suggestions,
+        &next_key,
+        next_character,
+        &next_character_byte_length
+      );
 
     vim_string_free(&content);
 
@@ -195,6 +198,7 @@ start_completion(Vim *vim) {
           next_character,
           next_character_byte_length
         )) {
+
       return;
     }
 
