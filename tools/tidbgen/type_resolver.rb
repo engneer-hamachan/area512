@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 module TypeInformationDatabaseGenerator
-  class ReturnTypeResolver
-    def initialize(signature_environment, class_identifiers)
-      @signature_environment = signature_environment
+  class TypeResolver
+    def initialize(type_aliases, class_identifiers)
+      @type_aliases = type_aliases
       @class_identifiers = class_identifiers
     end
 
-    def resolve_return_type(signature_type, owner_full_name:, type_bindings: {})
+    def resolve(signature_type, owner_full_name:, type_bindings: {})
       class_identifiers, array_variant_class_identifiers =
         resolve_type_components(
           signature_type,
@@ -125,10 +125,10 @@ module TypeInformationDatabaseGenerator
 
     def resolve_alias(signature_type, owner_full_name, type_bindings)
       full_alias_name = resolve_type_name(signature_type.name, owner_full_name)
-      alias_declaration = @signature_environment.type_aliases[full_alias_name]
+      alias_declaration = @type_aliases[full_alias_name]
       unless alias_declaration
         top_level_alias_name = "::#{signature_type.name.name}"
-        alias_declaration = @signature_environment.type_aliases[
+        alias_declaration = @type_aliases[
           top_level_alias_name
         ]
       end
@@ -163,7 +163,7 @@ module TypeInformationDatabaseGenerator
       namespace = owner_full_name.split("::")[0...-1].join("::")
       namespace_type_name = "#{namespace}::#{type_name_text}"
       if @class_identifiers.key?(namespace_type_name) ||
-          @signature_environment.type_aliases.key?(namespace_type_name)
+          @type_aliases.key?(namespace_type_name)
         return namespace_type_name
       end
 

@@ -7,9 +7,15 @@ require_relative "../main"
 module TypeInformationDatabaseGeneratorTestHelper
   FIXTURES = File.expand_path("fixtures", __dir__)
 
-  def environment_for(*names)
-    TypeInformationDatabaseGenerator::SignatureEnvironment.new(
-      names.map { |name| File.join(FIXTURES, name) }
-    )
+  def collected_declarations_for(*names)
+    signature_paths = names.map { |name| File.join(FIXTURES, name) }
+    signature_declarations =
+      TypeInformationDatabaseGenerator::SignatureParser.new.parse(
+        signature_paths
+      )
+
+    TypeInformationDatabaseGenerator::DeclarationCollector.new(
+      signature_declarations
+    ).collect
   end
 end

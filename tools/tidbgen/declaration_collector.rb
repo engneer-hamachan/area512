@@ -1,54 +1,68 @@
 # frozen_string_literal: true
 
 module TypeInformationDatabaseGenerator
-  class ClassCollector
-    def initialize(signature_environment)
-      @signature_environment = signature_environment
+  class DeclarationCollector
+    def initialize(signature_declarations)
+      @signature_declarations = signature_declarations
       @collected_classes = {}
+      @type_aliases = {}
     end
 
-    def collect_class_definitions
-      collect_declarations(
-        @signature_environment.signature_declarations,
-        "::"
+    def collect
+      collect_declarations(@signature_declarations, "::")
+
+      CollectedDeclarations.new(
+        classes: @collected_classes,
+        type_aliases: @type_aliases
       )
-      @collected_classes
     end
 
     private
 
     def collect_declarations(signature_declarations, namespace)
       signature_declarations.each do |declaration|
-        if is_class_or_module_declaration?(declaration)
+        case declaration
+        when RBS::AST::Declarations::TypeAlias
+          collect_type_alias(declaration, namespace)
+        when RBS::AST::Declarations::Class, RBS::AST::Declarations::Module
           collect_class_declaration(declaration, namespace)
         end
       end
     end
 
-    def is_class_or_module_declaration?(declaration)
-      declaration.is_a?(RBS::AST::Declarations::Class) ||
-        declaration.is_a?(RBS::AST::Declarations::Module)
+    def collect_type_alias(declaration, namespace)
+      full_alias_name = build_full_name(declaration.name, namespace)
+      @type_aliases[full_alias_name] = declaration
     end
 
     def collect_class_declaration(declaration, namespace)
-      full_name = @signature_environment.build_full_name(
-        declaration.name,
-        namespace
-      )
+      full_name =
+        build_full_name(
+          declaration.name,
+          namespace
+        )
+
       declaration_kind = :module
+
       if declaration.is_a?(RBS::AST::Declarations::Class)
         declaration_kind = :class
       end
-      collected_class = find_or_create_collected_class(
-        full_name,
-        declaration_kind
-      )
+
+      collected_class =
+        find_or_create_collected_class(
+          full_name,
+          declaration_kind
+        )
+
       collected_class.declarations << declaration
       collect_superclass(collected_class, declaration)
       collect_members(collected_class, declaration.members)
-      nested_declarations = declaration.members.grep(
-        RBS::AST::Declarations::Base
-      )
+
+      nested_declarations =
+        declaration.members.grep(
+          RBS::AST::Declarations::Base
+        )
+
       collect_declarations(nested_declarations, full_name)
     end
 
@@ -75,7 +89,7 @@ module TypeInformationDatabaseGenerator
       return unless declaration.respond_to?(:super_class)
       return unless declaration.super_class
 
-      superclass_name = @signature_environment.build_full_name(
+      superclass_name = build_full_name(
         declaration.super_class.name
       )
       superclass_names = collected_class.direct_ancestors.filter_map do |ancestor|
@@ -115,7 +129,7 @@ module TypeInformationDatabaseGenerator
 
     def collect_ancestor(collected_class, member)
       ancestor_kind = member.class.name.split("::").last.downcase.to_sym
-      ancestor_name = @signature_environment.build_full_name(member.name)
+      ancestor_name = build_full_name(member.name)
       collected_class.direct_ancestors << [
         ancestor_kind,
         ancestor_name,
@@ -182,6 +196,15 @@ module TypeInformationDatabaseGenerator
 
     def clean_comment(comment)
       comment.lines.reject { |line| line.match?(/<!--.*-->/) }.join.strip
+    end
+
+    def build_full_name(type_name, namespace = "::")
+      type_name_text = type_name.to_s
+      return type_name_text if type_name_text.start_with?("::")
+
+      namespace_prefix = "::"
+      namespace_prefix = "#{namespace}::" unless namespace == "::"
+      "#{namespace_prefix}#{type_name_text}"
     end
   end
 end

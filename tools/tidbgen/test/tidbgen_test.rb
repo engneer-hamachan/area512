@@ -17,7 +17,7 @@ class TypeInformationDatabaseGeneratorTest < Minitest::Test
   end
 
   def test_collector_method_kinds_initialize_alias_and_private
-    entries = TypeInformationDatabaseGenerator::ClassCollector.new(environment_for("method_kinds.rbs")).collect_class_definitions
+    entries = collected_declarations_for("method_kinds.rbs").classes
     entry = entries.fetch("::Kinds")
     assert entry.instance_methods.key?("both")
     assert entry.static_methods.key?("both")
@@ -27,7 +27,7 @@ class TypeInformationDatabaseGeneratorTest < Minitest::Test
   end
 
   def test_signature_keeps_optional_arguments_keywords_blocks_and_overloads
-    entries = TypeInformationDatabaseGenerator::ClassCollector.new(environment_for("arguments.rbs", "overloads.rbs")).collect_class_definitions
+    entries = collected_declarations_for("arguments.rbs", "overloads.rbs").classes
     rendered = TypeInformationDatabaseGenerator::SignatureRenderer.new.render_method_signature(entries.fetch("::Arguments").instance_methods.fetch("call"))
     assert_includes rendered, "?String optional"
     assert_includes rendered, "key: Integer"
@@ -38,43 +38,60 @@ class TypeInformationDatabaseGeneratorTest < Minitest::Test
   end
 
   def test_return_type_resolves_optional_alias_array_self_literal_and_unsupported
-    environment = environment_for("basic.rbs", "aliases.rbs", "optional.rbs", "unsupported_types.rbs")
-    entries = TypeInformationDatabaseGenerator::ClassCollector.new(environment).collect_class_definitions
+    collected_declarations = collected_declarations_for(
+      "basic.rbs", "aliases.rbs", "optional.rbs", "unsupported_types.rbs"
+    )
+    entries = collected_declarations.classes
     ids = entries.keys.sort.each_with_index.to_h { |name, index| [name, index + 1] }
     ids["::Untyped"] ||= ids.length + 1
     ids["::NilClass"] ||= ids.length + 1
     ids["::Array"] ||= ids.length + 1
-    resolver = TypeInformationDatabaseGenerator::ReturnTypeResolver.new(environment, ids)
+    resolver = TypeInformationDatabaseGenerator::TypeResolver.new(
+      collected_declarations.type_aliases,
+      ids
+    )
     optional = RBS::Parser.parse_type("String?")
-    assert_equal [ids["::String"], ids["::NilClass"]].sort, resolver.resolve_return_type(optional, owner_full_name: "::Basic").class_identifiers
-    array = resolver.resolve_return_type(RBS::Parser.parse_type("Array[String]"), owner_full_name: "::Basic")
+    assert_equal [ids["::String"], ids["::NilClass"]].sort, resolver.resolve(optional, owner_full_name: "::Basic").class_identifiers
+    array = resolver.resolve(RBS::Parser.parse_type("Array[String]"), owner_full_name: "::Basic")
     assert_equal [ids["::Array"]], array.class_identifiers
     assert_equal [ids["::String"]], array.array_variant_class_identifiers
-    generic_alias = resolver.resolve_return_type(RBS::Parser.parse_type("maybe[String]"), owner_full_name: "::Aliases")
+    generic_alias = resolver.resolve(RBS::Parser.parse_type("maybe[String]"), owner_full_name: "::Aliases")
     assert_equal [ids["::String"], ids["::NilClass"]].sort, generic_alias.class_identifiers
     variable_optional = RBS::Parser.parse_method_type("[T] () -> T?").type.return_type
-    bound_optional = resolver.resolve_return_type(
+    bound_optional = resolver.resolve(
       variable_optional, owner_full_name: "::Optional",
       type_bindings: { T: RBS::Parser.parse_type("String") }
     )
     assert_equal [ids["::String"], ids["::NilClass"]].sort, bound_optional.class_identifiers
-    assert_equal [ids["::Untyped"]], resolver.resolve_return_type(RBS::Parser.parse_type("[String, Integer]"), owner_full_name: "::Basic").class_identifiers
+    assert_equal [ids["::Untyped"]], resolver.resolve(RBS::Parser.parse_type("[String, Integer]"), owner_full_name: "::Basic").class_identifiers
   end
 
   def test_database_and_c_source_are_deterministic
-    environment = environment_for("basic.rbs", "inheritance.rbs")
-    entries = TypeInformationDatabaseGenerator::ClassCollector.new(environment).collect_class_definitions
-    first = TypeInformationDatabaseGenerator::CSourceGenerator.new(TypeInformationDatabaseGenerator::BuiltinDatabase.new(entries, environment))
-    second = TypeInformationDatabaseGenerator::CSourceGenerator.new(TypeInformationDatabaseGenerator::BuiltinDatabase.new(entries.to_a.reverse.to_h, environment))
+    collected_declarations = collected_declarations_for("basic.rbs", "inheritance.rbs")
+    first = TypeInformationDatabaseGenerator::CSourceGenerator.new(
+      TypeInformationDatabaseGenerator::DatabaseBuilder.new.build(
+        collected_declarations
+      )
+    )
+    reversed_declarations = collected_declarations.dup
+    reversed_declarations.classes = collected_declarations.classes.to_a.reverse.to_h
+    second = TypeInformationDatabaseGenerator::CSourceGenerator.new(
+      TypeInformationDatabaseGenerator::DatabaseBuilder.new.build(
+        reversed_declarations
+      )
+    )
     assert_equal first.generate_header, second.generate_header
     assert_equal first.generate_source, second.generate_source
     assert_includes first.generate_header, "uint8_t origin_class_id;"
   end
 
   def test_inherited_class_type_variable_is_bound_before_database_resolution
-    environment = environment_for("basic.rbs", "type_variables.rbs")
-    entries = TypeInformationDatabaseGenerator::ClassCollector.new(environment).collect_class_definitions
-    database = TypeInformationDatabaseGenerator::BuiltinDatabase.new(entries, environment)
+    collected_declarations = collected_declarations_for(
+      "basic.rbs", "type_variables.rbs"
+    )
+    database = TypeInformationDatabaseGenerator::DatabaseBuilder.new.build(
+      collected_declarations
+    )
     class_identifier = database.class_identifiers.fetch("::StringBox")
     generated_class = database.generated_classes.fetch(class_identifier)
     method = database.generated_methods[generated_class.instance_method_start, generated_class.instance_method_count].find do |entry|

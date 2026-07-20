@@ -19,8 +19,8 @@ module TypeInformationDatabaseGenerator
 
     def replace_return_type(rendered_type, synthetic_return_class_full_name)
       signature_without_return, arrow_separator, = rendered_type.rpartition(" -> ")
-      display_return_type = synthetic_return_class_full_name.delete_prefix("::")
-      "#{signature_without_return}#{arrow_separator}#{display_return_type}"
+      return_type_name = synthetic_return_class_full_name.delete_prefix("::")
+      "#{signature_without_return}#{arrow_separator}#{return_type_name}"
     end
   end
 end

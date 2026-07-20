@@ -13,6 +13,11 @@ module TypeInformationDatabaseGenerator
     keyword_init: true
   )
 
+  CollectedDeclarations = Struct.new(
+    :classes, :type_aliases,
+    keyword_init: true
+  )
+
   ResolvedType = Struct.new(
     :class_identifiers, :array_variant_class_identifiers,
     keyword_init: true
