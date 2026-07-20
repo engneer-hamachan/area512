@@ -1,0 +1,67 @@
+# Area512 built-in type declaration.
+
+class Hash < Enumerable
+  def <: (Hash arg0) -> bool
+
+  def <=: (Hash arg0) -> bool
+
+  # Perform equality comparison
+  def ==: (untyped arg0) -> bool
+
+  def >: (Hash arg0) -> bool
+
+  def >=: (Hash arg0) -> bool
+
+  # Get value for specified key
+  def []: (untyped arg0) -> untyped
+
+  # Set value for specified key
+  def []=: (untyped arg0) -> self
+
+  # Remove all elements from hash
+  def clear: () -> Hash
+
+  # Delete specified key
+  def delete: ((String | Symbol) arg0) -> (untyped | nil)
+
+  # Execute block for each key and value
+  def each: () { (untyped block_arg0, untyped block_arg1) -> untyped } -> self
+
+  # Check if hash is empty
+  def empty?: () -> bool
+
+  # Check if specified key exists
+  def has_key?: ((String | Symbol) arg0) -> bool
+
+  # Check if specified value exists
+  def has_value?: (untyped arg0) -> bool
+
+  # Return string representation for debugging
+  def inspect: () -> String
+
+  def key: (untyped arg0) -> (String | Symbol | nil)
+
+  # Return all keys as array
+  def keys: () -> Array[untyped]
+
+  # Return number of elements in hash
+  def length: () -> bool
+
+  # Return new hash merged with another hash
+  def merge: (Hash arg0) { (Symbol block_arg0, untyped block_arg1, untyped block_arg2) -> untyped } -> self
+
+  # Merge hash destructively
+  def merge!: (Hash arg0) { (Symbol block_arg0, untyped block_arg1, untyped block_arg2) -> untyped } -> self
+
+  # Remove and return first key-value pair
+  def shift: () -> Array
+
+  # Return self as hash
+  def to_h: () -> self
+
+  # Return all values as array
+  def values: () -> Array[untyped]
+
+  def self.new: (untyped arg0) -> Hash
+
+end

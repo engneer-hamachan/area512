@@ -1,0 +1,3 @@
+class Arguments
+  def call: (Integer required, ?String optional, *Symbol rest, bool trailing, key: Integer, ?timeout: Integer, **String options) { (String) -> void } -> String
+end

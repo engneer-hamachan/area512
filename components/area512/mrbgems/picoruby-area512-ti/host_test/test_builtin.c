@@ -11,8 +11,10 @@ test_string_method_lookup(void) {
 
   assert(method);
   assert(
-    strcmp(ti_get_builtin_signature(method), "sub(String, String) -> String") ==
-    0
+    strcmp(
+      ti_get_builtin_signature(method),
+      "sub: (String arg0, String arg1) -> String"
+    ) == 0
   );
 }
 

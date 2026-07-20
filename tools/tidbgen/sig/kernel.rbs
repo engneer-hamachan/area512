@@ -1,0 +1,25 @@
+# Area512 built-in type declaration.
+
+module Kernel
+  # Inspect and output object
+  def p: (*untyped arg0) -> self
+
+  # Output object
+  def print: (untyped arg0) -> nil
+
+  # Output object with newline
+  def puts: (*untyped arg0) -> nil
+
+  def system: (String arg0) -> bool
+
+  def yield: (*untyped arg0) -> self
+
+  # Create Proc object
+  def proc: () { (untyped block_arg0) -> untyped } -> Proc
+
+  # Create lambda expression
+  def lambda: () { (untyped block_arg0) -> untyped } -> Proc
+
+  def `->`: (untyped arg0) { (untyped block_arg0) -> untyped } -> Proc
+
+end

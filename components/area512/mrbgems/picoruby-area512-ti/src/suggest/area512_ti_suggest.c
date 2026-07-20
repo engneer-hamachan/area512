@@ -128,10 +128,12 @@ append_builtin_suggestions(
   int show_class_name,
   const uint8_t *prefix,
   size_t prefix_length,
+  int max_additions,
   TiSuggestionList *out
 ) {
 
   const TiBuiltinMethod *methods[TI_MAX_SUGGESTIONS];
+  int initial_count = out->count;
   if (out->count >= TI_MAX_SUGGESTIONS)
     return;
 
@@ -153,7 +155,8 @@ append_builtin_suggestions(
     if (has_suggestion(out, name, signature))
       continue;
 
-    if (out->count >= TI_MAX_SUGGESTIONS)
+    if (out->count >= TI_MAX_SUGGESTIONS ||
+        out->count - initial_count >= max_additions)
       return;
 
     TiSuggestion *suggestion = &out->items[out->count++];
@@ -165,7 +168,8 @@ append_builtin_suggestions(
     suggestion->class_name =
       show_class_name ? ti_get_builtin_class_name(class_id) : NULL;
 
-    if (out->count >= TI_MAX_SUGGESTIONS)
+    if (out->count >= TI_MAX_SUGGESTIONS ||
+        out->count - initial_count >= max_additions)
       return;
   }
 }
@@ -407,6 +411,7 @@ collect_suggestions(
       0,
       prefix,
       prefix_length,
+      TI_MAX_SUGGESTIONS,
       out
     );
 
@@ -416,6 +421,7 @@ collect_suggestions(
       0,
       prefix,
       prefix_length,
+      TI_MAX_SUGGESTIONS,
       out
     );
 
@@ -440,6 +446,13 @@ collect_suggestions(
     return 0;
 
   int show_class_name = target_t->union_next != 0;
+  int target_count = 0;
+  const T *counted_target_t = target_t;
+  while (counted_target_t) {
+    target_count++;
+    counted_target_t = ti_get_t(counted_target_t->union_next);
+  }
+  int max_additions = TI_MAX_SUGGESTIONS / target_count;
 
   while (target_t) {
     if ((target_t->t_flags & TI_T_FLAG_DEFINED_CLASS) != 0) {
@@ -459,6 +472,7 @@ collect_suggestions(
         show_class_name,
         prefix,
         prefix_length,
+        max_additions,
         out
       );
     }

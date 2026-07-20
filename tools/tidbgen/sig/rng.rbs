@@ -1,0 +1,6 @@
+# Area512 built-in type declaration.
+
+module RNG
+  def self.random_int: () -> Integer
+
+end

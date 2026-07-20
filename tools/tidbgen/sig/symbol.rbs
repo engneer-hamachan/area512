@@ -1,0 +1,19 @@
+# Area512 built-in type declaration.
+
+class Symbol
+  # Compare symbols
+  def <=>: ((Symbol | untyped) arg0) -> Integer
+
+  # Perform equality comparison
+  def ==: (untyped arg0) -> bool
+
+  # Perform equality comparison (for case statements)
+  def ===: (untyped arg0) -> bool
+
+  # Return string representation for debugging
+  def inspect: () -> String
+
+  # Return self as symbol
+  def to_sym: () -> Symbol
+
+end

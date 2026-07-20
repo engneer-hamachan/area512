@@ -1,0 +1,64 @@
+# Area512 built-in type declaration.
+
+class File
+  # Close file
+  def close: () -> nil
+
+  # Flush write buffer
+  def flush: () -> self
+
+  # Read one line from file
+  def gets: (String arg0) -> (String | nil)
+
+  # Write string with newline to file
+  def puts: (*untyped arg0) -> nil
+
+  # Read data from file
+  def read: (Integer arg0) -> (String | nil)
+
+  # Move file position
+  def seek: (Integer arg0, Integer arg1) -> Integer
+
+  # Return current file position
+  def tell: () -> Integer
+
+  # Return current file position
+  def pos: () -> Integer
+
+  # Write string to file, return number of bytes written
+  def write: (String arg0) -> Integer
+
+  # Execute block for each line
+  def each_line: () { (String block_arg0) -> untyped } -> self
+
+  # Open file and return File object
+  def self.open: (String arg0, String arg1) -> File
+
+  # Open file, yield to block, close automatically
+  def self.open: (String arg0, String arg1) { (File block_arg0) -> untyped } -> untyped
+
+  # Check if file exists
+  def self.exist?: (String arg0) -> bool
+
+  # Read entire file and return as string
+  def self.read: (String arg0) -> String
+
+  # Write string to file, return number of bytes written
+  def self.write: (String arg0, String arg1) -> Integer
+
+  # Delete file(s)
+  def self.delete: (*String arg0) -> Integer
+
+  # Delete file(s) (alias for delete)
+  def self.unlink: (*String arg0) -> Integer
+
+  # Return last component of path
+  def self.basename: (String arg0, String arg1) -> String
+
+  # Return directory part of path
+  def self.dirname: (String arg0) -> String
+
+  # Join path components with separator
+  def self.join: (*String arg0) -> String
+
+end

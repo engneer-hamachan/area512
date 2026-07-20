@@ -1,0 +1,73 @@
+# Area512 built-in type declaration.
+
+class Math
+  # Calculate arccosine
+  def self.acos: (Float arg0) -> Float
+
+  # Calculate inverse hyperbolic cosine
+  def self.acosh: (Float arg0) -> Float
+
+  # Calculate arcsine
+  def self.asin: (Float arg0) -> Float
+
+  # Calculate inverse hyperbolic sine
+  def self.asinh: (Float arg0) -> Float
+
+  # Calculate arctangent
+  def self.atan: (Float arg0) -> Float
+
+  # Calculate arctangent with two arguments
+  def self.atan2: (Float arg0, Float arg1) -> Float
+
+  # Calculate inverse hyperbolic tangent
+  def self.atanh: (Float arg0) -> Float
+
+  # Calculate cube root
+  def self.cbrt: (Float arg0) -> Float
+
+  # Calculate cosine
+  def self.cos: (Float arg0) -> Float
+
+  # Calculate hyperbolic cosine
+  def self.cosh: (Float arg0) -> Float
+
+  # Calculate error function
+  def self.erf: (Float arg0) -> Float
+
+  # Calculate complementary error function
+  def self.erfc: (Float arg0) -> Float
+
+  # Calculate exponential function
+  def self.exp: (Float arg0) -> Float
+
+  # Calculate hypotenuse of right triangle
+  def self.hypot: (Float arg0, Float arg1) -> Float
+
+  # Calculate x * 2^n
+  def self.ldexp: (Float arg0, Integer arg1) -> Float
+
+  # Calculate natural logarithm
+  def self.log: (Float arg0, Float arg1) -> Float
+
+  # Calculate common logarithm
+  def self.log10: (Float arg0) -> Float
+
+  # Calculate base-2 logarithm
+  def self.log2: (Float arg0) -> Float
+
+  # Calculate sine
+  def self.sin: (Float arg0) -> Float
+
+  # Calculate hyperbolic sine
+  def self.sinh: (Float arg0) -> Float
+
+  # Calculate square root
+  def self.sqrt: (Float arg0) -> Float
+
+  # Calculate tangent
+  def self.tan: (Float arg0) -> Float
+
+  # Calculate hyperbolic tangent
+  def self.tanh: (Float arg0) -> Float
+
+end

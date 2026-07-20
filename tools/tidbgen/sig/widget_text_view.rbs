@@ -1,0 +1,25 @@
+# Area512 built-in type declaration.
+
+class WidgetTextView
+  # Set the drawing area; default is the whole body area
+  def area: (Integer arg0, Integer arg1, Integer arg2, Integer arg3) -> nil
+
+  # Set the text (copied, up to 2048 bytes)
+  def text=: (String arg0) -> String
+
+  # First visible wrapped line
+  def scroll: () -> Integer
+
+  # Scroll to a wrapped line (clamped)
+  def scroll=: (Integer arg0) -> Integer
+
+  # Consume UP/DOWN, k/j, ;/. scroll keys; true when consumed
+  def handle: (String arg0) -> bool
+
+  # Draw word-wrapped text and the scrollbar when needed
+  def draw: (Sprite arg0) -> nil
+
+  # Create an empty text view
+  def self.new: () -> WidgetTextView
+
+end

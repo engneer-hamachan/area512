@@ -1,0 +1,49 @@
+# Area512 built-in type declaration.
+
+class GPIO
+  # Check if GPIO pin is HIGH
+  def high?: () -> bool
+
+  # Check if GPIO pin is LOW
+  def low?: () -> bool
+
+  # Set to open drain output mode
+  def open_drain: (Integer arg0) -> Integer
+
+  # Read GPIO pin state
+  def read: () -> Integer
+
+  # Write value to GPIO pin
+  def write: (Integer arg0) -> Integer
+
+  # Check if specified pin is HIGH
+  def self.high_at?: ((Integer | String | Symbol) arg0) -> bool
+
+  # Check if specified pin is LOW
+  def self.low_at?: (Integer arg0) -> bool
+
+  # Create GPIO object
+  def self.new: ((Integer | String | Symbol) arg0, Integer arg1, Integer arg2) -> GPIO
+
+  # Set specified pin to open drain output mode
+  def self.open_drain_at: ((Integer | String | Symbol) arg0) -> Integer
+
+  # Set specified pin to pull-down
+  def self.pull_down_at: ((Integer | String | Symbol) arg0) -> Integer
+
+  # Set specified pin to pull-up
+  def self.pull_up_at: ((Integer | String | Symbol) arg0) -> Integer
+
+  # Read specified pin state
+  def self.read_at: ((Integer | String | Symbol) arg0) -> Integer
+
+  # Set input/output direction of specified pin
+  def self.set_dir_at: ((Integer | String | Symbol) arg0, Integer arg1) -> Integer
+
+  # Set function of specified pin
+  def self.set_function_at: ((Integer | String | Symbol) arg0, Integer arg1) -> Integer
+
+  # Write value to specified pin
+  def self.write_at: ((Integer | String | Symbol) arg0, Integer arg1) -> Integer
+
+end

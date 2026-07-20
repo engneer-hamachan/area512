@@ -1,0 +1,8 @@
+module One
+  class Item
+  end
+end
+module Two
+  class Item
+  end
+end

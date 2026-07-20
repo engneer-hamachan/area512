@@ -1,0 +1,9 @@
+# Area512 built-in type declaration.
+
+class Proc
+  # Call Proc
+  def call: (*untyped arg0) -> untyped
+
+  def self.new: () { (untyped block_arg0) -> untyped } -> Proc
+
+end

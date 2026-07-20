@@ -1,0 +1,35 @@
+# Area512 built-in type declaration.
+
+class NilClass
+  def !: () -> bool
+
+  # Always returns false
+  def &: (untyped arg0) -> bool
+
+  def ===: (untyped arg0) -> bool
+
+  # Returns logical value of argument
+  def ^: (untyped arg0) -> bool
+
+  # Returns "nil"
+  def inspect: () -> String
+
+  # Returns true
+  def nil?: () -> bool
+
+  # Returns 0.0
+  def to_f: () -> Float
+
+  # Returns empty hash
+  def to_h: () -> Hash
+
+  # Returns 0
+  def to_i: () -> Integer
+
+  # Returns empty string
+  def to_s: () -> String
+
+  # Returns logical value of argument
+  def |: (untyped arg0) -> bool
+
+end

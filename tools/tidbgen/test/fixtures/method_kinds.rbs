@@ -1,0 +1,9 @@
+class Kinds
+  def initialize: (Integer value) -> void
+  def one: () -> String
+  alias copy one
+  def self.static: () -> Integer
+  def self?.both: () -> bool
+  private
+  def hidden: () -> void
+end

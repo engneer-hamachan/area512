@@ -1,0 +1,4 @@
+class Overloads
+  def convert: (Integer) -> String
+             | (String) -> Integer
+end

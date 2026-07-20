@@ -1,0 +1,5 @@
+class Unsupported
+  def tuple: () -> [String, Integer]
+  def record: () -> { name: String }
+  def singleton: () -> singleton(String)
+end

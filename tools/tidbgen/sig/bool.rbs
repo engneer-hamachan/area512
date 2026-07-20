@@ -1,0 +1,19 @@
+# Area512 built-in type declaration.
+
+class Bool
+  def !: () -> bool
+
+  # Perform logical AND operation
+  def &: (untyped arg0) -> bool
+
+  def ===: (untyped arg0) -> bool
+
+  # Perform logical XOR operation
+  def ^: (untyped arg0) -> bool
+
+  def to_s: () -> String
+
+  # Perform logical OR operation
+  def |: (untyped arg0) -> bool
+
+end

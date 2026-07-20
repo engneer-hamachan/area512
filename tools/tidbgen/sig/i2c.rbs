@@ -1,0 +1,12 @@
+# Area512 built-in type declaration.
+
+class I2C
+  def write: (Integer arg0, *(Integer | String | Array[Integer]) arg1, ?timeout: Integer, ?nostop: bool) -> Integer
+
+  def read: (Integer arg0, Integer arg1, *(Integer | String | Array[Integer]) arg2, ?timeout: Integer) -> String
+
+  def scan: (?timeout: Integer) -> nil
+
+  def self.new: (unit: (Symbol | nil), ?frequency: Integer, ?sda_pin: Integer, ?scl_pin: Integer, ?timeout: Integer) -> I2C
+
+end

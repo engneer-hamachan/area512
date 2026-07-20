@@ -1,0 +1,88 @@
+# Area512 built-in type declaration.
+
+class Integer
+  # Calculate modulo
+  def %: ((Integer | Float) arg0) -> (Integer | Float)
+
+  # Perform bitwise AND operation
+  def &: (Integer arg0) -> Integer
+
+  # Perform multiplication
+  def *: ((Integer | Float) arg0) -> (Integer | Float)
+
+  # Calculate power
+  def **: ((Integer | Float) arg0) -> Integer
+
+  # Perform addition
+  def +: ((Integer | Float) arg0) -> (Integer | Float)
+
+  # Unary plus operator. Returns self
+  def +@: () -> Integer
+
+  # Perform subtraction
+  def -: ((Integer | Float) arg0) -> (Integer | Float)
+
+  # Unary minus operator. Inverts sign
+  def -@: () -> Integer
+
+  # Perform division
+  def /: ((Integer | Float) arg0) -> (Integer | Float)
+
+  # Perform less than comparison
+  def <: ((Integer | Float) arg0) -> bool
+
+  # Perform left bit shift
+  def <<: (Integer arg0) -> Integer
+
+  # Perform less than or equal comparison
+  def <=: ((Integer | Float) arg0) -> bool
+
+  # Comparison operator. Returns -1 if self < other, 0 if self == other, 1 if self > other
+  def <=>: ((Integer | untyped) arg0) -> Integer
+
+  # Perform equality comparison
+  def ==: (untyped arg0) -> bool
+
+  # Perform greater than comparison
+  def >: ((Integer | Float) arg0) -> bool
+
+  # Perform greater than or equal comparison
+  def >=: ((Integer | Float) arg0) -> bool
+
+  # Perform right bit shift
+  def >>: (Integer arg0) -> Integer
+
+  # Perform bitwise XOR operation
+  def ^: (Integer arg0) -> Integer
+
+  # Get value at specified bit position
+  def []: (untyped arg0) -> Integer
+
+  # Get absolute value
+  def abs: () -> Integer
+
+  # Return single character string corresponding to character code
+  def chr: () -> String
+
+  # Execute block while decreasing from self to argument by 1
+  def downto: (Integer arg0) { (Integer block_arg0) -> untyped } -> Integer
+
+  # Execute block self times
+  def times: () { (Integer block_arg0) -> untyped } -> Integer
+
+  # Convert to floating point number
+  def to_f: () -> Float
+
+  # Return self as integer value
+  def to_i: () -> Integer
+
+  # Convert to string. Base can be specified with argument
+  def to_s: (Integer arg0) -> String
+
+  # Perform bitwise OR operation
+  def |: (Integer arg0) -> Integer
+
+  # Perform bitwise NOT operation
+  def ~: () -> Integer
+
+end

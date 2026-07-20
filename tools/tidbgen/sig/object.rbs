@@ -1,0 +1,66 @@
+# Area512 built-in type declaration.
+
+class Object
+  include Kernel
+  # Comparison operator
+  def <=>: (untyped arg0) -> Integer
+
+  # Perform inequality comparison
+  def !=: (untyped arg0) -> bool
+
+  # Perform equality comparison
+  def ==: (untyped arg0) -> bool
+
+  # Judge case equality
+  def ===: (untyped arg0) -> bool
+
+  def attr_accessor: (*Symbol arg0) -> nil
+
+  def attr_reader: (*Symbol arg0) -> nil
+
+  def block_given?: () -> bool
+
+  # Return object class
+  def class: () -> String
+
+  # Duplicate object
+  def dup: () -> self
+
+  def exit: (Integer arg0) -> nil
+
+  def include: (untyped arg0) -> nil
+
+  def extend: (untyped arg0) -> nil
+
+  # Return string representation for debugging
+  def inspect: () -> String
+
+  # Check if instance of specified class or module
+  def is_a?: (untyped arg0) -> bool
+
+  def loop: () { (nil block_arg0) -> untyped } -> nil
+
+  # Check if nil
+  def nil?: () -> bool
+
+  def private: (untyped arg0) -> nil
+
+  def public: (untyped arg0) -> nil
+
+  def raise: (untyped arg0, String arg1) -> bot
+
+  def relinquish: () -> bool
+
+  def sleep: ((Integer | Float) arg0) -> Integer
+
+  def sleep_ms: (Integer arg0) -> Integer
+
+  def sprintf: (String arg0, *untyped arg1) -> String
+
+  # Return string representation
+  def to_s: () -> String
+
+  # get object method list
+  def self.methods: () -> Array[Symbol]
+
+end

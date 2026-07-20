@@ -1,0 +1,10 @@
+module Feature
+  def feature: () -> String
+end
+class Parent
+  def parent: () -> Integer
+end
+class Child < Parent
+  include Feature
+  def child: () -> String
+end

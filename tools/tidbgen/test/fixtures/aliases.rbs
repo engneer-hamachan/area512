@@ -1,0 +1,6 @@
+type text = String
+type maybe[A] = A?
+class Aliases
+  def text: () -> text
+  def maybe: () -> maybe[String]
+end

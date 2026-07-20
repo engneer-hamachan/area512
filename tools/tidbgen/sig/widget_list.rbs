@@ -1,0 +1,49 @@
+# Area512 built-in type declaration.
+
+class WidgetList
+  # Set the drawing area; default is the whole body area
+  def area: (Integer arg0, Integer arg1, Integer arg2, Integer arg3) -> nil
+
+  # Remove all rows
+  def clear: () -> nil
+
+  # Append a row; optional tag is drawn amber on the left (text, tag = "")
+  def add: (String arg0, String arg1) -> nil
+
+  # Text shown centered when the list is empty
+  def empty_text=: (String arg0) -> String
+
+  # Show the multi-select mark column
+  def show_marks=: (bool arg0) -> bool
+
+  # Toggle the mark on the cursor row
+  def toggle_mark: () -> nil
+
+  # Set the mark on row i
+  def mark: (Integer arg0, bool arg1) -> nil
+
+  # Whether row i is marked
+  def marked?: (Integer arg0) -> bool
+
+  # Number of rows
+  def count: () -> Integer
+
+  # Cursor row
+  def index: () -> Integer
+
+  # Move the cursor (clamped; scroll follows)
+  def index=: (Integer arg0) -> Integer
+
+  # First visible row
+  def top: () -> Integer
+
+  # Consume UP/DOWN, k/j, ;/. cursor keys; true when consumed
+  def handle: (String arg0) -> bool
+
+  # Draw rows, selection, marks, and the scrollbar when needed
+  def draw: (Sprite arg0) -> nil
+
+  # Create an empty list (capacity 128 rows)
+  def self.new: () -> WidgetList
+
+end

@@ -1,0 +1,19 @@
+# Area512 built-in type declaration.
+
+class Display
+  # Screen width in pixels
+  def self.width: () -> Integer
+
+  # Screen height in pixels
+  def self.height: () -> Integer
+
+  # Fill the whole screen with an RGB888 color
+  def self.fill_screen: (Integer arg0) -> untyped
+
+  # Set backlight brightness (0..255)
+  def self.brightness=: (Integer arg0) -> untyped
+
+  # Show/hide the text console
+  def self.console: () -> untyped
+
+end

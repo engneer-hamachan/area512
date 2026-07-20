@@ -1,0 +1,35 @@
+class Object
+end
+class Integer
+end
+class Float
+end
+class String
+end
+class Symbol
+end
+class Array[A]
+end
+class Hash[K, V]
+end
+class Range
+end
+class Proc
+end
+class TrueClass
+end
+class FalseClass
+end
+class NilClass
+end
+class Untyped
+end
+class Class
+end
+module Kernel
+end
+class Basic
+  # Returns text.
+  def text: () -> String
+  def self.make: () -> Basic
+end

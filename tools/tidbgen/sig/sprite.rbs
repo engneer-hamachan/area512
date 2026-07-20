@@ -1,0 +1,43 @@
+# Area512 built-in type declaration.
+
+class Sprite
+  # Sprite width in pixels
+  def width: () -> Integer
+
+  # Sprite height in pixels
+  def height: () -> Integer
+
+  # Fill the whole sprite with an RGB888 color
+  def fill: (Integer arg0) -> Sprite
+
+  # Draw a single pixel (x, y, color)
+  def pixel: (Integer arg0, Integer arg1, Integer arg2) -> Sprite
+
+  # Draw a line (x0, y0, x1, y1, color)
+  def line: (Integer arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4) -> Sprite
+
+  # Draw a rectangle outline (x, y, w, h, color)
+  def rect: (Integer arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4) -> Sprite
+
+  # Draw a filled rectangle (x, y, w, h, color)
+  def fill_rect: (Integer arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4) -> Sprite
+
+  # Draw a circle outline (x, y, r, color)
+  def circle: (Integer arg0, Integer arg1, Integer arg2, Integer arg3) -> Sprite
+
+  # Draw a filled circle (x, y, r, color)
+  def fill_circle: (Integer arg0, Integer arg1, Integer arg2, Integer arg3) -> Sprite
+
+  # Draw text at (x, y, str, color); efont supports Japanese
+  def text: (Integer arg0, Integer arg1, String arg2, Integer arg3) -> Sprite
+
+  # Transfer the sprite to the screen at (x, y); optional 3rd arg is a transparent color
+  def push: (Integer arg0, Integer arg1, Integer arg2) -> Sprite
+
+  # Free the sprite buffer immediately
+  def delete: () -> nil
+
+  # Create an off-screen sprite of the given width and height
+  def self.new: (Integer arg0, Integer arg1, Integer arg2) -> Sprite
+
+end
