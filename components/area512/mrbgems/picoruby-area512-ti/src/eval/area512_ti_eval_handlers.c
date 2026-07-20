@@ -19,6 +19,7 @@ ti_handle_const_evaluation(
   TiContext *context,
   const pm_constant_read_node_t *constant_read
 ) {
+
   const pm_constant_t *constant = ti_get_constant(context, constant_read->name);
 
   if (constant) {
