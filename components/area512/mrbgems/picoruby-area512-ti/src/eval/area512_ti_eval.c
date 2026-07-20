@@ -18,27 +18,30 @@ new_builtin_t(uint8_t class_id) {
   return ti_new_t(class_id, 0, 0);
 }
 
-static uint16_t
-eval_statements(
+uint16_t
+ti_eval_statements(
   TiContext *context,
   const pm_statements_node_t *statements,
   int depth
 ) {
+
+  if (!statements || depth > TI_EVAL_DEPTH_LIMIT || context->failed)
+    return 0;
+
   if (statements->body.size == 0)
     return new_builtin_t(TI_CLASS_NIL);
 
-  uint16_t last_t_node_index = new_builtin_t(TI_CLASS_NIL);
+  uint16_t last_evaluated_t_node_index = new_builtin_t(TI_CLASS_NIL);
 
   for (size_t index = 0; index < statements->body.size; index++)
-    last_t_node_index =
+    last_evaluated_t_node_index =
       ti_eval_expression(context, statements->body.nodes[index], depth + 1);
 
-  return last_t_node_index;
+  return last_evaluated_t_node_index;
 }
 
 uint16_t
 ti_eval_expression(TiContext *context, const pm_node_t *node, int depth) {
-
   if (!node || depth > TI_EVAL_DEPTH_LIMIT || context->failed)
     return 0;
 
@@ -129,24 +132,15 @@ ti_eval_expression(TiContext *context, const pm_node_t *node, int depth) {
     return ti_eval_method(context, (const pm_call_node_t *)node, depth);
 
   case PM_PARENTHESES_NODE:
-    return ti_eval_expression(
+    return ti_eval_statements(
       context,
-      ((const pm_parentheses_node_t *)node)->body,
+      (const pm_statements_node_t *)
+        ((const pm_parentheses_node_t *)node)->body,
       depth + 1
     );
-
-  case PM_STATEMENTS_NODE:
-    return eval_statements(context, (const pm_statements_node_t *)node, depth);
 
   case PM_IF_NODE:
     return ti_eval_ifunless(context, (const pm_if_node_t *)node, depth);
-
-  case PM_ELSE_NODE:
-    return ti_eval_expression(
-      context,
-      (const pm_node_t *)((const pm_else_node_t *)node)->statements,
-      depth + 1
-    );
 
   case PM_RETURN_NODE:
     return ti_eval_return(context, (const pm_return_node_t *)node, depth);

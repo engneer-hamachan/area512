@@ -7,6 +7,7 @@ ti_convert_constant_id(pm_constant_id_t constant_id, uint16_t *name_id) {
     return 0;
 
   *name_id = (uint16_t)constant_id;
+
   return 1;
 }
 

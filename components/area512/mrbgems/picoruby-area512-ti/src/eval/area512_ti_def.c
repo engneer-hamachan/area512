@@ -11,10 +11,12 @@ set_define_args(
   TiDefineInfo *define_info,
   const pm_parameters_node_t *parameters
 ) {
+
   if (!define_info || !parameters)
     return;
 
   size_t required_count = parameters->requireds.size;
+
   if (required_count > TI_DEFINE_ARG_CAPACITY)
     required_count = TI_DEFINE_ARG_CAPACITY;
 
@@ -28,10 +30,12 @@ set_define_args(
 
     pm_constant_id_t constant_id =
       ((const pm_required_parameter_node_t *)parameter)->name;
+
     uint16_t name_id;
 
     if (!ti_convert_constant_id(constant_id, &name_id)) {
       context->failed = 1;
+
       return;
     }
 
@@ -62,10 +66,15 @@ ti_eval_def(TiContext *context, const pm_def_node_t *def_node) {
   uint16_t outer_return_t_node_index = context->return_t_node_index;
   context->return_t_node_index = 0;
 
-  uint16_t body_t_node_index = ti_eval_expression(context, def_node->body, 0);
+  uint16_t last_evaluated_t_node_index =
+    ti_eval_statements(
+      context,
+      (const pm_statements_node_t *)def_node->body,
+      0
+    );
 
   uint16_t return_t_node_index =
-    ti_make_union(context->return_t_node_index, body_t_node_index);
+    ti_make_union(context->return_t_node_index, last_evaluated_t_node_index);
 
   context->return_t_node_index = outer_return_t_node_index;
 
