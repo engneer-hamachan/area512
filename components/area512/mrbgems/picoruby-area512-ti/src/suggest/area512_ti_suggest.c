@@ -37,6 +37,7 @@ find_suggest_prefix(
   size_t *prefix_length,
   int *has_receiver
 ) {
+
   size_t cursor = (size_t)cursor_byte_offset;
   size_t start = cursor;
 
@@ -107,6 +108,7 @@ has_suggestion(
   const char *contents,
   const char *detail
 ) {
+
   for (int index = 0; index < out->count; index++) {
     const TiSuggestion *suggestion = &out->items[index];
 
@@ -128,18 +130,20 @@ append_builtin_suggestions(
   size_t prefix_length,
   TiSuggestionList *out
 ) {
+
   const TiBuiltinMethod *methods[TI_MAX_SUGGESTIONS];
   if (out->count >= TI_MAX_SUGGESTIONS)
     return;
 
-  int method_count = ti_collect_builtin_methods_matching_partial_method_name(
-    class_id,
-    use_static_methods,
-    prefix,
-    prefix_length,
-    methods,
-    TI_MAX_SUGGESTIONS
-  );
+  int method_count =
+    ti_collect_builtin_methods_matching_partial_method_name(
+      class_id,
+      use_static_methods,
+      prefix,
+      prefix_length,
+      methods,
+      TI_MAX_SUGGESTIONS
+    );
 
   for (int index = 0; index < method_count; index++) {
     const TiBuiltinMethod *method = methods[index];
@@ -157,6 +161,7 @@ append_builtin_suggestions(
     suggestion->document = ti_get_builtin_document(method);
     suggestion->contents = name;
     suggestion->contents_length = (int)strlen(name);
+
     suggestion->class_name =
       show_class_name ? ti_get_builtin_class_name(class_id) : NULL;
 
@@ -183,13 +188,16 @@ make_signature_content(
   const TiDefineInfo *define_info,
   const pm_constant_t *name
 ) {
+
   char return_type[TI_TYPE_STRING_CAPACITY];
-  size_t return_type_length = (size_t)ti_type_to_string(
-    context,
-    define_info->return_t_node_index,
-    return_type,
-    sizeof(return_type)
-  );
+
+  size_t return_type_length =
+    (size_t)ti_type_to_string(
+      context,
+      define_info->return_t_node_index,
+      return_type,
+      sizeof(return_type)
+    );
 
   if (return_type_length == 0) {
     memcpy(return_type, "untyped", sizeof("untyped"));
@@ -204,6 +212,7 @@ make_signature_content(
 
     if (define_arg)
       length += define_arg->length;
+
     if (index > 0)
       length += 2;
   }
@@ -252,19 +261,28 @@ append_define_info_suggestions_for_owner(
   size_t prefix_length,
   TiSuggestionList *out
 ) {
+
   for (int index = 0;
        index < ti_get_define_info_count() && out->count < TI_MAX_SUGGESTIONS;
        index++) {
+
     TiDefineInfo *define_info = ti_get_define_info(index);
 
-    if (!define_info || define_info->is_class ||
-        define_info->owner_class_name_id != class_name_id) {
+    if (
+      !define_info ||
+      define_info->is_class ||
+      define_info->owner_class_name_id != class_name_id
+    ) {
+
       continue;
     }
 
     const pm_constant_t *name = ti_get_constant(context, define_info->name_id);
-    if (!name ||
-        !matches_prefix(name->start, name->length, prefix, prefix_length)) {
+
+    if (
+      !name ||
+      !matches_prefix(name->start, name->length, prefix, prefix_length)
+    ) {
       continue;
     }
 
@@ -296,6 +314,7 @@ append_define_info_suggestions(
   size_t prefix_length,
   TiSuggestionList *out
 ) {
+
   int user_class_index = class_id - TI_CLASS_USER_BASE;
   int current_class_index = 0;
 
@@ -313,6 +332,7 @@ append_define_info_suggestions(
         prefix_length,
         out
       );
+
       return;
     }
 

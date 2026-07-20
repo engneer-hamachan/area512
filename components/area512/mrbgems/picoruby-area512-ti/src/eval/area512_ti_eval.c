@@ -151,7 +151,7 @@ ti_eval_expression(TiContext *context, const pm_node_t *node, int depth) {
 }
 
 static bool
-eval(const pm_node_t *node, void *data) {
+eval_on_visit(const pm_node_t *node, void *data) {
   TiContext *context = data;
 
   if (context->failed)
@@ -212,7 +212,7 @@ eval(const pm_node_t *node, void *data) {
     context->current_class_name_id = class_name_id;
 
     if (!context->failed && class_node->body)
-      pm_visit_node(class_node->body, eval, context);
+      pm_visit_node(class_node->body, eval_on_visit, context);
 
     context->current_class_name_id = outer_class_name_id;
     return false;
@@ -235,11 +235,11 @@ ti_evaluation_loop(TiContext *context, const pm_node_t *root) {
   }
 
   context->round = 1;
-  pm_visit_node(root, eval, context);
+  pm_visit_node(root, eval_on_visit, context);
 
   if (!context->failed) {
     context->round = 2;
-    pm_visit_node(root, eval, context);
+    pm_visit_node(root, eval_on_visit, context);
   }
 
   return !context->failed;
