@@ -55,6 +55,7 @@ module TypeInformationDatabaseGenerator
         )
 
       collected_class.declarations << declaration
+
       collect_superclass(collected_class, declaration)
       collect_members(collected_class, declaration.members)
 
@@ -68,20 +69,25 @@ module TypeInformationDatabaseGenerator
 
     def find_or_create_collected_class(full_name, declaration_kind)
       collected_class = @collected_classes[full_name]
+
       if collected_class && collected_class.declaration_kind != declaration_kind
         raise "#{full_name}: class/module declaration conflict"
       end
+
       return collected_class if collected_class
 
-      collected_class = CollectedClass.new(
-        full_name: full_name,
-        declaration_kind: declaration_kind,
-        declarations: [],
-        direct_ancestors: [],
-        instance_methods: {},
-        static_methods: {}
-      )
+      collected_class =
+        CollectedClass.new(
+          full_name: full_name,
+          declaration_kind: declaration_kind,
+          declarations: [],
+          direct_ancestors: [],
+          instance_methods: {},
+          static_methods: {}
+        )
+
       @collected_classes[full_name] = collected_class
+
       collected_class
     end
 
@@ -89,15 +95,20 @@ module TypeInformationDatabaseGenerator
       return unless declaration.respond_to?(:super_class)
       return unless declaration.super_class
 
-      superclass_name = build_full_name(
-        declaration.super_class.name
-      )
-      superclass_names = collected_class.direct_ancestors.filter_map do |ancestor|
-        ancestor[1] if ancestor.first == :super
-      end
+      superclass_name =
+        build_full_name(
+          declaration.super_class.name
+        )
+
+      superclass_names =
+        collected_class.direct_ancestors.filter_map do |ancestor|
+          ancestor[1] if ancestor.first == :super
+        end
+
       if !superclass_names.empty? && !superclass_names.include?(superclass_name)
         raise "#{collected_class.full_name}: conflicting superclasses"
       end
+
       return if superclass_names.include?(superclass_name)
 
       collected_class.direct_ancestors << [
@@ -109,6 +120,7 @@ module TypeInformationDatabaseGenerator
 
     def collect_members(collected_class, members)
       visibility = :public
+
       members.each do |member|
         case member
         when RBS::AST::Members::Public
@@ -130,6 +142,7 @@ module TypeInformationDatabaseGenerator
     def collect_ancestor(collected_class, member)
       ancestor_kind = member.class.name.split("::").last.downcase.to_sym
       ancestor_name = build_full_name(member.name)
+
       collected_class.direct_ancestors << [
         ancestor_kind,
         ancestor_name,
@@ -145,13 +158,17 @@ module TypeInformationDatabaseGenerator
 
     def collect_method(collected_class, member)
       overloads = member.overloads.map(&:method_type)
-      collected_method = CollectedMethod.new(
-        name: member.name.to_s,
-        overloads: overloads,
-        comment: clean_comment(member.comment&.string.to_s),
-        origin_class_full_name: collected_class.full_name
-      )
-      store_method_by_kind(collected_class, collected_method, member.kind)
+
+      collected_method =
+        CollectedMethod.new(
+          name: member.name.to_s,
+          overloads: overloads,
+          comment: clean_comment(member.comment&.string.to_s),
+          origin_class_full_name: collected_class.full_name
+        )
+
+      store_method_by_kind(collected_class, collected_method, member.kind) unless member.name == :initialize
+
       collect_constructor(collected_class, collected_method, member)
     end
 
@@ -170,20 +187,23 @@ module TypeInformationDatabaseGenerator
     def collect_constructor(collected_class, collected_method, member)
       return unless member.name == :initialize
 
-      collected_class.static_methods["new"] = CollectedMethod.new(
-        name: "new",
-        overloads: collected_method.overloads,
-        comment: collected_method.comment,
-        origin_class_full_name: collected_class.full_name,
-        synthetic_return_class_full_name: collected_class.full_name
-      )
+      collected_class.static_methods["new"] =
+        CollectedMethod.new(
+          name: "new",
+          overloads: collected_method.overloads,
+          comment: collected_method.comment,
+          origin_class_full_name: collected_class.full_name,
+          synthetic_return_class_full_name: collected_class.full_name
+        )
     end
 
     def collect_method_alias(collected_class, member)
       method_table = collected_class.instance_methods
+
       if member.kind == :singleton
         method_table = collected_class.static_methods
       end
+
       original_method = method_table[member.old_name.to_s]
       unless original_method
         raise "#{collected_class.full_name}: alias #{member.new_name} has no source #{member.old_name}"
@@ -191,6 +211,7 @@ module TypeInformationDatabaseGenerator
 
       aliased_method = original_method.dup
       aliased_method.name = member.new_name.to_s
+
       method_table[member.new_name.to_s] = aliased_method
     end
 
@@ -204,6 +225,7 @@ module TypeInformationDatabaseGenerator
 
       namespace_prefix = "::"
       namespace_prefix = "#{namespace}::" unless namespace == "::"
+
       "#{namespace_prefix}#{type_name_text}"
     end
   end
