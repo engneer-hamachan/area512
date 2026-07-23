@@ -3,9 +3,9 @@
 #include "core/filer.h"
 
 #include "area512_hal.h"
-#include <mrubyc.h>
 #include <stdbool.h>
 #include "io-console.h"
+#include <mrubyc.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>

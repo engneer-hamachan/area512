@@ -82,14 +82,13 @@ handle_visual(Vim *vim, int key) {
   case 121: {
     int start_line_index, start_byte_offset, end_line_index, end_byte_offset;
 
-    int has_selection =
-      vim_buffer_selection_range(
-        BUFFER,
-        &start_line_index,
-        &start_byte_offset,
-        &end_line_index,
-        &end_byte_offset
-      );
+    int has_selection = vim_buffer_selection_range(
+      BUFFER,
+      &start_line_index,
+      &start_byte_offset,
+      &end_line_index,
+      &end_byte_offset
+    );
 
     vim_string_clear(&vim->paste.text);
     vim_buffer_copy_selected_text(BUFFER, &vim->paste.text);
@@ -102,6 +101,48 @@ handle_visual(Vim *vim, int key) {
       vim_buffer_move_to(BUFFER, start_byte_offset, start_line_index);
 
     vim_buffer_clear_selection(BUFFER);
+
+    vim->input.mode = VIM_MODE_NORMAL;
+
+    clear_command(vim);
+
+    REDRAW(VIM_REDRAW_ALL);
+
+    return;
+  }
+  case 60:
+  case 62: {
+    int start_line_index, start_byte_offset, end_line_index, end_byte_offset;
+
+    if (!vim_buffer_selection_range(
+          BUFFER,
+          &start_line_index,
+          &start_byte_offset,
+          &end_line_index,
+          &end_byte_offset
+        ))
+      break;
+
+    for (int i = start_line_index; i <= end_line_index; i++) {
+      if (key == 62)
+        vim_buffer_indent_line_at(
+          BUFFER,
+          i,
+          INDENT_UNIT,
+          INDENT_UNIT_BYTE_LENGTH
+        );
+      else
+        vim_buffer_outdent_line_at(
+          BUFFER,
+          i,
+          INDENT_UNIT,
+          INDENT_UNIT_BYTE_LENGTH
+        );
+    }
+
+    vim_buffer_clear_selection(BUFFER);
+    vim_buffer_move_to(BUFFER, 0, start_line_index);
+    vim_buffer_move_to_line_first_nonblank(BUFFER);
 
     vim->input.mode = VIM_MODE_NORMAL;
 

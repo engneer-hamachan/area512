@@ -3,9 +3,9 @@
 #include "area512_markdown.h"
 
 #include "core/markdown/viewer.h"
+#include "port/area512_editor_canvas.h"
 #include "port/area512_editor_file.h"
 #include "port/area512_editor_host.h"
-#include "port/area512_editor_canvas.h"
 
 #include "area512_hal.h"
 #include <stdbool.h>
@@ -128,12 +128,11 @@ c_markdown_show(
   io_raw_bang(false);
   area512_gfx_fill_screen(EDIT_BACKGROUND);
 
-  session->canvas.row_sprite =
-    area512_sprite_new_with_font_size(
-      area512_gfx_width(),
-      area512_sprite_font_height(EDIT_HEADING1_FONT_SIZE),
-      EDIT_BODY_FONT_SIZE
-    );
+  session->canvas.row_sprite = area512_sprite_new_with_font_size(
+    area512_gfx_width(),
+    editor_canvas_font_row_height(EDIT_HEADING1_FONT_SIZE),
+    EDIT_BODY_FONT_SIZE
+  );
 
   VimCanvas canvas = {
     .context = &session->canvas,

@@ -112,8 +112,10 @@ vim_buffer_put_key(VimBuffer *buffer, VimPutKey key) {
     if (buffer->cursor_byte_offset > 0) {
       VimString *line = vim_buffer_current_line(buffer);
 
-      int previous_byte_offset =
-        vim_previous_character_byte_offset(line->bytes, buffer->cursor_byte_offset);
+      int previous_byte_offset = vim_previous_character_byte_offset(
+        line->bytes,
+        buffer->cursor_byte_offset
+      );
 
       VimString new_line_content;
       vim_string_init(&new_line_content);
@@ -523,27 +525,88 @@ vim_buffer_join_next_line(VimBuffer *buffer) {
 }
 
 void
-vim_buffer_indent_line(
+vim_buffer_indent_line_at(
   VimBuffer *buffer,
+  int line_index,
   const char *indent,
   int indent_byte_length
 ) {
-  VimString *line = vim_buffer_current_line(buffer);
+  VimString *line = &buffer->lines[line_index];
 
   VimString new_line_content;
   vim_string_init(&new_line_content);
 
   vim_string_append(&new_line_content, indent, indent_byte_length);
   vim_string_append(&new_line_content, line->bytes, line->byte_length);
-  vim_buffer_set_line_built(
-    buffer,
-    buffer->cursor_line_index,
-    &new_line_content
-  );
+  vim_buffer_set_line_built(buffer, line_index, &new_line_content);
 
-  buffer->cursor_byte_offset += indent_byte_length;
+  if (line_index == buffer->cursor_line_index)
+    buffer->cursor_byte_offset += indent_byte_length;
+
   buffer->changed = 1;
 
+  vim_buffer_mark_dirty(buffer, VIM_DIRTY_CONTENT);
+}
+
+void
+vim_buffer_indent_line(
+  VimBuffer *buffer,
+  const char *indent,
+  int indent_byte_length
+) {
+
+  vim_buffer_indent_line_at(
+    buffer,
+    buffer->cursor_line_index,
+    indent,
+    indent_byte_length
+  );
+}
+
+void
+vim_buffer_outdent_line_at(
+  VimBuffer *buffer,
+  int line_index,
+  const char *indent,
+  int indent_byte_length
+) {
+
+  VimString *line = &buffer->lines[line_index];
+
+  int remove_byte_length = 0;
+
+  if (line->byte_length >= indent_byte_length &&
+      memcmp(line->bytes, indent, (size_t)indent_byte_length) == 0)
+
+    remove_byte_length = indent_byte_length;
+
+  else if (line->byte_length > 0 && line->bytes[0] == ' ')
+    remove_byte_length = 1;
+
+  if (remove_byte_length == 0)
+    return;
+
+  VimString new_line_content;
+  vim_string_init(&new_line_content);
+
+  vim_string_append_slice(
+    &new_line_content,
+    line->bytes,
+    line->byte_length,
+    remove_byte_length,
+    line->byte_length
+  );
+
+  vim_buffer_set_line_built(buffer, line_index, &new_line_content);
+
+  if (line_index == buffer->cursor_line_index) {
+    buffer->cursor_byte_offset -= remove_byte_length;
+
+    if (buffer->cursor_byte_offset < 0)
+      buffer->cursor_byte_offset = 0;
+  }
+
+  buffer->changed = 1;
   vim_buffer_mark_dirty(buffer, VIM_DIRTY_CONTENT);
 }
 
@@ -554,62 +617,12 @@ vim_buffer_outdent_line(
   int indent_byte_length
 ) {
 
-  VimString *line = vim_buffer_current_line(buffer);
-
-  if (line->byte_length >= indent_byte_length &&
-      memcmp(line->bytes, indent, (size_t)indent_byte_length) == 0) {
-
-    VimString new_line_content;
-    vim_string_init(&new_line_content);
-
-    vim_string_append_slice(
-      &new_line_content,
-      line->bytes,
-      line->byte_length,
-      indent_byte_length,
-      line->byte_length
-    );
-
-    vim_buffer_set_line_built(
-      buffer,
-      buffer->cursor_line_index,
-      &new_line_content
-    );
-
-    buffer->cursor_byte_offset -= indent_byte_length;
-
-    if (buffer->cursor_byte_offset < 0)
-      buffer->cursor_byte_offset = 0;
-
-    buffer->changed = 1;
-    vim_buffer_mark_dirty(buffer, VIM_DIRTY_CONTENT);
-
-  } else if (line->byte_length > 0 && line->bytes[0] == ' ') {
-    VimString new_line_content;
-    vim_string_init(&new_line_content);
-
-    vim_string_append_slice(
-      &new_line_content,
-      line->bytes,
-      line->byte_length,
-      1,
-      line->byte_length
-    );
-
-    vim_buffer_set_line_built(
-      buffer,
-      buffer->cursor_line_index,
-      &new_line_content
-    );
-
-    buffer->cursor_byte_offset -= 1;
-
-    if (buffer->cursor_byte_offset < 0)
-      buffer->cursor_byte_offset = 0;
-
-    buffer->changed = 1;
-    vim_buffer_mark_dirty(buffer, VIM_DIRTY_CONTENT);
-  }
+  vim_buffer_outdent_line_at(
+    buffer,
+    buffer->cursor_line_index,
+    indent,
+    indent_byte_length
+  );
 }
 
 void
@@ -758,8 +771,10 @@ vim_buffer_insert_after_cursor(
     buffer->cursor_byte_offset = 0;
 
     if (end_insert_byte_offset > 0)
-      buffer->cursor_byte_offset =
-        vim_previous_character_byte_offset(updated_line->bytes, end_insert_byte_offset);
+      buffer->cursor_byte_offset = vim_previous_character_byte_offset(
+        updated_line->bytes,
+        end_insert_byte_offset
+      );
 
     if (buffer->cursor_byte_offset < 0)
       buffer->cursor_byte_offset = 0;
@@ -889,8 +904,10 @@ vim_buffer_insert_before_cursor(
     VimString *updated_line = vim_buffer_current_line(buffer);
 
     if (buffer->cursor_byte_offset > 0)
-      buffer->cursor_byte_offset =
-        vim_previous_character_byte_offset(updated_line->bytes, buffer->cursor_byte_offset);
+      buffer->cursor_byte_offset = vim_previous_character_byte_offset(
+        updated_line->bytes,
+        buffer->cursor_byte_offset
+      );
 
     vim_buffer_mark_dirty(buffer, VIM_DIRTY_CONTENT);
 

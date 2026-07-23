@@ -179,13 +179,12 @@ c_area512_compile_file(
     dump_result = mrc_dump_irep(context, irep, 0, &binary, &binary_size);
 
     if (dump_result == MRC_DUMP_OK)
-      wrote =
-        write_whole_file(
-          virtual_machine,
-          destination_path,
-          binary,
-          binary_size
-        );
+      wrote = write_whole_file(
+        virtual_machine,
+        destination_path,
+        binary,
+        binary_size
+      );
   }
 
   if (binary)

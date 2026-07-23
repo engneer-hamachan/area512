@@ -95,7 +95,7 @@
       ],
       "return_type": {
         "type": [
-          "Self"
+          "Untyped"
         ]
       },
       "document": "Get value for specified key"

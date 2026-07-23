@@ -80,7 +80,13 @@ static void
 c_file_unlink(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
   char full_path[AREA512_PATH_MAX];
 
-  if (!resolve_path_argument(virtual_machine, v, 1, full_path, sizeof full_path))
+  if (!resolve_path_argument(
+        virtual_machine,
+        v,
+        1,
+        full_path,
+        sizeof full_path
+      ))
     return;
 
   if (unlink(full_path) != 0) {
@@ -96,18 +102,22 @@ c_file_rename(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
   char source_path[AREA512_PATH_MAX];
   char destination_path[AREA512_PATH_MAX];
 
-  if (!resolve_path_argument(virtual_machine, v, 1, source_path, sizeof source_path))
+  if (!resolve_path_argument(
+        virtual_machine,
+        v,
+        1,
+        source_path,
+        sizeof source_path
+      ))
     return;
 
-  if (
-    !resolve_path_argument(
-      virtual_machine,
-      v,
-      2,
-      destination_path,
-      sizeof destination_path
-    )
-  )
+  if (!resolve_path_argument(
+        virtual_machine,
+        v,
+        2,
+        destination_path,
+        sizeof destination_path
+      ))
     return;
 
   if (rename(source_path, destination_path) != 0) {
@@ -120,10 +130,17 @@ c_file_rename(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
 
 static void
 c_file_new(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
-  const char *mode = argument_count >= 2 ? (const char *)GET_STRING_ARG(2) : "r";
+  const char *mode =
+    argument_count >= 2 ? (const char *)GET_STRING_ARG(2) : "r";
   char full_path[AREA512_PATH_MAX];
 
-  if (!resolve_path_argument(virtual_machine, v, 1, full_path, sizeof full_path))
+  if (!resolve_path_argument(
+        virtual_machine,
+        v,
+        1,
+        full_path,
+        sizeof full_path
+      ))
     return;
 
   FILE *file = fopen(full_path, strcmp(mode, "w") == 0 ? "wb" : "rb");
@@ -187,8 +204,7 @@ c_file_read(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
     return;
   }
 
-  mrbc_value result =
-    mrbc_string_new(virtual_machine, buffer, (uint32_t)size);
+  mrbc_value result = mrbc_string_new(virtual_machine, buffer, (uint32_t)size);
 
   mrbc_free(virtual_machine, buffer);
 
@@ -228,7 +244,13 @@ static void
 c_dir_mkdir(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
   char full_path[AREA512_PATH_MAX];
 
-  if (!resolve_path_argument(virtual_machine, v, 1, full_path, sizeof full_path))
+  if (!resolve_path_argument(
+        virtual_machine,
+        v,
+        1,
+        full_path,
+        sizeof full_path
+      ))
     return;
 
   if (mkdir(full_path, 0777) != 0) {
@@ -243,7 +265,13 @@ static void
 c_dir_rmdir(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
   char full_path[AREA512_PATH_MAX];
 
-  if (!resolve_path_argument(virtual_machine, v, 1, full_path, sizeof full_path))
+  if (!resolve_path_argument(
+        virtual_machine,
+        v,
+        1,
+        full_path,
+        sizeof full_path
+      ))
     return;
 
   if (rmdir(full_path) != 0) {
@@ -258,7 +286,13 @@ static void
 c_dir_new(mrbc_vm *virtual_machine, mrbc_value v[], int argument_count) {
   char full_path[AREA512_PATH_MAX];
 
-  if (!resolve_path_argument(virtual_machine, v, 1, full_path, sizeof full_path))
+  if (!resolve_path_argument(
+        virtual_machine,
+        v,
+        1,
+        full_path,
+        sizeof full_path
+      ))
     return;
 
   DIR *directory = opendir(full_path);

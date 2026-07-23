@@ -1,4 +1,6 @@
 #include "core/mode/insert.h"
+#include "area512_ti_suggest.h"
+#include "core/complete/complete_popup.h"
 #include "core/syntax/picoruby/highlight.h"
 #include "core/syntax/picoruby/indent.h"
 #include <stddef.h>
@@ -72,7 +74,13 @@ matches_keyword(const char *text, int byte_length, const char *keyword) {
 static int
 is_block_outdent_keyword(const char *text, int byte_length) {
   static const char *const keywords[] = {
-    "in", "end", "else", "when", "elsif", "rescue", "ensure",
+    "in",
+    "end",
+    "else",
+    "when",
+    "elsif",
+    "rescue",
+    "ensure",
   };
   for (int i = 0; i < (int)(sizeof(keywords) / sizeof(keywords[0])); i++)
     if (matches_keyword(text, byte_length, keywords[i]))
@@ -107,6 +115,96 @@ maybe_outdent_current_line(Vim *vim) {
     return;
 
   vim_buffer_outdent_line(BUFFER, INDENT_UNIT, INDENT_UNIT_BYTE_LENGTH);
+}
+
+static int
+calculate_completion_cursor_offset(Vim *vim) {
+  int offset = BUFFER->cursor_byte_offset;
+
+  for (int index = 0; index < BUFFER->cursor_line_index; index++)
+    offset += BUFFER->lines[index].byte_length + 1;
+
+  return offset;
+}
+
+static int
+narrows_completion(int key, const char *character, int character_byte_length) {
+  if (key == 8 || key == 127)
+    return 1;
+
+  if (character_byte_length != 1)
+    return 0;
+
+  uint8_t byte = (uint8_t)character[0];
+
+  return (byte >= 'a' && byte <= 'z') || (byte >= 'A' && byte <= 'Z') ||
+         (byte >= '0' && byte <= '9') || byte == '_' || byte == '!' ||
+         byte == '?';
+}
+
+static void
+start_completion(Vim *vim) {
+  if (!editor_is_ruby_filename(
+        vim->filepath.bytes,
+        vim->filepath.byte_length
+      )) {
+    return;
+  }
+
+  for (;;) {
+    VimString content;
+    vim_string_init(&content);
+    vim_write_content(vim, &content);
+
+    TiSuggestionList suggestions;
+
+    int cursor_offset = calculate_completion_cursor_offset(vim);
+
+    int suggestion_count =
+      ti_fill_suggestions_at_cursor(
+        content.bytes,
+        content.byte_length,
+        cursor_offset,
+        &suggestions
+      );
+
+    if (suggestion_count <= 0) {
+      vim_string_free(&content);
+      return;
+    }
+
+    int next_key = 0;
+    char next_character[4] = {0};
+    int next_character_byte_length = 0;
+
+    int redispatch =
+      show_complete_popup(
+        vim,
+        &suggestions,
+        &next_key,
+        next_character,
+        &next_character_byte_length
+      );
+
+    vim_string_free(&content);
+
+    if (!redispatch)
+      return;
+
+    handle_insert(vim, next_key, next_character, next_character_byte_length);
+
+    if (!narrows_completion(
+          next_key,
+          next_character,
+          next_character_byte_length
+        )) {
+
+      return;
+    }
+
+    if (vim->active_canvas)
+      vim_screen_refresh_if_needed(&vim->screen, vim->active_canvas);
+  }
 }
 
 static void
@@ -170,7 +268,7 @@ handle_insert(
   int character_byte_length
 ) {
   switch (key) {
-  case 8: // '\b' (BS), Backspace
+  case 8:   // '\b' (BS), Backspace
   case 127: // DEL, Backspace
     vim_buffer_put_key(BUFFER, VIM_PUT_BACKSPACE);
     break;
@@ -181,10 +279,21 @@ handle_insert(
   case 13: // '\r' (CR), Enter
     put_auto_indented_newline(vim);
     break;
+  case 14:
+    start_completion(vim);
+    break;
   default:
-    if (key >= 32 && character && character_byte_length > 0) { // printable ASCII, ' ' (space) and above
+    if (key >= 32 && character &&
+        character_byte_length > 0) { // printable ASCII, ' ' (space) and above
       vim_buffer_put_string(BUFFER, character, character_byte_length);
       maybe_outdent_current_line(vim);
+
+      if (character_byte_length == 1 && character[0] == '.') {
+        if (vim->active_canvas)
+          vim_screen_refresh_if_needed(&vim->screen, vim->active_canvas);
+
+        start_completion(vim);
+      }
     }
 
     break;

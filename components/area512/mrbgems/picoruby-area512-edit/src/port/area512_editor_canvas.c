@@ -75,10 +75,66 @@ draw_editor_canvas_row_text(
   );
 }
 
+static int
+compute_row_pixel_top(Area512EditorCanvas *canvas, int row_index) {
+  int last_row_index = area512_gfx_height() / canvas->row_height - 1;
+
+  if (row_index == last_row_index)
+    return area512_gfx_height() - canvas->row_height;
+
+  return row_index * canvas->row_height;
+}
+
 void
 push_editor_canvas_row(void *context, int row_index) {
   Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
-  area512_sprite_push(canvas->row_sprite, 0, row_index * canvas->row_height);
+  area512_sprite_push(
+    canvas->row_sprite,
+    0,
+    compute_row_pixel_top(canvas, row_index)
+  );
+}
+
+void
+fill_editor_canvas_row_span(
+  void *context,
+  int column,
+  int column_count,
+  uint32_t color
+) {
+  Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
+
+  if (column_count <= 0)
+    return;
+
+  area512_sprite_fill_rect(
+    canvas->row_sprite,
+    column * canvas->char_width,
+    0,
+    column_count * canvas->char_width,
+    canvas->row_height,
+    color
+  );
+}
+
+int
+editor_canvas_font_width(int font_size) {
+  int width = (font_size + 1) / 2;
+
+  return width < 1 ? 1 : width;
+}
+
+int
+editor_canvas_font_row_span(int font_size) {
+  int font_height = area512_sprite_font_height(font_size);
+  int row_span = (font_height + EDIT_ROW_HEIGHT - 1) / EDIT_ROW_HEIGHT;
+
+  return row_span < 1 ? 1 : row_span;
+}
+
+int
+editor_canvas_font_row_height(int font_size) {
+  return editor_canvas_font_row_span(font_size) * EDIT_ROW_HEIGHT;
 }
 
 void
@@ -86,6 +142,7 @@ set_editor_canvas_font_size(void *context, int font_size) {
   Area512EditorCanvas *canvas = (Area512EditorCanvas *)context;
 
   canvas->font_size = font_size;
+  canvas->char_width = editor_canvas_font_width(font_size);
   area512_sprite_set_font_size(canvas->row_sprite, font_size);
 }
 
@@ -115,7 +172,7 @@ draw_editor_canvas_cursor(
   area512_sprite_push_transparent(
     canvas->cursor_sprite,
     column * canvas->char_width,
-    row_index * canvas->row_height,
+    compute_row_pixel_top(canvas, row_index),
     EDIT_CURSOR_KEY
   );
 }
@@ -133,7 +190,8 @@ draw_highlight_segment(
   uint32_t color
 ) {
 
-  highlight_canvas_context *context = (highlight_canvas_context *)writer_context;
+  highlight_canvas_context *context =
+    (highlight_canvas_context *)writer_context;
 
   context->canvas->draw_row_text(
     context->canvas->context,

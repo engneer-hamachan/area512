@@ -1,7 +1,7 @@
 #include "core/markdown/viewer.h"
+#include "core/markdown/draw.h"
 #include "core/markdown/parse.h"
 #include "core/markdown/row_writer.h"
-#include "core/markdown/draw.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +10,7 @@
 #define MARKDOWN_FOOTER_TEXT 0xFFFFFF
 #define MARKDOWN_FOOTER_BACKGROUND 0x4E4E4E
 
-#define MARKDOWN_MEASURE_ROWS 512
+#define MARKDOWN_MEASURE_ROWS 0x3FFFFFFF
 
 // -----------------------------------------------------------------------------
 // Scrolling
@@ -42,10 +42,11 @@ ignore_measured_text(
 }
 
 static void
-count_measured_row(void *context, int row_index) {
+count_measured_push(void *context, int row_index) {
   (void)row_index;
 
-  (*(int *)context)++;
+  if (context)
+    (*(int *)context)++;
 }
 
 static int
@@ -56,14 +57,17 @@ measure_visible_content_rows(MarkdownViewer *viewer) {
 }
 
 static int
-measure_markdown_line_rows(MarkdownViewer *viewer, int line_index) {
+measure_markdown_line(
+  MarkdownViewer *viewer,
+  int line_index,
+  int *output_rows
+) {
   int pushed_rows = 0;
-
   VimCanvas measurement_canvas = {
     .context = &pushed_rows,
     .clear_row = ignore_measured_row,
     .draw_row_text = ignore_measured_text,
-    .push_row = count_measured_row,
+    .push_row = count_measured_push,
     .draw_cursor = NULL,
   };
 
@@ -85,84 +89,97 @@ measure_markdown_line_rows(MarkdownViewer *viewer, int line_index) {
     (MarkdownCodeLanguage)viewer->code_language[line_index]
   );
 
-  return pushed_rows;
+  if (output_rows)
+    *output_rows = pushed_rows;
+
+  return writer.screen_row;
 }
 
 static int
-find_markdown_max_top_line(MarkdownViewer *viewer) {
+measure_markdown_line_rows(MarkdownViewer *viewer, int line_index) {
+  return measure_markdown_line(viewer, line_index, NULL);
+}
+
+static int
+measure_markdown_line_row_span(MarkdownViewer *viewer, int line_index) {
+  int output_rows = 0;
+  int screen_rows = measure_markdown_line(viewer, line_index, &output_rows);
+
+  return output_rows > 0 ? screen_rows / output_rows : 1;
+}
+
+static int
+measure_markdown_total_rows(MarkdownViewer *viewer) {
+  int rows = 0;
+
+  for (int line_index = 0; line_index < viewer->buffer.line_count; line_index++)
+    rows += measure_markdown_line_rows(viewer, line_index);
+
+  return rows;
+}
+
+static void
+set_markdown_top_row(MarkdownViewer *viewer, int top_row) {
   int visible_rows = measure_visible_content_rows(viewer);
-  int rendered_rows = 0;
+  int max_top_row = measure_markdown_total_rows(viewer) - visible_rows;
 
-  for (int line_index = viewer->buffer.line_count - 1; line_index >= 0; line_index--) {
-    rendered_rows += measure_markdown_line_rows(viewer, line_index);
+  if (max_top_row < 0)
+    max_top_row = 0;
+  if (top_row < 0)
+    top_row = 0;
+  if (top_row > max_top_row)
+    top_row = max_top_row;
 
-    if (rendered_rows > visible_rows)
-      return line_index + 1 < viewer->buffer.line_count
-               ? line_index + 1
-               : line_index;
+  viewer->top_line = 0;
+  viewer->top_line_row = top_row;
+
+  while (viewer->top_line < viewer->buffer.line_count) {
+    int line_rows = measure_markdown_line_rows(viewer, viewer->top_line);
+
+    if (viewer->top_line_row < line_rows)
+      break;
+
+    viewer->top_line_row -= line_rows;
+    viewer->top_line++;
   }
 
-  return 0;
+  if (viewer->top_line < viewer->buffer.line_count) {
+    int row_span = measure_markdown_line_row_span(viewer, viewer->top_line);
+    viewer->top_line_row -= viewer->top_line_row % row_span;
+  }
+}
+
+static int
+get_markdown_top_row(MarkdownViewer *viewer) {
+  int top_row = viewer->top_line_row;
+
+  for (int line_index = 0; line_index < viewer->top_line; line_index++)
+    top_row += measure_markdown_line_rows(viewer, line_index);
+
+  return top_row;
 }
 
 static void
 scroll_markdown_lines(MarkdownViewer *viewer, int direction) {
-  int max_top_line = find_markdown_max_top_line(viewer);
-  int line_index = viewer->top_line + direction;
+  int row_span = 1;
 
-  while (line_index > 0 && line_index < max_top_line &&
-         measure_markdown_line_rows(viewer, line_index) == 0)
-    line_index += direction;
+  if (viewer->top_line < viewer->buffer.line_count)
+    row_span = measure_markdown_line_row_span(viewer, viewer->top_line);
 
-  if (line_index < 0)
-    line_index = 0;
-
-  if (line_index > max_top_line)
-    line_index = max_top_line;
-
-  viewer->top_line = line_index;
+  set_markdown_top_row(
+    viewer,
+    get_markdown_top_row(viewer) + direction * row_span
+  );
 }
 
 static void
 scroll_markdown_page(MarkdownViewer *viewer, int direction) {
   int visible_rows = measure_visible_content_rows(viewer);
-  int overlap_rows = visible_rows > 1 ? visible_rows - 1 : 1;
-  int max_top_line = find_markdown_max_top_line(viewer);
-  int line_index = viewer->top_line;
-  int rendered_rows = 0;
-
-  if (direction > 0) {
-    while (
-      line_index < viewer->buffer.line_count - 1 &&
-      rendered_rows < overlap_rows
-    ) {
-      rendered_rows += measure_markdown_line_rows(viewer, line_index);
-      line_index++;
-    }
-
-    if (line_index <= viewer->top_line)
-      line_index = viewer->top_line + 1;
-
-  } else {
-    line_index = viewer->top_line - 1;
-
-    while (line_index > 0) {
-      rendered_rows += measure_markdown_line_rows(viewer, line_index);
-
-      if (rendered_rows >= overlap_rows)
-        break;
-
-      line_index--;
-    }
-  }
-
-  if (line_index < 0)
-    line_index = 0;
-
-  if (line_index > max_top_line)
-    line_index = max_top_line;
-
-  viewer->top_line = line_index;
+  int page_rows = visible_rows > 1 ? visible_rows - 1 : 1;
+  set_markdown_top_row(
+    viewer,
+    get_markdown_top_row(viewer) + direction * page_rows
+  );
 }
 
 // -----------------------------------------------------------------------------
@@ -203,12 +220,13 @@ copy_markdown_base_name(
 
 static int
 measure_markdown_scroll_percent(MarkdownViewer *viewer) {
-  int max_top_line = find_markdown_max_top_line(viewer);
+  int max_top_row =
+    measure_markdown_total_rows(viewer) - measure_visible_content_rows(viewer);
 
-  if (max_top_line <= 0)
+  if (max_top_row <= 0)
     return 100;
 
-  return viewer->top_line * 100 / max_top_line;
+  return get_markdown_top_row(viewer) * 100 / max_top_row;
 }
 
 static void
@@ -311,15 +329,17 @@ load_markdown_viewer_text(
 
   MarkdownCodeLanguage language = MARKDOWN_CODE_NONE;
 
-  for (int line_index = 0; line_index < viewer->buffer.line_count; line_index++) {
+  for (int line_index = 0; line_index < viewer->buffer.line_count;
+       line_index++) {
     VimString *line = &viewer->buffer.lines[line_index];
 
     viewer->code_language[line_index] = (uint8_t)language;
 
     if (is_markdown_code_fence(line->bytes, line->byte_length))
-      language = language == MARKDOWN_CODE_NONE
-                   ? read_markdown_code_fence_language(line->bytes, line->byte_length)
-                   : MARKDOWN_CODE_NONE;
+      language =
+        language == MARKDOWN_CODE_NONE
+          ? read_markdown_code_fence_language(line->bytes, line->byte_length)
+          : MARKDOWN_CODE_NONE;
   }
 }
 
@@ -337,6 +357,8 @@ draw_markdown_viewer(MarkdownViewer *viewer, VimCanvas *canvas) {
     measure_visible_content_rows(viewer),
     1
   );
+
+  writer.rows_to_skip = viewer->top_line_row;
 
   int line_index = viewer->top_line;
 
@@ -392,10 +414,11 @@ handle_markdown_viewer_key(MarkdownViewer *viewer, int key_byte) {
 
   case 'g':
     viewer->top_line = 0;
+    viewer->top_line_row = 0;
     break;
 
   case 'G':
-    viewer->top_line = find_markdown_max_top_line(viewer);
+    set_markdown_top_row(viewer, measure_markdown_total_rows(viewer));
     break;
   }
 

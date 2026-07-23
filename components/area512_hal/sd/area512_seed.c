@@ -17,9 +17,8 @@
 
 // Symbols come from target_add_binary_data(area512_seed.tar) in
 // components/area512_hal/CMakeLists.txt.
-extern const uint8_t area512_seed_tar_start[] asm(
-  "_binary_area512_seed_tar_start"
-);
+extern const uint8_t
+  area512_seed_tar_start[] asm("_binary_area512_seed_tar_start");
 extern const uint8_t area512_seed_tar_end[] asm("_binary_area512_seed_tar_end");
 
 static const char *const s_seed_directories[] =
@@ -89,11 +88,7 @@ ensure_parent_directories(char *full_path) {
 }
 
 static bool
-write_seed_file(
-  const char *relative_path,
-  const uint8_t *data,
-  size_t size
-) {
+write_seed_file(const char *relative_path, const uint8_t *data, size_t size) {
 
   char full_path[sizeof(AREA512_DATA_ROOT) + TAR_NAME_SIZE + 1];
 

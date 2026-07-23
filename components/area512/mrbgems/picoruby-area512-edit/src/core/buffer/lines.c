@@ -86,7 +86,12 @@ vim_buffer_load_text(VimBuffer *buffer, const char *text, int byte_length) {
         vim_buffer_set_line(buffer, 0, text + start, i - start);
         first = 0;
       } else
-        vim_buffer_insert_line(buffer, buffer->line_count, text + start, i - start);
+        vim_buffer_insert_line(
+          buffer,
+          buffer->line_count,
+          text + start,
+          i - start
+        );
 
       start = i + 1;
     }

@@ -501,6 +501,16 @@
       "document": "Return string length"
     },
     {
+      "name": "size",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "Return string length"
+    },
+    {
       "name": "ljust",
       "arguments": [
         {
@@ -595,6 +605,23 @@
       "document": "Remove trailing whitespace destructively"
     },
     {
+      "name": "slice",
+      "arguments": [
+        {
+          "type": [
+            "Untyped"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      },
+      "document": "Get character or substring at specified position"
+    },
+    {
       "name": "split",
       "arguments": [
         {
@@ -614,6 +641,27 @@
         ]
       },
       "document": "Split by delimiter and return array"
+    },
+    {
+      "name": "sub",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      },
+      "document": "Replace the first matching substring"
     },
     {
       "name": "start_with?",

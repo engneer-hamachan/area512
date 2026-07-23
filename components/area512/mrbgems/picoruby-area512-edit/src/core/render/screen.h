@@ -20,13 +20,14 @@ typedef struct {
     int inverse
   );
   void (*push_row)(void *context, int row_index);
-  void (*set_font_size)(void *context, int font_size);
-  void (*draw_cursor)(
+  void (*fill_row_span)(
     void *context,
     int column,
-    int row_index,
-    int visible
+    int column_count,
+    uint32_t color
   );
+  void (*set_font_size)(void *context, int font_size);
+  void (*draw_cursor)(void *context, int column, int row_index, int visible);
 } VimCanvas;
 
 typedef void (*vim_highlight_function)(

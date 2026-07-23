@@ -1,0 +1,17 @@
+{
+  "frame": "Builtin",
+  "class": "RNG",
+  "extends": [],
+  "instance_methods": [],
+  "class_methods": [
+    {
+      "name": "random_int",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Integer"
+        ]
+      }
+    }
+  ]
+}

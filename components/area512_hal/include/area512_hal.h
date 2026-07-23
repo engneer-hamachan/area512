@@ -11,11 +11,8 @@ extern "C" {
 #define AREA512_DATA_ROOT "/sdcard/Area512_data"
 #define AREA512_PATH_MAX 256
 
-int area512_resolve_data_path(
-  const char *path,
-  char *buffer,
-  size_t buffer_size
-);
+int
+area512_resolve_data_path(const char *path, char *buffer, size_t buffer_size);
 
 void area512_console_poll(void);
 int area512_console_getchar(void);
@@ -40,26 +37,15 @@ int area512_sprite_width(void *p);
 int area512_sprite_height(void *p);
 void area512_sprite_fill(void *p, uint32_t color);
 void area512_sprite_pixel(void *p, int x, int y, uint32_t color);
-void area512_sprite_line(
-  void *p,
-  int x0,
-  int y0,
-  int x1,
-  int y1,
-  uint32_t color
-);
+void
+area512_sprite_line(void *p, int x0, int y0, int x1, int y1, uint32_t color);
 void area512_sprite_rect(void *p, int x, int y, int w, int h, uint32_t color);
-void area512_sprite_fill_rect(
-  void *p,
-  int x,
-  int y,
-  int w,
-  int h,
-  uint32_t color
-);
+void
+area512_sprite_fill_rect(void *p, int x, int y, int w, int h, uint32_t color);
 void area512_sprite_circle(void *p, int x, int y, int r, uint32_t color);
 void area512_sprite_fill_circle(void *p, int x, int y, int r, uint32_t color);
-void area512_sprite_text(void *p, int x, int y, const char *str, uint32_t color);
+void
+area512_sprite_text(void *p, int x, int y, const char *str, uint32_t color);
 int area512_sprite_text_width(void *p, const char *str);
 void area512_sprite_push(void *p, int x, int y);
 void area512_sprite_push_transparent(void *p, int x, int y, uint32_t transp);

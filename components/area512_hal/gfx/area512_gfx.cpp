@@ -154,11 +154,7 @@ area512_sprite_new_with_font_size(int w, int h, int font_size) {
   if (font == nullptr)
     return nullptr;
 
-  return area512_sprite_new_with_font(
-    w,
-    h,
-    font
-  );
+  return area512_sprite_new_with_font(w, h, font);
 }
 
 void

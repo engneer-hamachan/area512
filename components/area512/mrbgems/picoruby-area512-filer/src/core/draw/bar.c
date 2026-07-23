@@ -34,11 +34,13 @@ draw_chips(Filer *filer, const Chip *chips, int count, int y, int divider) {
     snprintf(key, sizeof key, "[%s]", chips[i].key);
     area512_sprite_text(filer->row, x, 1, key, COLOR_GREEN);
 
-    x += (int)strlen(key) * FILER_CHAR_WIDTH + FILER_CHAR_WIDTH; // gap after [key]
+    x +=
+      (int)strlen(key) * FILER_CHAR_WIDTH + FILER_CHAR_WIDTH; // gap after [key]
 
     area512_sprite_text(filer->row, x, 1, chips[i].label, COLOR_DIM);
 
-    x += (int)strlen(chips[i].label) * FILER_CHAR_WIDTH + FILER_CHAR_WIDTH; // gap to next chip
+    x += (int)strlen(chips[i].label) * FILER_CHAR_WIDTH +
+         FILER_CHAR_WIDTH; // gap to next chip
 
     i++;
   }

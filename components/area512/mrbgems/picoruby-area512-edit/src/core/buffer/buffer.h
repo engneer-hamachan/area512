@@ -121,8 +121,20 @@ void vim_buffer_indent_line(
   const char *indent,
   int indent_byte_length
 );
+void vim_buffer_indent_line_at(
+  VimBuffer *buffer,
+  int line_index,
+  const char *indent,
+  int indent_byte_length
+);
 void vim_buffer_outdent_line(
   VimBuffer *buffer,
+  const char *indent,
+  int indent_byte_length
+);
+void vim_buffer_outdent_line_at(
+  VimBuffer *buffer,
+  int line_index,
   const char *indent,
   int indent_byte_length
 );

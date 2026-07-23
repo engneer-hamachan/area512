@@ -1,6 +1,6 @@
 // Core filer declarations: layout/color constants, the filer state struct, and
-// the ACTION_* codes run() returns to the Ruby shell (must stay in sync with the
-// Ruby side). VM-independent: no mruby/c here.
+// the ACTION_* codes run() returns to the Ruby shell (must stay in sync with
+// the Ruby side). VM-independent: no mruby/c here.
 #pragma once
 
 #include <stdint.h>

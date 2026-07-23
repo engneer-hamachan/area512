@@ -28,17 +28,22 @@ resolve_edit_path(
   ruby_path[byte_length] = '\0';
 
   return area512_resolve_data_path(
-        ruby_path,
-        destination,
-        (size_t)destination_size
-      ) == 0;
+           ruby_path,
+           destination,
+           (size_t)destination_size
+         ) == 0;
 }
 
 int
 load_edit_file(const char *path, int path_byte_length, VimString *content) {
   char path_buffer[AREA512_PATH_MAX];
 
-  if (!resolve_edit_path(path_buffer, sizeof(path_buffer), path, path_byte_length))
+  if (!resolve_edit_path(
+        path_buffer,
+        sizeof(path_buffer),
+        path,
+        path_byte_length
+      ))
     return 0;
 
   FILE *file = fopen(path_buffer, "rb");

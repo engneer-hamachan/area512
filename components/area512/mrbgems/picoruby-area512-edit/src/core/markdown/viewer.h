@@ -23,6 +23,7 @@ typedef struct {
   int width, height;
   int footer_height;
   int top_line;
+  int top_line_row;
 } MarkdownViewer;
 
 void init_markdown_viewer(MarkdownViewer *viewer, int width, int height);
@@ -42,10 +43,8 @@ void load_markdown_viewer_text(
 
 void draw_markdown_viewer(MarkdownViewer *viewer, VimCanvas *canvas);
 
-MarkdownViewerStatus handle_markdown_viewer_key(
-  MarkdownViewer *viewer,
-  int key_byte
-);
+MarkdownViewerStatus
+handle_markdown_viewer_key(MarkdownViewer *viewer, int key_byte);
 
 MarkdownViewerStatus handle_markdown_viewer_escape(
   MarkdownViewer *viewer,

@@ -219,7 +219,11 @@ parse_markdown_block(
   if (inside_code_fence) {
     block->kind = code_fence ? MARKDOWN_BLOCK_CODE_FENCE : MARKDOWN_BLOCK_CODE;
 
-    set_content(block, line, trim_trailing_space_byte_length(line, byte_length));
+    set_content(
+      block,
+      line,
+      trim_trailing_space_byte_length(line, byte_length)
+    );
 
     return;
   } else if (code_fence) {
@@ -256,7 +260,8 @@ parse_markdown_block(
   if (line[byte_offset] == '#') {
     int level = 0;
 
-    while (byte_offset + level < byte_length && line[byte_offset + level] == '#')
+    while (byte_offset + level < byte_length && line[byte_offset + level] == '#'
+    )
       level++;
 
     int heading_text_byte_offset = byte_offset + level;
@@ -391,7 +396,8 @@ find_markdown_delimiter_byte_offset(
   int delimiter_byte_length
 ) {
 
-  for (int i = start_byte_offset; i + delimiter_byte_length <= byte_length; i++) {
+  for (int i = start_byte_offset; i + delimiter_byte_length <= byte_length;
+       i++) {
     if (text[i] == '\\') {
       i++;
       continue;
@@ -414,8 +420,8 @@ find_markdown_delimiter_byte_offset(
   return -1;
 }
 
-// [label](target) or ![label](target) starting at the '['; on success *label_end
-// is the ']' offset and *link_end the offset just past the ')'.
+// [label](target) or ![label](target) starting at the '['; on success
+// *label_end is the ']' offset and *link_end the offset just past the ')'.
 static int
 scan_markdown_link(
   const char *text,
@@ -510,16 +516,14 @@ scan_markdown_inline(
       if (closing_byte_offset > scan_byte_offset + delimiter_byte_length) {
         span_start_byte_offset = scan_byte_offset + delimiter_byte_length;
         span_byte_length = closing_byte_offset - span_start_byte_offset;
-        style =
-          is_strong_delimiter ? MARKDOWN_INLINE_STRONG : MARKDOWN_INLINE_EMPHASIS;
+        style = is_strong_delimiter ? MARKDOWN_INLINE_STRONG
+                                    : MARKDOWN_INLINE_EMPHASIS;
         next_byte_offset = closing_byte_offset + delimiter_byte_length;
       }
 
-    } else if (
-      byte == '[' ||
-      (byte == '!' && scan_byte_offset + 1 < byte_length &&
-       text[scan_byte_offset + 1] == '[')
-    ) {
+    } else if (byte == '[' ||
+               (byte == '!' && scan_byte_offset + 1 < byte_length &&
+                text[scan_byte_offset + 1] == '[')) {
       int opening_bracket_byte_offset =
         byte == '!' ? scan_byte_offset + 1 : scan_byte_offset;
       int label_end_byte_offset, link_end_byte_offset;

@@ -7,11 +7,7 @@
 #include <mrubyc.h>
 
 static void
-c_console_reset(
-  mrbc_vm *virtual_machine,
-  mrbc_value *v,
-  int argument_count
-) {
+c_console_reset(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
 
   (void)virtual_machine;
   (void)argument_count;

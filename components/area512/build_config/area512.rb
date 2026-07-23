@@ -59,6 +59,7 @@ MRuby::CrossBuild.new("esp32-femtoruby") do |conf|
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-compile', __dir__)
 
   # Native C editor replacing upstream vim/editor; still required as "vim".
+  conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-ti', __dir__)
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-edit', __dir__)
 
   # Console/HAL C helpers: Cardputer keyboard (I2C) and battery ADC status.
@@ -69,6 +70,9 @@ MRuby::CrossBuild.new("esp32-femtoruby") do |conf|
 
   # Flicker-free text drawing (Sprite) for the launcher and small apps.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-sprite', __dir__)
+
+  # Themed UI widgets shared by storage applications.
+  conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-widget', __dir__)
 
   # On-screen console: mirrors app stdout (puts) and run errors to the screen.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-console', __dir__)

@@ -78,14 +78,13 @@ search_pattern(
                                    );
 
     while (line_index < buffer->line_count) {
-      int index =
-        find_string_index(
-          buffer->lines[line_index].bytes,
-          buffer->lines[line_index].byte_length,
-          pattern,
-          pattern_byte_length,
-          byte_offset
-        );
+      int index = find_string_index(
+        buffer->lines[line_index].bytes,
+        buffer->lines[line_index].byte_length,
+        pattern,
+        pattern_byte_length,
+        byte_offset
+      );
 
       if (index >= 0) {
         vim_buffer_move_to(buffer, index, line_index);
@@ -99,14 +98,13 @@ search_pattern(
 
     line_index = 0;
     while (line_index <= buffer->cursor_line_index) {
-      int index =
-        find_string_index(
-          buffer->lines[line_index].bytes,
-          buffer->lines[line_index].byte_length,
-          pattern,
-          pattern_byte_length,
-          0
-        );
+      int index = find_string_index(
+        buffer->lines[line_index].bytes,
+        buffer->lines[line_index].byte_length,
+        pattern,
+        pattern_byte_length,
+        0
+      );
 
       if (index >= 0) {
         vim_buffer_move_to(buffer, index, line_index);
@@ -132,13 +130,12 @@ search_pattern(
       if (prefix_byte_length > buffer->lines[line_index].byte_length)
         prefix_byte_length = buffer->lines[line_index].byte_length;
 
-      int index =
-        find_last_string_index(
-          buffer->lines[line_index].bytes,
-          prefix_byte_length,
-          pattern,
-          pattern_byte_length
-        );
+      int index = find_last_string_index(
+        buffer->lines[line_index].bytes,
+        prefix_byte_length,
+        pattern,
+        pattern_byte_length
+      );
 
       if (index >= 0) {
         vim_buffer_move_to(buffer, index, line_index);
