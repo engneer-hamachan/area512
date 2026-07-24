@@ -56,8 +56,6 @@ area512_filer_read_key(void) {
   case '\r':
   case '\n':
     return KEY_RIGHT;
-  case 'q':
-    return KEY_QUIT;
   case 'c':
     return KEY_COMPILE;
   case 'a':

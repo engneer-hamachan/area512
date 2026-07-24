@@ -43,11 +43,6 @@ run_filer_interaction(Filer *filer) {
     FileEntry *entry = filer->count > 0 ? &filer->entries[filer->index] : NULL;
 
     switch (key) {
-    case KEY_QUIT:
-      area512_filer_teardown_ui(filer);
-
-      return ACTION_QUIT;
-
     case KEY_DOWN:
       move_cursor(filer, 1);
 

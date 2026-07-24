@@ -28,7 +28,6 @@
 #define ENTRY_TYPE_APP 2
 #define ENTRY_TYPE_OTHER 3
 
-#define ACTION_QUIT 0
 #define ACTION_OPEN_DIR 1
 #define ACTION_UP 2
 #define ACTION_RUN_MRB 3
@@ -47,7 +46,6 @@
 #define KEY_DOWN 1002
 #define KEY_RIGHT 1003
 #define KEY_LEFT 1004
-#define KEY_QUIT 1005
 #define KEY_COMPILE 1006
 #define KEY_COMPILE_ALL 1007
 #define KEY_EDIT 1008
