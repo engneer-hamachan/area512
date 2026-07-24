@@ -83,6 +83,35 @@ test_receiverless_user_class_suggestion(void) {
 }
 
 static void
+test_receiverless_builtin_class_suggestion(void) {
+  TiSuggestionList suggestions = suggest_source("Str");
+  const TiSuggestion *suggestion = find_suggestion(&suggestions, "String");
+
+  assert(suggestion);
+  assert(strcmp(suggestion->detail, "String") == 0);
+}
+
+static void
+test_receiverless_defined_class_suggestion(void) {
+  TiSuggestionList suggestions = suggest_source("class User\n"
+                                                "end\n"
+                                                "Us");
+  const TiSuggestion *suggestion = find_suggestion(&suggestions, "User");
+
+  assert(suggestion);
+  assert(strcmp(suggestion->detail, "User") == 0);
+}
+
+static void
+test_receiverless_lowercase_prefix_skips_class_suggestions(void) {
+  TiSuggestionList suggestions = suggest_source("class User\n"
+                                                "end\n"
+                                                "us");
+
+  assert(!find_suggestion(&suggestions, "User"));
+}
+
+static void
 test_union_suggestion(void) {
   TiSuggestionList suggestions = suggest_source("v = 1\nv = \"s\"\nv.");
   const TiSuggestion *integer_suggestion = find_suggestion(&suggestions, "abs");
@@ -212,6 +241,9 @@ main(void) {
   test_receiverless_suggestion();
   test_receiverless_top_level_method_suggestion();
   test_receiverless_user_class_suggestion();
+  test_receiverless_builtin_class_suggestion();
+  test_receiverless_defined_class_suggestion();
+  test_receiverless_lowercase_prefix_skips_class_suggestions();
   test_union_suggestion();
   test_union_prefix_suggestion();
   test_union_skips_user_class();
