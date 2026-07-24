@@ -1,0 +1,9 @@
+class Box[T]
+  def value: () -> T
+end
+
+class Middle[T] < Box[T]
+end
+
+class StringMiddle < Middle[String]
+end

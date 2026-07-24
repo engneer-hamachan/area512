@@ -74,6 +74,7 @@ gendb:
 	  --out $(TI_GENERATED)
 
 gendb-test: gendb
+	ruby ./tools/tidbgen/test/tidbgen_test.rb
 	$(MAKE) -C ./components/area512/mrbgems/picoruby-area512-ti/host_test test
 
 fullclean:

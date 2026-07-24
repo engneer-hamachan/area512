@@ -1,176 +1,252 @@
 # frozen_string_literal: true
 
-module TypeInformationDatabaseGenerator
+module TiDatabaseGenerator
   class TypeResolver
-    def initialize(type_aliases, class_identifiers)
+    def initialize(type_aliases:, class_identifiers_by_full_name:)
       @type_aliases = type_aliases
-      @class_identifiers = class_identifiers
+      @class_identifiers_by_full_name = class_identifiers_by_full_name
     end
 
-    def resolve(signature_type, owner_full_name:, type_bindings: {})
-      class_identifiers, array_variant_class_identifiers =
-        resolve_type_components(
-          signature_type,
-          owner_full_name,
-          type_bindings
-        )
+    def resolve(signature_type:, owner_full_name:)
+      resolved_type_components =
+        resolve_type_components(signature_type:, owner_full_name:)
+
       ResolvedType.new(
-        class_identifiers: ClassIdentifierCollection.normalize(class_identifiers),
-        array_variant_class_identifiers: ClassIdentifierCollection.normalize(
-          array_variant_class_identifiers
-        )
+        class_identifiers:
+          ClassIdentifierCollection.normalize(
+            class_identifiers: resolved_type_components[:class_identifiers]
+          ),
+        array_variant_class_identifiers:
+          ClassIdentifierCollection.normalize(
+            class_identifiers: resolved_type_components[:array_variant_class_identifiers]
+          )
       )
     end
 
     private
 
-    def resolve_type_components(signature_type, owner_full_name, type_bindings)
+    def resolve_type_components(signature_type:, owner_full_name:)
       case signature_type
       when RBS::Types::ClassInstance
-        resolve_class_instance(signature_type, owner_full_name, type_bindings)
+        resolve_class_instance_type_components(
+          class_instance_type: signature_type,
+          owner_full_name:
+        )
+
       when RBS::Types::Union
-        resolve_union(signature_type, owner_full_name, type_bindings)
+        resolve_union_type_components(
+          union_type: signature_type,
+          owner_full_name:
+        )
+
       when RBS::Types::Optional
-        resolve_optional(signature_type, owner_full_name, type_bindings)
+        resolve_optional_type_components(
+          optional_type: signature_type,
+          owner_full_name:
+        )
+
       when RBS::Types::Alias
-        resolve_alias(signature_type, owner_full_name, type_bindings)
-      when RBS::Types::Variable
-        resolve_variable(signature_type, owner_full_name, type_bindings)
+        resolve_alias_type_components(
+          alias_type: signature_type,
+          owner_full_name:
+        )
+
+      when RBS::Types::Variable # T -> sub(T) -> T -> Untyped
+        build_type_components(
+          class_identifiers:
+            [fetch_class_identifier(full_class_name: "::Untyped")]
+        )
+
       when RBS::Types::Bases::Self, RBS::Types::Bases::Instance
-        [[fetch_class_identifier(owner_full_name)], []]
+        build_type_components(
+          class_identifiers: [fetch_class_identifier(full_class_name: owner_full_name)]
+        )
+
       when RBS::Types::Bases::Bool
-        [
-          [
-            fetch_class_identifier("::TrueClass"),
-            fetch_class_identifier("::FalseClass")
-          ],
-          []
-        ]
+        build_type_components(
+          class_identifiers: [
+            fetch_class_identifier(full_class_name: "::TrueClass"),
+            fetch_class_identifier(full_class_name: "::FalseClass")
+          ]
+        )
+
       when RBS::Types::Bases::Nil, RBS::Types::Bases::Void
-        [[fetch_class_identifier("::NilClass")], []]
+        build_type_components(
+          class_identifiers: [fetch_class_identifier(full_class_name: "::NilClass")]
+        )
+
       when RBS::Types::Bases::Any,
            RBS::Types::Bases::Top,
            RBS::Types::Bases::Bottom
-        [[fetch_class_identifier("::Untyped")], []]
+
+        build_type_components(
+          class_identifiers: [fetch_class_identifier(full_class_name: "::Untyped")]
+        )
+
       when RBS::Types::Literal
-        literal_class_name = resolve_literal_class_name(signature_type.literal)
-        [[fetch_class_identifier(literal_class_name)], []]
+        literal_full_class_name =
+          resolve_literal_full_class_name(
+            literal: signature_type.literal
+          )
+
+        build_type_components(
+          class_identifiers: [fetch_class_identifier(full_class_name: literal_full_class_name)]
+        )
+
       when RBS::Types::Proc
-        [[fetch_class_identifier("::Proc")], []]
+        build_type_components(
+          class_identifiers: [fetch_class_identifier(full_class_name: "::Proc")]
+        )
+
       when RBS::Types::Tuple,
            RBS::Types::Record,
            RBS::Types::Interface,
            RBS::Types::Intersection,
            RBS::Types::ClassSingleton
-        [[fetch_class_identifier("::Untyped")], []]
+
+        build_type_components(
+          class_identifiers: [fetch_class_identifier(full_class_name: "::Untyped")]
+        )
+
       else
         raise "unsupported RBS type class: #{signature_type.class}"
       end
     end
 
-    def resolve_class_instance(signature_type, owner_full_name, type_bindings)
-      full_type_name = resolve_type_name(signature_type.name, owner_full_name)
-      if full_type_name == "::Array" && signature_type.args.first
-        return resolve_array(
-          signature_type.args.first,
-          owner_full_name,
-          type_bindings
+    def resolve_class_instance_type_components(
+      class_instance_type:,
+      owner_full_name:
+    )
+
+      full_type_name =
+        resolve_full_type_name(
+          type_name: class_instance_type.name,
+          owner_full_name:
+        )
+
+      # Array[T]
+      if full_type_name == "::Array" && class_instance_type.args.first
+        return resolve_array_type_components(
+          element_type: class_instance_type.args.first,
+          owner_full_name:
         )
       end
-      if !signature_type.args.empty? && full_type_name != "::Array"
-        return [[fetch_class_identifier("::Untyped")], []]
-      end
 
-      [[fetch_class_identifier(full_type_name)], []]
-    end
-
-    def resolve_array(element_type, owner_full_name, type_bindings)
-      element_class_identifiers, nested_variant_class_identifiers =
-        resolve_type_components(element_type, owner_full_name, type_bindings)
-      unless nested_variant_class_identifiers.empty?
-        element_class_identifiers = [fetch_class_identifier("::Untyped")]
-      end
-      [
-        [fetch_class_identifier("::Array")],
-        element_class_identifiers
-      ]
-    end
-
-    def resolve_union(signature_type, owner_full_name, type_bindings)
-      resolved_members = signature_type.types.map do |member_type|
-        member_class_identifiers, member_variant_class_identifiers =
-          resolve_type_components(
-            member_type,
-            owner_full_name,
-            type_bindings
-          )
-        [member_class_identifiers, member_variant_class_identifiers]
-      end
-      [
-        resolved_members.flat_map(&:first),
-        resolved_members.flat_map(&:last)
-      ]
-    end
-
-    def resolve_optional(signature_type, owner_full_name, type_bindings)
-      class_identifiers, array_variant_class_identifiers =
-        resolve_type_components(
-          signature_type.type,
-          owner_full_name,
-          type_bindings
+      # Hash[T] -> Hash[Untyped]
+      if !class_instance_type.args.empty? && full_type_name != "::Array"
+        return build_type_components(
+          class_identifiers:
+            [fetch_class_identifier(full_class_name: "::Untyped")]
         )
-      class_identifiers << fetch_class_identifier("::NilClass")
-      [class_identifiers, array_variant_class_identifiers]
-    end
-
-    def resolve_alias(signature_type, owner_full_name, type_bindings)
-      full_alias_name = resolve_type_name(signature_type.name, owner_full_name)
-      alias_declaration = @type_aliases[full_alias_name]
-      unless alias_declaration
-        top_level_alias_name = "::#{signature_type.name.name}"
-        alias_declaration = @type_aliases[
-          top_level_alias_name
-        ]
-      end
-      unless alias_declaration
-        raise "#{owner_full_name}: unresolved type alias #{signature_type.name}"
       end
 
-      alias_type_bindings = type_bindings.dup
-      alias_declaration.type_params.zip(signature_type.args).each do |parameter, argument|
-        alias_type_bindings[parameter.name] = argument
-      end
-      resolve_type_components(
-        alias_declaration.type,
-        owner_full_name,
-        alias_type_bindings
+      build_type_components(
+        class_identifiers:
+          [fetch_class_identifier(full_class_name: full_type_name)]
       )
     end
 
-    def resolve_variable(signature_type, owner_full_name, type_bindings)
-      bound_type = type_bindings[signature_type.name]
-      unless bound_type
-        return [[fetch_class_identifier("::Untyped")], []]
+    def resolve_array_type_components(element_type:, owner_full_name:)
+      element_type_components =
+        resolve_type_components(signature_type: element_type, owner_full_name:)
+
+      element_class_identifiers = element_type_components[:class_identifiers]
+
+      unless element_type_components[:array_variant_class_identifiers].empty?
+        element_class_identifiers =
+          [fetch_class_identifier(full_class_name: "::Untyped")]
       end
 
-      resolve_type_components(bound_type, owner_full_name, type_bindings)
+      build_type_components(
+        class_identifiers: [fetch_class_identifier(full_class_name: "::Array")],
+        array_variant_class_identifiers: element_class_identifiers
+      )
     end
 
-    def resolve_type_name(type_name, owner_full_name)
+    def resolve_union_type_components(union_type:, owner_full_name:)
+      class_identifiers = []
+      array_variant_class_identifiers = []
+
+      union_type.types.each do |member_type|
+        member_components =
+          resolve_type_components(signature_type: member_type, owner_full_name:)
+
+        class_identifiers.concat(member_components[:class_identifiers])
+
+        array_variant_class_identifiers
+          .concat(member_components[:array_variant_class_identifiers])
+      end
+
+      build_type_components(
+        class_identifiers:,
+        array_variant_class_identifiers:
+      )
+    end
+
+    def resolve_optional_type_components(optional_type:, owner_full_name:)
+      resolved_type_components =
+        resolve_type_components(
+          signature_type: optional_type.type,
+          owner_full_name:
+        )
+
+      resolved_type_components[:class_identifiers] << fetch_class_identifier(full_class_name: "::NilClass")
+
+      resolved_type_components
+    end
+
+    def resolve_alias_type_components(alias_type:, owner_full_name:)
+      full_alias_name = resolve_full_type_name(type_name: alias_type.name, owner_full_name:)
+      alias_declaration = @type_aliases[full_alias_name]
+
+      # research toplevel
+      unless alias_declaration
+        top_level_full_alias_name = "::#{alias_type.name.name}"
+        alias_declaration = @type_aliases[top_level_full_alias_name]
+      end
+
+      unless alias_declaration
+        raise "#{owner_full_name}: unresolved type alias #{alias_type.name}"
+      end
+
+      alias_substitution =
+        RBS::Substitution.build(
+          alias_declaration.type_params.map(&:name), # [:A]
+          alias_type.args # [String | Integer | Array | and more....]
+        )
+
+      resolve_type_components(
+        signature_type: alias_declaration.type.sub(alias_substitution),
+        owner_full_name:
+      )
+    end
+
+    def resolve_full_type_name(type_name:, owner_full_name:)
       type_name_text = type_name.to_s
       return type_name_text if type_name_text.start_with?("::")
 
-      namespace = owner_full_name.split("::")[0...-1].join("::")
-      namespace_type_name = "#{namespace}::#{type_name_text}"
-      if @class_identifiers.key?(namespace_type_name) ||
-          @type_aliases.key?(namespace_type_name)
-        return namespace_type_name
+      owner_name_segments = owner_full_name.split("::")
+
+      # search by ↓
+      #::A::B::<type_name>
+      #::A::<type_name>
+      #::<type_name>
+      while 1 < owner_name_segments.length
+        full_type_name = "#{owner_name_segments.join("::")}::#{type_name_text}"
+
+        if @class_identifiers_by_full_name.key?(full_type_name) ||
+            @type_aliases.key?(full_type_name)
+
+          return full_type_name
+        end
+
+        owner_name_segments.pop
       end
 
       "::#{type_name_text}"
     end
 
-    def resolve_literal_class_name(literal)
+    def resolve_literal_full_class_name(literal:)
       case literal
       when Integer
         "::Integer"
@@ -191,12 +267,23 @@ module TypeInformationDatabaseGenerator
       end
     end
 
-    def fetch_class_identifier(full_class_name)
-      unless @class_identifiers.key?(full_class_name)
+    def fetch_class_identifier(full_class_name:)
+      unless @class_identifiers_by_full_name.key?(full_class_name)
         raise "class ID cannot be resolved: #{full_class_name}"
       end
 
-      @class_identifiers[full_class_name]
+      @class_identifiers_by_full_name[full_class_name]
+    end
+
+    def build_type_components(
+      class_identifiers:,
+      array_variant_class_identifiers: []
+    )
+
+      {
+        class_identifiers:,
+        array_variant_class_identifiers:
+      }
     end
 
   end

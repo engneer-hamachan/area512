@@ -28,10 +28,10 @@ make_array_variants(const TiBuiltinMethod *method, uint16_t *variants) {
 
 static uint16_t
 make_method_return(const TiBuiltinMethod *method) {
-  uint8_t return_class_ids[4];
+  uint8_t return_class_identifiers[4];
 
   int return_class_count =
-    ti_get_builtin_return_classes(method, return_class_ids);
+    ti_get_builtin_return_classes(method, return_class_identifiers);
 
   uint16_t result = 0;
 
@@ -39,7 +39,7 @@ make_method_return(const TiBuiltinMethod *method) {
     uint16_t variants = 0;
 
     if (
-        return_class_ids[index] == TI_CLASS_ARRAY &&
+        return_class_identifiers[index] == TI_CLASS_ARRAY &&
         !make_array_variants(method, &variants)
       ) {
 
@@ -47,7 +47,7 @@ make_method_return(const TiBuiltinMethod *method) {
     }
 
     uint16_t union_next_t_node_index =
-      ti_new_t(return_class_ids[index], 0, variants);
+      ti_new_t(return_class_identifiers[index], 0, variants);
 
     result = ti_make_union(result, union_next_t_node_index);
 

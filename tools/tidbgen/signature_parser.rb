@@ -2,9 +2,9 @@
 
 require "rbs"
 
-module TypeInformationDatabaseGenerator
+module TiDatabaseGenerator
   class SignatureParser
-    def parse(signature_paths)
+    def parse_signature_declarations(signature_paths:)
       signature_paths.flat_map do |signature_path|
         begin
           RBS::Parser.parse_signature(

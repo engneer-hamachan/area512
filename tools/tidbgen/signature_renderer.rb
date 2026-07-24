@@ -1,26 +1,11 @@
 # frozen_string_literal: true
 
-module TypeInformationDatabaseGenerator
+module TiDatabaseGenerator
   class SignatureRenderer
-    def render_method_signature(collected_method)
-      collected_method.overloads.map do |method_type|
-        rendered_type = method_type.to_s
-        if collected_method.synthetic_return_class_full_name
-          rendered_type = replace_return_type(
-            rendered_type,
-            collected_method.synthetic_return_class_full_name
-          )
-        end
-        "#{collected_method.name}: #{rendered_type}"
+    def render_method_signature(collected_method:)
+      collected_method.method_types.map do |method_type|
+        "#{collected_method.name}: #{method_type}"
       end.join("\n")
-    end
-
-    private
-
-    def replace_return_type(rendered_type, synthetic_return_class_full_name)
-      signature_without_return, arrow_separator, = rendered_type.rpartition(" -> ")
-      return_type_name = synthetic_return_class_full_name.delete_prefix("::")
-      "#{signature_without_return}#{arrow_separator}#{return_type_name}"
     end
   end
 end

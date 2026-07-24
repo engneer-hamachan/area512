@@ -1,5 +1,5 @@
-#ifndef AREA512_TI_BUILTIN_DB_H
-#define AREA512_TI_BUILTIN_DB_H
+#ifndef AREA512_TI_BUILTIN_DATABASE_H
+#define AREA512_TI_BUILTIN_DATABASE_H
 
 #include <stdint.h>
 
@@ -39,30 +39,30 @@ typedef enum {
   TI_CLASS_WIDGET_TEXT_VIEW,
   TI_CLASS_BUILTIN_COUNT,
   TI_CLASS_USER_BASE = TI_CLASS_BUILTIN_COUNT
-} TiClassId;
+} TiClassIdentifier;
 
 typedef struct {
   uint16_t name_offset;
   uint16_t signature_offset;
   uint16_t document_offset;
-  uint8_t return_class_id;
-  uint8_t return_array_variant_class_id;
-  uint8_t return_union_index;
-  uint8_t array_variant_union_index;
-  uint8_t block_parameter_class_id;
-  uint8_t origin_class_id;
+  uint8_t return_class_identifier;
+  uint8_t return_array_variant_class_identifier;
+  uint16_t return_union_index;
+  uint16_t array_variant_union_index;
+  uint8_t block_parameter_class_identifier;
+  uint8_t origin_class_identifier;
 } TiBuiltinMethod;
 
 typedef struct {
   uint16_t name_offset;
-  uint16_t instance_method_start;
+  uint16_t instance_method_start_index;
   uint16_t instance_method_count;
-  uint16_t static_method_start;
+  uint16_t static_method_start_index;
   uint16_t static_method_count;
 } TiBuiltinClass;
 
 typedef struct {
-  uint8_t member_class_ids[4];
+  uint8_t member_class_identifiers[4];
 } TiBuiltinUnion;
 
 extern const TiBuiltinClass ti_builtin_classes[];

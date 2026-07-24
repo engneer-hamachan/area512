@@ -1,7 +1,7 @@
 #ifndef AREA512_TI_BUILTIN_H
 #define AREA512_TI_BUILTIN_H
 
-#include "area512_ti_builtin_db.h"
+#include "area512_ti_builtin_database.h"
 #include <stddef.h>
 #include <stdint.h>
 

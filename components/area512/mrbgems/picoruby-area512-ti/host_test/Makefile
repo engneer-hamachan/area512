@@ -4,7 +4,7 @@ SOURCE_ROOT := ../src
 SOURCE_DIRS := base builtin context eval eval/method_evaluator hover suggest
 ENGINE_SOURCES := \
   $(foreach source_dir,$(SOURCE_DIRS),$(wildcard $(SOURCE_ROOT)/$(source_dir)/*.c))
-GENERATED_SOURCE := $(SOURCE_ROOT)/generated/area512_ti_builtin_db.c
+GENERATED_SOURCE := $(SOURCE_ROOT)/generated/area512_ti_builtin_database.c
 OBJECT_ROOT := build
 ENGINE_OBJECTS := \
   $(patsubst $(SOURCE_ROOT)/%.c,$(OBJECT_ROOT)/%.o,$(ENGINE_SOURCES))

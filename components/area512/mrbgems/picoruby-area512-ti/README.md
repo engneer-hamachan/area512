@@ -3,7 +3,7 @@
 The built-in database is generated directly from the RBS files listed in
 `tools/tidbgen/manifest.rb`. Run `make gendb` from the Area512 project root
 whenever one of those files changes, then review the generated
-`area512_ti_builtin_db.c` and `area512_ti_builtin_db.h` files.
+`area512_ti_builtin_database.c` and `area512_ti_builtin_database.h` files.
 
 The generator does not create an intermediate JSON file. Types that RBS can
 resolve but the current database fields cannot represent are stored as

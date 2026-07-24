@@ -167,10 +167,6 @@ append_builtin_suggestions(
 
     suggestion->class_name =
       show_class_name ? ti_get_builtin_class_name(class_id) : NULL;
-
-    if (out->count >= TI_MAX_SUGGESTIONS ||
-        out->count - initial_count >= max_additions)
-      return;
   }
 }
 
@@ -448,10 +444,12 @@ collect_suggestions(
   int show_class_name = target_t->union_next != 0;
   int target_count = 0;
   const T *counted_target_t = target_t;
+
   while (counted_target_t) {
     target_count++;
     counted_target_t = ti_get_t(counted_target_t->union_next);
   }
+
   int max_additions = TI_MAX_SUGGESTIONS / target_count;
 
   while (target_t) {

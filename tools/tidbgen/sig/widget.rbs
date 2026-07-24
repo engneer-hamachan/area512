@@ -43,8 +43,8 @@ class Widget
   # Read one key: "UP" "DOWN" "LEFT" "RIGHT" "ENTER" "ESC" "BS" or a 1-char string
   def self.read_key: () -> String
 
-  # Top band: gold title, dim right-aligned text (title, right = "")
-  def self.header: (Sprite arg0, String arg1, String arg2) -> nil
+  # Top band: gold title, dim right-aligned text (sprite, title, right = "")
+  def self.header: (Sprite arg0, String arg1, ?String arg2) -> nil
 
   # Bottom rule + clipped message
   def self.footer: (Sprite arg0, String arg1) -> nil
@@ -55,113 +55,113 @@ class Widget
   # Full-width horizontal rule at y
   def self.separator: (Sprite arg0, Integer arg1) -> nil
 
-  # Vertical rule (x, y, h)
+  # Vertical rule (sprite, x, y, h)
   def self.vseparator: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3) -> nil
 
-  # Tab bar at y; active tab highlighted (y, labels, active)
+  # Tab bar at y; active tab highlighted (sprite, y, labels, active)
   def self.tabs: (Sprite arg0, Integer arg1, Array[String] arg2, Integer arg3) -> nil
 
-  # Battery icon with charge level at (x, y)
+  # Battery icon with charge level at (sprite, x, y)
   def self.battery: (Sprite arg0, Integer arg1, Integer arg2) -> nil
 
-  # Full-screen title in the 24px font (title, subtitle = "")
-  def self.splash: (Sprite arg0, String arg1, String arg2) -> nil
+  # Full-screen title in the 24px font (sprite, title, subtitle = "")
+  def self.splash: (Sprite arg0, String arg1, ?String arg2) -> nil
 
-  # Draw text in the 24px font (x, y, text, color = gold)
-  def self.big_text: (Sprite arg0, Integer arg1, Integer arg2, String arg3, Integer arg4) -> nil
+  # Draw text in the 24px font (sprite, x, y, text, color = gold)
+  def self.big_text: (Sprite arg0, Integer arg1, Integer arg2, String arg3, ?Integer arg4) -> nil
 
   # Bottom-center message chip; the app decides how long to show it
   def self.toast: (Sprite arg0, String arg1) -> nil
 
-  # Dark fill + amber frame (x, y, w, h)
+  # Dark fill + amber frame (sprite, x, y, w, h)
   def self.panel: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4) -> nil
 
-  # Panel with a gold title row (x, y, w, h, title)
+  # Panel with a gold title row (sprite, x, y, w, h, title)
   def self.titled_panel: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4, String arg5) -> nil
 
-  # Horizontally centered text (y, text, color = dim)
-  def self.text_center: (Sprite arg0, Integer arg1, String arg2, Integer arg3) -> nil
+  # Horizontally centered text (sprite, y, text, color = dim)
+  def self.text_center: (Sprite arg0, Integer arg1, String arg2, ?Integer arg3) -> nil
 
-  # Right-aligned text (right_x, y, text, color = dim)
-  def self.text_right: (Sprite arg0, Integer arg1, Integer arg2, String arg3, Integer arg4) -> nil
+  # Right-aligned text (sprite, right_x, y, text, color = dim)
+  def self.text_right: (Sprite arg0, Integer arg1, Integer arg2, String arg3, ?Integer arg4) -> nil
 
   # Vertically centered lines from [[text, color?], ...]; "" rows are spacers
   def self.center_lines: (Sprite arg0, Array arg1) -> nil
 
-  # Word-wrapped text in a box; returns lines drawn (x, y, w, h, text, color = dim)
-  def self.wrap_text: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4, String arg5, Integer arg6) -> Integer
+  # Word-wrapped text in a box; returns lines drawn (sprite, x, y, w, h, text, color = dim)
+  def self.wrap_text: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4, String arg5, ?Integer arg6) -> Integer
 
-  # Horizontally scrolling text; returns text px width (x, y, w, text, offset)
+  # Horizontally scrolling text; returns text px width (sprite, x, y, w, text, offset)
   def self.marquee: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, String arg4, Integer arg5) -> Integer
 
-  # Table cell; selected = dark fill + gold frame (x, y, w, h, text, selected)
+  # Table cell; selected = dark fill + gold frame (sprite, x, y, w, h, text, selected)
   def self.cell: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4, String arg5, bool arg6) -> nil
 
-  # Column header row (x, y, widths, labels)
+  # Column header row (sprite, x, y, widths, labels)
   def self.table_header: (Sprite arg0, Integer arg1, Integer arg2, Array[Integer] arg3, Array[String] arg4) -> nil
 
-  # Row of cells (x, y, widths, texts, selected)
+  # Row of cells (sprite, x, y, widths, texts, selected)
   def self.table_row: (Sprite arg0, Integer arg1, Integer arg2, Array[Integer] arg3, Array[String] arg4, bool arg5) -> nil
 
-  # Settings row: dim label left, gold value right (x, y, w, label, value, focused)
+  # Settings row: dim label left, gold value right (sprite, x, y, w, label, value, focused)
   def self.field: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, String arg4, String arg5, bool arg6) -> nil
 
-  # Read-only progress bar (x, y, w, value, max)
+  # Read-only progress bar (sprite, x, y, w, value, max)
   def self.gauge: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4, Integer arg5) -> nil
 
-  # Track + knob (x, y, w, value, max, focused)
+  # Track + knob (sprite, x, y, w, value, max, focused)
   def self.slider: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4, Integer arg5, bool arg6) -> nil
 
-  # Vertical scrollbar; hidden when total <= visible (x, y, h, top, visible, total)
+  # Vertical scrollbar; hidden when total <= visible (sprite, x, y, h, top, visible, total)
   def self.scrollbar: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4, Integer arg5, Integer arg6) -> nil
 
-  # Horizontal scrollbar (x, y, w, left, visible, total)
+  # Horizontal scrollbar (sprite, x, y, w, left, visible, total)
   def self.hscrollbar: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4, Integer arg5, Integer arg6) -> nil
 
-  # Inverted chip: amber fill, background-color text (x, y, text)
+  # Inverted chip: amber fill, background-color text (sprite, x, y, text)
   def self.badge: (Sprite arg0, Integer arg1, Integer arg2, String arg3) -> nil
 
-  # 4-phase busy marker; pass a frame counter (x, y, frame)
+  # 4-phase busy marker; pass a frame counter (sprite, x, y, frame)
   def self.busy: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3) -> nil
 
-  # Centered page-indicator dots (y, count, active)
+  # Centered page-indicator dots (sprite, y, count, active)
   def self.page_dots: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3) -> nil
 
-  # Bar chart; max <= 0 auto-scales to the data (x, y, w, h, values, max)
+  # Bar chart; max <= 0 auto-scales to the data (sprite, x, y, w, h, values, max)
   def self.bar_chart: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4, Array[Integer] arg5, Integer arg6) -> nil
 
-  # Polyline chart; max <= 0 auto-scales to the data (x, y, w, h, values, max)
+  # Polyline chart; max <= 0 auto-scales to the data (sprite, x, y, w, h, values, max)
   def self.line_chart: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4, Array[Integer] arg5, Integer arg6) -> nil
 
-  # Button with centered label (x, y, w, label, focused)
+  # Button with centered label (sprite, x, y, w, label, focused)
   def self.button: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, String arg4, bool arg5) -> nil
 
-  # Checkbox with label (x, y, label, checked, focused)
+  # Checkbox with label (sprite, x, y, label, checked, focused)
   def self.checkbox: (Sprite arg0, Integer arg1, Integer arg2, String arg3, bool arg4, bool arg5) -> nil
 
-  # Radio button with label (x, y, label, selected, focused)
+  # Radio button with label (sprite, x, y, label, selected, focused)
   def self.radio: (Sprite arg0, Integer arg1, Integer arg2, String arg3, bool arg4, bool arg5) -> nil
 
-  # ON/OFF toggle pill (x, y, on, focused)
+  # ON/OFF toggle pill (sprite, x, y, on, focused)
   def self.toggle: (Sprite arg0, Integer arg1, Integer arg2, bool arg3, bool arg4) -> nil
 
-  # "< text >" value chooser; the app handles left/right keys (x, y, w, text, focused)
+  # "< text >" value chooser; the app handles left/right keys (sprite, x, y, w, text, focused)
   def self.spinner: (Sprite arg0, Integer arg1, Integer arg2, Integer arg3, String arg4, bool arg5) -> nil
 
-  # Modal one-line text input; String on Enter, nil on ESC (label, initial = "")
-  def self.input: (Sprite arg0, String arg1, String arg2) -> (String | nil)
+  # Modal one-line text input; String on Enter, nil on ESC (sprite, label, initial = "")
+  def self.input: (Sprite arg0, String arg1, ?String arg2) -> (String | nil)
 
-  # Modal number input clamped to min..max; nil on ESC (label, initial, min, max)
+  # Modal number input clamped to min..max; nil on ESC (sprite, label, initial, min, max)
   def self.input_number: (Sprite arg0, String arg1, Integer arg2, Integer arg3, Integer arg4) -> (Integer | nil)
 
   # Modal y/n question; ESC = false
   def self.confirm: (Sprite arg0, String arg1) -> bool
 
-  # Modal message with a button row; button index or nil on ESC (message, buttons)
+  # Modal message with a button row; button index or nil on ESC (sprite, message, buttons)
   def self.dialog: (Sprite arg0, String arg1, Array[String] arg2) -> (Integer | nil)
 
-  # Modal item picker; item index or nil on ESC (title, items, initial = 0)
-  def self.menu: (Sprite arg0, String arg1, Array[String] arg2, Integer arg3) -> (Integer | nil)
+  # Modal item picker; item index or nil on ESC (sprite, title, items, initial = 0)
+  def self.menu: (Sprite arg0, String arg1, Array[String] arg2, ?Integer arg3) -> (Integer | nil)
 
   # Modal message; returns on any key
   def self.alert: (Sprite arg0, String arg1) -> nil

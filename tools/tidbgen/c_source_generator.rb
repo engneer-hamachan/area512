@@ -2,24 +2,40 @@
 
 require "fileutils"
 
-module TypeInformationDatabaseGenerator
+module TiDatabaseGenerator
   class CSourceGenerator
-    def initialize(database)
-      @database = database
+    def initialize(builtin_database:)
+      @builtin_database = builtin_database
     end
 
     def generate_header
-      enumeration_lines = @database.enumeration_names.keys.sort.map do |class_identifier|
-        enumeration_name = @database.enumeration_names[class_identifier]
-        enumeration_line = "  #{enumeration_name},"
-        if class_identifier.zero?
-          enumeration_line = "  #{enumeration_name} = 0,"
+      enumeration_lines =
+        @builtin_database.enumeration_names.keys.sort.map do |class_identifier|
+          enumeration_name =
+            @builtin_database.enumeration_names[class_identifier]
+
+          enumeration_line = "  #{enumeration_name},"
+
+          if class_identifier.zero?
+            enumeration_line = "  #{enumeration_name} = 0,"
+          end
+
+          enumeration_line
         end
-        enumeration_line
-      end
+
+      builtin_method_field_declarations =
+        generate_structure_field_declarations(
+          structure_field_definitions: BUILTIN_METHOD_FIELD_DEFINITIONS
+        )
+
+      builtin_class_field_declarations =
+        generate_structure_field_declarations(
+          structure_field_definitions: BUILTIN_CLASS_FIELD_DEFINITIONS
+        )
+
       <<~HEADER
-        #ifndef AREA512_TI_BUILTIN_DB_H
-        #define AREA512_TI_BUILTIN_DB_H
+        #ifndef AREA512_TI_BUILTIN_DATABASE_H
+        #define AREA512_TI_BUILTIN_DATABASE_H
 
         #include <stdint.h>
 
@@ -27,30 +43,18 @@ module TypeInformationDatabaseGenerator
         #{enumeration_lines.join("\n")}
           TI_CLASS_BUILTIN_COUNT,
           TI_CLASS_USER_BASE = TI_CLASS_BUILTIN_COUNT
-        } TiClassId;
+        } TiClassIdentifier;
 
         typedef struct {
-          uint16_t name_offset;
-          uint16_t signature_offset;
-          uint16_t document_offset;
-          uint8_t return_class_id;
-          uint8_t return_array_variant_class_id;
-          uint8_t return_union_index;
-          uint8_t array_variant_union_index;
-          uint8_t block_parameter_class_id;
-          uint8_t origin_class_id;
+        #{builtin_method_field_declarations}
         } TiBuiltinMethod;
 
         typedef struct {
-          uint16_t name_offset;
-          uint16_t instance_method_start;
-          uint16_t instance_method_count;
-          uint16_t static_method_start;
-          uint16_t static_method_count;
+        #{builtin_class_field_declarations}
         } TiBuiltinClass;
 
         typedef struct {
-          uint8_t member_class_ids[4];
+          uint8_t member_class_identifiers[4];
         } TiBuiltinUnion;
 
         extern const TiBuiltinClass ti_builtin_classes[];
@@ -71,99 +75,127 @@ module TypeInformationDatabaseGenerator
     end
 
     def generate_source
-      source_code = +"#include \"area512_ti_builtin_db.h\"\n\n"
-      source_code << generate_byte_pool(
-        "ti_builtin_name_pool",
-        @database.name_pool.bytes
+      source_code = +"#include \"area512_ti_builtin_database.h\"\n\n"
+
+      source_code << generate_byte_pool_source(
+        pool_variable_name: "ti_builtin_name_pool",
+        pool_binary_string: @builtin_database.name_pool.binary_string
       )
-      source_code << generate_byte_pool(
-        "ti_builtin_signature_pool",
-        @database.signature_pool.bytes
+
+      source_code << generate_byte_pool_source(
+        pool_variable_name: "ti_builtin_signature_pool",
+        pool_binary_string: @builtin_database.signature_pool.binary_string
       )
-      source_code << generate_byte_pool(
-        "ti_builtin_document_pool",
-        @database.document_pool.bytes
+
+      source_code << generate_byte_pool_source(
+        pool_variable_name: "ti_builtin_document_pool",
+        pool_binary_string: @builtin_database.document_pool.binary_string
       )
-      source_code << generate_class_table
-      source_code << generate_method_table
-      source_code << generate_union_table
-      source_code << generate_size_constants
+
+      source_code << generate_record_table_source(
+        c_type_name: "TiBuiltinClass",
+        c_variable_name: "ti_builtin_classes",
+        records: @builtin_database.builtin_classes
+      )
+
+      source_code << generate_record_table_source(
+        c_type_name: "TiBuiltinMethod",
+        c_variable_name: "ti_builtin_methods",
+        records: @builtin_database.builtin_methods
+      )
+
+      source_code << generate_union_table_source
+      source_code << generate_size_constants_source
+
       source_code
     end
 
-    def write_files(output_directory)
-      FileUtils.mkdir_p(output_directory)
+    def create_output_directory_and_write_files(output_directory_path:)
+      FileUtils.mkdir_p(output_directory_path)
+
       write_file_if_changed(
-        File.join(output_directory, "area512_ti_builtin_db.h"),
-        generate_header
+        output_path: File.join(output_directory_path, "area512_ti_builtin_database.h"),
+        content: generate_header
       )
+
       write_file_if_changed(
-        File.join(output_directory, "area512_ti_builtin_db.c"),
-        generate_source
+        output_path: File.join(output_directory_path, "area512_ti_builtin_database.c"),
+        content: generate_source
       )
     end
 
     private
 
-    def generate_byte_pool(pool_name, pool_data)
-      source_code = +"const char #{pool_name}[] = {\n"
-      pool_data.bytes.each_slice(16) do |byte_slice|
-        formatted_bytes = byte_slice.map { |byte| format("0x%02x,", byte) }
-        source_code << "  #{formatted_bytes.join(' ')}\n"
+    def generate_byte_pool_source(pool_variable_name:, pool_binary_string:)
+      source_code = +"const char #{pool_variable_name}[] = {\n"
+
+      pool_binary_string.bytes.each_slice(16) do |byte_slice|
+        formatted_byte_literals =
+          byte_slice.map do |byte|
+            format("0x%02x,", byte)
+          end
+
+        source_code << "  #{formatted_byte_literals.join(' ')}\n"
       end
+
       source_code << "};\n\n"
     end
 
-    def generate_class_table
-      source_code = +"const TiBuiltinClass ti_builtin_classes[] = {\n"
-      @database.generated_classes.each do |generated_class|
-        class_fields = [
-          generated_class.name_offset,
-          generated_class.instance_method_start,
-          generated_class.instance_method_count,
-          generated_class.static_method_start,
-          generated_class.static_method_count
-        ]
-        source_code << "  {#{class_fields.join(', ')}},\n"
+    def generate_union_table_source
+      generate_table_source(
+        c_type_name: "TiBuiltinUnion",
+        c_variable_name: "ti_builtin_unions",
+        entries: @builtin_database.union_pool.union_entries
+      ) do |union_entry|
+        "{{#{union_entry.join(', ')}}}"
       end
-      source_code << "};\n\n"
     end
 
-    def generate_method_table
-      source_code = +"const TiBuiltinMethod ti_builtin_methods[] = {\n"
-      @database.generated_methods.each do |generated_method|
-        source_code << "  {#{generated_method.to_h.values.join(', ')}},\n"
-      end
-      source_code << "};\n\n"
-    end
-
-    def generate_union_table
-      source_code = +"const TiBuiltinUnion ti_builtin_unions[] = {\n"
-      @database.union_pool.union_entries.each do |union_entry|
-        source_code << "  {{#{union_entry.join(', ')}}},\n"
-      end
-      source_code << "};\n\n"
-    end
-
-    def generate_size_constants
+    def generate_size_constants_source
       <<~CONSTANTS
-        const uint16_t ti_builtin_class_count = #{@database.generated_classes.length};
-        const uint16_t ti_builtin_method_count = #{@database.generated_methods.length};
-        const uint16_t ti_builtin_union_count = #{@database.union_pool.union_entries.length};
-        const uint16_t ti_builtin_name_pool_size = #{@database.name_pool.bytes.bytesize};
-        const uint16_t ti_builtin_signature_pool_size = #{@database.signature_pool.bytes.bytesize};
-        const uint16_t ti_builtin_document_pool_size = #{@database.document_pool.bytes.bytesize};
+        const uint16_t ti_builtin_class_count = #{@builtin_database.builtin_classes.length};
+        const uint16_t ti_builtin_method_count = #{@builtin_database.builtin_methods.length};
+        const uint16_t ti_builtin_union_count = #{@builtin_database.union_pool.union_entries.length};
+        const uint16_t ti_builtin_name_pool_size = #{@builtin_database.name_pool.binary_string.bytesize};
+        const uint16_t ti_builtin_signature_pool_size = #{@builtin_database.signature_pool.binary_string.bytesize};
+        const uint16_t ti_builtin_document_pool_size = #{@builtin_database.document_pool.binary_string.bytesize};
       CONSTANTS
     end
 
-    def write_file_if_changed(output_path, content)
+    def generate_structure_field_declarations(structure_field_definitions:)
+      structure_field_definitions.map do |field_name, c_type_name|
+        "  #{c_type_name} #{field_name};"
+      end.join("\n")
+    end
+
+    def generate_record_table_source(c_type_name:, c_variable_name:, records:)
+      generate_table_source(
+        c_type_name:,
+        c_variable_name:,
+        entries: records
+      ) do |record|
+        "{#{record.to_h.values.join(', ')}}"
+      end
+    end
+
+    def generate_table_source(c_type_name:, c_variable_name:, entries:)
+      source_code = +"const #{c_type_name} #{c_variable_name}[] = {\n"
+      entries.each do |entry|
+        source_code << "  #{yield(entry)},\n"
+      end
+      source_code << "};\n\n"
+    end
+
+    def write_file_if_changed(output_path:, content:)
       if File.file?(output_path) && File.binread(output_path) == content
         return
       end
 
       temporary_path = "#{output_path}.tmp.#{$$}"
+
       File.binwrite(temporary_path, content)
       File.rename(temporary_path, output_path)
+
     ensure
       if temporary_path && File.exist?(temporary_path)
         File.delete(temporary_path)

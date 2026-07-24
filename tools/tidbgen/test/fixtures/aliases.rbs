@@ -1,6 +1,8 @@
 type text = String
 type maybe[A] = A?
 class Aliases
+  type nested_text = String
+
   def text: () -> text
   def maybe: () -> maybe[String]
 end

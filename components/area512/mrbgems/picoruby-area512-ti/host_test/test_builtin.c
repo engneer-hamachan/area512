@@ -26,7 +26,7 @@ test_flattened_methods(void) {
     15
   );
   assert(enumerable_method);
-  assert(enumerable_method->origin_class_id == TI_CLASS_ENUMERABLE);
+  assert(enumerable_method->origin_class_identifier == TI_CLASS_ENUMERABLE);
 
   const TiBuiltinMethod *object_method = ti_get_builtin_instance_method(
     TI_CLASS_STRING,
@@ -34,30 +34,30 @@ test_flattened_methods(void) {
     5
   );
   assert(object_method);
-  assert(object_method->origin_class_id == TI_CLASS_OBJECT);
+  assert(object_method->origin_class_identifier == TI_CLASS_OBJECT);
 }
 
 static void
 test_array_reference_return_type(void) {
   const TiBuiltinMethod *method =
     ti_get_builtin_instance_method(TI_CLASS_ARRAY, (const uint8_t *)"[]", 2);
-  uint8_t return_class_ids[4] = {0};
+  uint8_t return_class_identifiers[4] = {0};
 
   assert(method);
-  assert(ti_get_builtin_return_classes(method, return_class_ids) == 1);
-  assert(return_class_ids[0] == TI_CLASS_UNTYPED);
+  assert(ti_get_builtin_return_classes(method, return_class_identifiers) == 1);
+  assert(return_class_identifiers[0] == TI_CLASS_UNTYPED);
 }
 
 static void
 test_union_return_type(void) {
   const TiBuiltinMethod *method =
     ti_get_builtin_instance_method(TI_CLASS_INTEGER, (const uint8_t *)"%", 1);
-  uint8_t return_class_ids[4] = {0};
+  uint8_t return_class_identifiers[4] = {0};
 
   assert(method);
-  assert(ti_get_builtin_return_classes(method, return_class_ids) == 2);
-  assert(return_class_ids[0] == TI_CLASS_INTEGER);
-  assert(return_class_ids[1] == TI_CLASS_FLOAT);
+  assert(ti_get_builtin_return_classes(method, return_class_identifiers) == 2);
+  assert(return_class_identifiers[0] == TI_CLASS_INTEGER);
+  assert(return_class_identifiers[1] == TI_CLASS_FLOAT);
 }
 
 static void

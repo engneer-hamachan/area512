@@ -58,10 +58,10 @@ get_builtin_method_range(
   const TiBuiltinClass *builtin_class = &ti_builtin_classes[class_id];
 
   if (use_class_methods) {
-    *method_start_index = builtin_class->static_method_start;
+    *method_start_index = builtin_class->static_method_start_index;
     *method_count = builtin_class->static_method_count;
   } else {
-    *method_start_index = builtin_class->instance_method_start;
+    *method_start_index = builtin_class->instance_method_start_index;
     *method_count = builtin_class->instance_method_count;
   }
 }
@@ -229,7 +229,7 @@ ti_get_builtin_class_name(uint8_t class_id) {
 
 static int
 collect_builtin_union_class_ids(
-  uint8_t builtin_union_index,
+  uint16_t builtin_union_index,
   uint8_t output_class_ids[4]
 ) {
 
@@ -247,11 +247,11 @@ collect_builtin_union_class_ids(
 
   while (
       member_class_count < 4 &&
-      builtin_union->member_class_ids[member_class_count] != 0
+      builtin_union->member_class_identifiers[member_class_count] != 0
   ) {
 
     output_class_ids[member_class_count] =
-      builtin_union->member_class_ids[member_class_count];
+      builtin_union->member_class_identifiers[member_class_count];
 
     member_class_count++;
   }
@@ -277,10 +277,10 @@ ti_get_builtin_return_classes(
   if (return_class_count > 0)
     return return_class_count;
 
-  if (builtin_method->return_class_id == TI_CLASS_NONE)
+  if (builtin_method->return_class_identifier == TI_CLASS_NONE)
     return 0;
 
-  output_class_ids[0] = builtin_method->return_class_id;
+  output_class_ids[0] = builtin_method->return_class_identifier;
 
   return 1;
 }
@@ -303,10 +303,10 @@ ti_get_builtin_return_array_variant_classes(
   if (return_array_variant_class_count > 0)
     return return_array_variant_class_count;
 
-  if (builtin_method->return_array_variant_class_id == TI_CLASS_NONE)
+  if (builtin_method->return_array_variant_class_identifier == TI_CLASS_NONE)
     return 0;
 
-  output_class_ids[0] = builtin_method->return_array_variant_class_id;
+  output_class_ids[0] = builtin_method->return_array_variant_class_identifier;
 
   return 1;
 }

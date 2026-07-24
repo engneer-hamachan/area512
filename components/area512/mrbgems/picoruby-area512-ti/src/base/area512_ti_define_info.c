@@ -1,6 +1,6 @@
 #include "area512_ti_define_info.h"
 #include "area512_ti_arena.h"
-#include "area512_ti_builtin_db.h"
+#include "area512_ti_builtin_database.h"
 #include <stddef.h>
 #include <string.h>
 
