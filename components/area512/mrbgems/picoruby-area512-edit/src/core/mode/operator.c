@@ -30,9 +30,18 @@ apply_operator_motion(Vim *vim, VimOperator operator_kind, int key) {
     break;
 
   case 119:
-    vim_buffer_move_to_next_word(BUFFER);
+    if (
+      operator_kind == VIM_OPERATOR_CHANGE &&
+      start_byte_offset < BUFFER->lines[start_line_index].byte_length &&
+      BUFFER->lines[start_line_index].bytes[start_byte_offset] != ' '
+    )
+      vim_buffer_move_to_word_end(BUFFER);
 
-    inclusive = 0;
+    else {
+      vim_buffer_move_to_next_word(BUFFER);
+
+      inclusive = 0;
+    }
 
     break;
 

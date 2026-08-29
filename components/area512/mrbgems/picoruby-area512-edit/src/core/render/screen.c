@@ -37,7 +37,9 @@ wrapped_row_count_for_line(
     return 1;
 
   int display_width = vim_display_width(line, byte_length);
-  int rows = divide_rounding_up(display_width, content_width);
+
+  int rows =
+    divide_rounding_up(display_width, content_width);
 
   if (rows < 1)
     return 1;
@@ -369,9 +371,10 @@ adjust_scroll(VimScreen *screen) {
 }
 
 static void
-vim_screen_refresh_full(VimScreen *screen, VimCanvas *canvas) {
+adjust_scroll_and_refresh_all_rows(VimScreen *screen, VimCanvas *canvas) {
   int content_height = screen->height - screen->footer_height;
   int content_width = screen->width - VIM_GUTTER_WIDTH;
+
   if (content_width <= 0)
     content_width = 1;
 
@@ -472,11 +475,16 @@ convert_dirty_to_redraw_mode(VimDirty dirty) {
 void
 vim_screen_refresh_if_needed(VimScreen *screen, VimCanvas *canvas) {
   VimRedraw mode = convert_dirty_to_redraw_mode(screen->buffer.dirty);
+
   if (screen->redraw_mode != VIM_REDRAW_NONE)
     mode = screen->redraw_mode;
+
   screen->redraw_mode = VIM_REDRAW_NONE;
+
   vim_buffer_clear_dirty(&screen->buffer);
+
   if (mode == VIM_REDRAW_NONE)
     return;
-  vim_screen_refresh_full(screen, canvas);
+
+  adjust_scroll_and_refresh_all_rows(screen, canvas);
 }

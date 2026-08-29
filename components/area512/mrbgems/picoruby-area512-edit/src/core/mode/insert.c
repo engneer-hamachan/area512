@@ -338,6 +338,14 @@ start_completion(Vim *vim) {
 }
 
 static void
+move_right_in_line(VimBuffer *buffer) {
+  if (buffer->cursor_byte_offset < vim_buffer_current_line_byte_length(buffer))
+    vim_buffer_move_right(buffer);
+  else
+    vim_buffer_move_to_line_tail(buffer);
+}
+
+static void
 open_line_below(Vim *vim) {
   vim_buffer_move_to_line_tail(BUFFER);
   put_auto_indented_newline(vim);
@@ -366,7 +374,7 @@ enter_insert_from_key(Vim *vim, int key) {
     vim_buffer_move_to_line_first_nonblank(BUFFER);
     break;
   case 97: // 'a'
-    vim_buffer_move_right(BUFFER);
+    move_right_in_line(BUFFER);
     break;
   case 111: // 'o'
     open_line_below(vim);

@@ -31,7 +31,7 @@ vim_buffer_free(VimBuffer *buffer) {
 }
 
 static int
-vim_buffer_grow(VimBuffer *buffer, int needed_capacity) {
+reserve_line_capacity(VimBuffer *buffer, int needed_capacity) {
   if (needed_capacity <= buffer->capacity)
     return 1;
 
@@ -61,7 +61,7 @@ vim_buffer_clear(VimBuffer *buffer) {
 
   buffer->line_count = 0;
 
-  vim_buffer_grow(buffer, 1);
+  reserve_line_capacity(buffer, 1);
   vim_string_init(&buffer->lines[0]);
 
   buffer->line_count = 1;
@@ -114,7 +114,7 @@ vim_buffer_insert_line(
   if (line_index > buffer->line_count)
     line_index = buffer->line_count;
 
-  if (!vim_buffer_grow(buffer, buffer->line_count + 1))
+  if (!reserve_line_capacity(buffer, buffer->line_count + 1))
     return 0;
 
   memmove(
