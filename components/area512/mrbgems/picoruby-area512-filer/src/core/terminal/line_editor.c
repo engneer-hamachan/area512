@@ -5,28 +5,62 @@
 #include <string.h>
 
 static void
-append_input_character(Terminal *terminal, char character) {
+insert_character_at_cursor(Terminal *terminal, char character) {
+  char *after_cursor_text =
+    terminal->input_line + terminal->input_cursor_byte_offset;
+
+  int after_cursor_byte_count =
+    terminal->input_byte_count - terminal->input_cursor_byte_offset;
+
   if (terminal->input_byte_count >= LINE_MAX - 1)
     return;
 
-  terminal->input_line[terminal->input_byte_count] = character;
+  memmove(after_cursor_text + 1, after_cursor_text, after_cursor_byte_count);
+
+  terminal->input_line[terminal->input_cursor_byte_offset] = character;
+  terminal->input_cursor_byte_offset++;
   terminal->input_byte_count++;
   terminal->input_line[terminal->input_byte_count] = 0;
 }
 
 static void
-remove_last_input_character(Terminal *terminal) {
-  if (terminal->input_byte_count == 0)
+delete_character_before_cursor(Terminal *terminal) {
+  char *after_cursor_text =
+    terminal->input_line + terminal->input_cursor_byte_offset;
+
+  int after_cursor_byte_count =
+    terminal->input_byte_count - terminal->input_cursor_byte_offset;
+
+  if (terminal->input_cursor_byte_offset == 0)
     return;
 
+  memmove(after_cursor_text - 1, after_cursor_text, after_cursor_byte_count);
+
+  terminal->input_cursor_byte_offset--;
   terminal->input_byte_count--;
   terminal->input_line[terminal->input_byte_count] = 0;
+}
+
+static void
+move_input_cursor(Terminal *terminal, int input_cursor_byte_offset_delta) {
+  int input_cursor_byte_offset =
+    terminal->input_cursor_byte_offset + input_cursor_byte_offset_delta;
+
+  if (
+    input_cursor_byte_offset < 0 ||
+    input_cursor_byte_offset > terminal->input_byte_count
+  )
+    return;
+
+  terminal->input_cursor_byte_offset = input_cursor_byte_offset;
 }
 
 static void
 clear_input_line(Terminal *terminal) {
   terminal->input_line[0] = 0;
   terminal->input_byte_count = 0;
+  terminal->input_cursor_byte_offset = 0;
+  terminal->visible_input_byte_offset = 0;
 }
 
 static void
@@ -37,7 +71,7 @@ append_autosuggestion_to_input_line(Filer *filer) {
   build_autosuggestion(filer, autosuggestion, sizeof autosuggestion);
 
   while (autosuggestion[autosuggestion_byte_offset]) {
-    append_input_character(
+    insert_character_at_cursor(
       filer->terminal,
       autosuggestion[autosuggestion_byte_offset]
     );
@@ -73,6 +107,7 @@ recall_history_line(Terminal *terminal, int history_recall_index_delta) {
 
   terminal->input_line[LINE_MAX - 1] = 0;
   terminal->input_byte_count = (int)strlen(terminal->input_line);
+  terminal->input_cursor_byte_offset = terminal->input_byte_count;
 }
 
 void
@@ -101,15 +136,19 @@ read_terminal_input_line(Filer *filer) {
     else if (input_key == TERMINAL_APPEND_AUTOSUGGESTION_KEY)
       append_autosuggestion_to_input_line(filer);
     else if (input_key == '\b' || input_key == 127)
-      remove_last_input_character(terminal);
+      delete_character_before_cursor(terminal);
     else if (input_key == 27)
       clear_input_line(terminal);
     else if (input_key == KEY_UP)
       recall_history_line(terminal, -1);
     else if (input_key == KEY_DOWN)
       recall_history_line(terminal, 1);
+    else if (input_key == KEY_LEFT)
+      move_input_cursor(terminal, -1);
+    else if (input_key == KEY_RIGHT)
+      move_input_cursor(terminal, 1);
     else if (input_key >= ' ' && input_key <= '~')
-      append_input_character(terminal, (char)input_key);
+      insert_character_at_cursor(terminal, (char)input_key);
   }
 }
 

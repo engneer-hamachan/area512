@@ -20,6 +20,8 @@ struct Terminal {
   int line_byte_capacity;
   char input_line[LINE_MAX];
   int input_byte_count;
+  int input_cursor_byte_offset;
+  int visible_input_byte_offset;
   char history_lines[TERMINAL_HISTORY_LINE_CAPACITY][LINE_MAX];
   int history_line_count;
   int history_recall_index;

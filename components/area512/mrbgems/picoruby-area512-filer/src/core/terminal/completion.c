@@ -22,10 +22,10 @@ typedef struct {
 static int
 find_input_word_start_byte_offset(
   const char *input_line,
-  int input_byte_count
+  int input_cursor_byte_offset
 ) {
 
-  int input_byte_offset = input_byte_count;
+  int input_byte_offset = input_cursor_byte_offset;
 
   while (input_byte_offset > 0 && input_line[input_byte_offset - 1] != ' ')
     input_byte_offset--;
@@ -209,7 +209,7 @@ collect_matching_terminal_command_names(
 }
 
 static void
-replace_terminal_input_word(
+replace_input_word_before_cursor(
   Terminal *terminal,
   int word_start_byte_offset,
   const char *replacement_word
@@ -217,8 +217,26 @@ replace_terminal_input_word(
 
   int replacement_word_byte_count = (int)strlen(replacement_word);
 
-  if (word_start_byte_offset + replacement_word_byte_count > LINE_MAX - 1)
-    replacement_word_byte_count = LINE_MAX - 1 - word_start_byte_offset;
+  int after_cursor_byte_count =
+    terminal->input_byte_count - terminal->input_cursor_byte_offset;
+
+  int available_replacement_word_byte_count =
+    LINE_MAX - 1 - word_start_byte_offset - after_cursor_byte_count;
+
+  char *after_cursor_text =
+    terminal->input_line + terminal->input_cursor_byte_offset;
+
+  if (replacement_word_byte_count > available_replacement_word_byte_count)
+    replacement_word_byte_count = available_replacement_word_byte_count;
+
+  terminal->input_cursor_byte_offset =
+    word_start_byte_offset + replacement_word_byte_count;
+
+  memmove(
+    terminal->input_line + terminal->input_cursor_byte_offset,
+    after_cursor_text,
+    after_cursor_byte_count
+  );
 
   memcpy(
     terminal->input_line + word_start_byte_offset,
@@ -227,7 +245,8 @@ replace_terminal_input_word(
   );
 
   terminal->input_byte_count =
-    word_start_byte_offset + replacement_word_byte_count;
+    terminal->input_cursor_byte_offset + after_cursor_byte_count;
+
   terminal->input_line[terminal->input_byte_count] = 0;
 }
 
@@ -236,24 +255,29 @@ complete_input_word(Filer *filer) {
   Terminal *terminal = filer->terminal;
 
   int word_start_byte_offset;
+  int completion_word_byte_count;
   char completion_word[LINE_MAX];
   CompletionTarget completion_target;
   CompletionMatch completion_match;
   char replacement_word[LINE_MAX];
 
-  word_start_byte_offset = find_input_word_start_byte_offset(
-    terminal->input_line,
-    terminal->input_byte_count
-  );
-
-  if (terminal->completion_match_index < 0) {
-    strncpy(
-      terminal->completion_word,
-      terminal->input_line + word_start_byte_offset,
-      LINE_MAX - 1
+  word_start_byte_offset =
+    find_input_word_start_byte_offset(
+      terminal->input_line,
+      terminal->input_cursor_byte_offset
     );
 
-    terminal->completion_word[LINE_MAX - 1] = 0;
+  if (terminal->completion_match_index < 0) {
+    completion_word_byte_count =
+      terminal->input_cursor_byte_offset - word_start_byte_offset;
+
+    memcpy(
+      terminal->completion_word,
+      terminal->input_line + word_start_byte_offset,
+      completion_word_byte_count
+    );
+
+    terminal->completion_word[completion_word_byte_count] = 0;
     terminal->completion_match_index = 0;
   }
 
@@ -311,7 +335,7 @@ complete_input_word(Filer *filer) {
         completion_match.matching_name_count;
   }
 
-  replace_terminal_input_word(
+  replace_input_word_before_cursor(
     terminal,
     word_start_byte_offset,
     replacement_word
@@ -334,13 +358,16 @@ build_autosuggestion(
 
   autosuggestion[0] = 0;
 
+  if (terminal->input_cursor_byte_offset != terminal->input_byte_count)
+    return;
+
   if ((int)strspn(terminal->input_line, " ") == terminal->input_byte_count)
     return;
 
   word_start_byte_offset =
     find_input_word_start_byte_offset(
       terminal->input_line,
-      terminal->input_byte_count
+      terminal->input_cursor_byte_offset
     );
 
   build_completion_target(
