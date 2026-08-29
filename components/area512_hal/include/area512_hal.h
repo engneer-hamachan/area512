@@ -74,6 +74,9 @@ void area512_theme_pick_bitmap_colors(
   uint32_t *clear_bit_color
 );
 
+void area512_default_ui_load(void);
+int area512_default_ui_is_terminal(void);
+
 #ifdef __cplusplus
 }
 #endif

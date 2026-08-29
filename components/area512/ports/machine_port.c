@@ -18,6 +18,7 @@ void area512_input_init(void);
 int area512_sd_mount(const char *base_path);
 int area512_sd_unmount(void);
 void area512_theme_load(void);
+void area512_default_ui_load(void);
 
 #include <stdint.h>
 #include <stdio.h>
@@ -130,6 +131,7 @@ picorb_hal_init(void) {
   // later; unmounting here leaves that mount the only reference.
   if (area512_sd_mount("/sdcard") == 0) {
     area512_theme_load();
+    area512_default_ui_load();
     area512_sd_unmount();
   }
 

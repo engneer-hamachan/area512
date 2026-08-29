@@ -12,6 +12,7 @@ idf_component_register(
     sd/area512_sd.c
     sd/area512_seed.c
     theme/area512_theme.c
+    ui/area512_default_ui.c
   INCLUDE_DIRS
     include
     console
