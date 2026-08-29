@@ -15,6 +15,8 @@ begin
 rescue LoadError
 end
 
+require "area512-dot"
+
 # The filer UI (rendering, input loop) lives in C (picoruby-area512-filer) to
 # keep per-frame churn off the mruby/c heap; this file is a thin dispatch shell.
 require "area512-filer"
@@ -47,6 +49,8 @@ ACT_MOVE = 12 unless Object.const_defined?(:ACT_MOVE)
 ACT_VIEW_MARKDOWN = 13 unless Object.const_defined?(:ACT_VIEW_MARKDOWN)
 ACT_RUN_PYTHON = 14 unless Object.const_defined?(:ACT_RUN_PYTHON)
 ACT_COPY = 15 unless Object.const_defined?(:ACT_COPY)
+ACT_EDIT_DOT = 16 unless Object.const_defined?(:ACT_EDIT_DOT)
+ACT_CHANGE_DIR = 17 unless Object.const_defined?(:ACT_CHANGE_DIR)
 
 def run_sd_error_screen(filer)
   filer.cwd = "/"
@@ -105,6 +109,10 @@ def dir_name(path)
   return "/" if last_slash_index <= 0
 
   path[0, last_slash_index]
+end
+
+def entry_type_at(path)
+  File.directory?(path) ? T_DIR : T_FILE
 end
 
 def strip_extension(name)
@@ -180,12 +188,12 @@ end
 # --- Compile/run (Sandbox) and edit (Vim) ---
 # These return a status string for the filer status line, not terminal output.
 
-def compile_source(cwd, name)
-  source_path = join_path(cwd, name)
+def compile_source(dir, name)
+  source_path = join_path(dir, name)
 
   begin
     if name.end_with?(".py")
-      bytecode_path = join_path(cwd, python_bytecode_name(name))
+      bytecode_path = join_path(dir, python_bytecode_name(name))
       Console.reset
 
       begin
@@ -194,7 +202,7 @@ def compile_source(cwd, name)
         Console.wait_key_if_output
       end
     else
-      bytecode_path = join_path(cwd, ruby_bytecode_name(name))
+      bytecode_path = join_path(dir, ruby_bytecode_name(name))
       Area512.compile_file(source_path, bytecode_path)
     end
 
@@ -204,13 +212,13 @@ def compile_source(cwd, name)
   end
 end
 
-def compile_selected(cwd, name)
-  error_message = compile_source(cwd, name)
+def compile_entry(dir, name)
+  error_message = compile_source(dir, name)
   error_message ? error_message : "Compiled #{name}"
 end
 
-def compile_all(cwd)
-  names = entry_names(cwd)
+def compile_all(dir)
+  names = entry_names(dir)
   compiled_count = 0
   error_message = nil
 
@@ -219,7 +227,7 @@ def compile_all(cwd)
     name = names[i]
 
     if name.end_with?(".rb") || name.end_with?(".py")
-      error_message = compile_source(cwd, name)
+      error_message = compile_source(dir, name)
       break if error_message
 
       compiled_count += 1
@@ -325,18 +333,18 @@ def run_python_manifest(dir, manifest_path, label)
   run_message
 end
 
-def run_ruby(cwd, name)
-  error_message = name.end_with?(".rb") ? compile_source(cwd, name) : nil
+def run_ruby(dir, name)
+  error_message = name.end_with?(".rb") ? compile_source(dir, name) : nil
   return error_message if error_message
 
-  run_mrb(join_path(cwd, ruby_bytecode_name(name)))
+  run_mrb(join_path(dir, ruby_bytecode_name(name)))
 end
 
-def run_python(cwd, name)
-  error_message = name.end_with?(".py") ? compile_source(cwd, name) : nil
+def run_python(dir, name)
+  error_message = name.end_with?(".py") ? compile_source(dir, name) : nil
   return error_message if error_message
 
-  run_mpy(join_path(cwd, python_bytecode_name(name)))
+  run_mpy(join_path(dir, python_bytecode_name(name)))
 end
 
 def show_app_image(dir)
@@ -376,28 +384,28 @@ def python_manifest?(manifest_path)
   false
 end
 
-def run_selected_dir(cwd, name)
-  dir = join_path(cwd, name)
+def run_dir(dir, name)
+  app_dir = join_path(dir, name)
 
-  manifest_path = join_path(dir, "main.manifest")
-  ruby_main_path = join_path(dir, "main.mrb")
-  python_main_path = join_path(dir, "main.mpy")
+  manifest_path = join_path(app_dir, "main.manifest")
+  ruby_main_path = join_path(app_dir, "main.mrb")
+  python_main_path = join_path(app_dir, "main.mpy")
 
   if File.exist?(manifest_path)
-    show_app_image(dir)
+    show_app_image(app_dir)
 
     if python_manifest?(manifest_path)
-      run_python_manifest(dir, manifest_path, name)
+      run_python_manifest(app_dir, manifest_path, name)
     else
-      run_manifest(dir, manifest_path, name)
+      run_manifest(app_dir, manifest_path, name)
     end
 
   elsif File.exist?(ruby_main_path)
-    show_app_image(dir)
+    show_app_image(app_dir)
     run_mrb(ruby_main_path, name)
 
   elsif File.exist?(python_main_path)
-    show_app_image(dir)
+    show_app_image(app_dir)
     run_mpy(python_main_path, name)
 
   else
@@ -405,18 +413,27 @@ def run_selected_dir(cwd, name)
   end
 end
 
-def view_markdown(cwd, name)
+def view_markdown(dir, name)
   begin
-    Markdown.new(join_path(cwd, name)).show
+    Markdown.new(join_path(dir, name)).show
     "Returned from viewer"
   rescue => e
     "#{e.class}: #{e.message}"
   end
 end
 
-def edit_entry(cwd, name)
+def edit_dot(dir, name)
   begin
-    Vim.new(join_path(cwd, name)).start
+    Dot.edit(join_path(dir, name))
+    "Returned from dot"
+  rescue => e
+    "#{e.class}: #{e.message}"
+  end
+end
+
+def edit_entry(dir, name)
+  begin
+    Vim.new(join_path(dir, name)).start
     "Returned from vim"
   rescue => e
     "#{e.class}: #{e.message}"
@@ -470,12 +487,12 @@ def remove_tree(path)
   end
 end
 
-def delete_entry(cwd, name, entry_type)
+def delete_entry(dir, name, entry_type)
   begin
     if entry_type == T_DIR
-      remove_tree(join_path(cwd, name))
+      remove_tree(join_path(dir, name))
     else
-      File.unlink(join_path(cwd, name))
+      File.unlink(join_path(dir, name))
     end
 
     "Deleted #{name}"
@@ -518,14 +535,15 @@ def normalize_path(path)
   result
 end
 
-def move_entry(cwd, name, entry_type, destination_input)
+def normalize_input_path(cwd, input)
+  normalize_path(input.start_with?("/") ? input : join_path(cwd, input))
+end
+
+def move_entry(cwd, source_path, entry_type, destination_input)
   return "Empty path" if destination_input.nil? || destination_input.empty?
 
-  normalized_input_path =
-    normalize_path(
-      destination_input.start_with?("/") ?
-        destination_input : join_path(cwd, destination_input)
-    )
+  name = base_name(source_path)
+  normalized_input_path = normalize_input_path(cwd, destination_input)
 
   return "Bad path" unless normalized_input_path
 
@@ -537,9 +555,6 @@ def move_entry(cwd, name, entry_type, destination_input)
     end
 
   return "No such directory" unless File.directory?(dir_name(destination_path))
-
-  source_path = join_path(cwd, name)
-
   return "Same path" if destination_path == source_path
 
   if entry_type == T_DIR && destination_path.start_with?("#{source_path}/")
@@ -582,14 +597,11 @@ def copy_tree(source_path, destination_path)
   end
 end
 
-def copy_entry(cwd, name, entry_type, destination_input)
+def copy_entry(cwd, source_path, entry_type, destination_input)
   return "Empty path" if destination_input.nil? || destination_input.empty?
 
-  normalized_input_path =
-    normalize_path(
-      destination_input.start_with?("/") ?
-        destination_input : join_path(cwd, destination_input)
-    )
+  name = base_name(source_path)
+  normalized_input_path = normalize_input_path(cwd, destination_input)
 
   return "Bad path" unless normalized_input_path
 
@@ -601,9 +613,6 @@ def copy_entry(cwd, name, entry_type, destination_input)
     end
 
   return "No such directory" unless File.directory?(dir_name(destination_path))
-
-  source_path = join_path(cwd, name)
-
   return "Same path" if destination_path == source_path
 
   if entry_type == T_DIR && destination_path.start_with?("#{source_path}/")
@@ -634,6 +643,18 @@ def run_filer(filer, root)
     act = filer.run
     msg = ""
 
+    action_target_path = filer.action_target_path
+
+    target_path =
+      if action_target_path.empty?
+        join_path(cwd, filer.selected_name)
+      else
+        action_target_path
+      end
+
+    target_parent_dir = dir_name(target_path)
+    target_name = base_name(target_path)
+
     case act
     when ACT_QUIT
       break
@@ -646,26 +667,41 @@ def run_filer(filer, root)
       cwd = dir_name(cwd)
       filer.index = 0
 
+    when ACT_CHANGE_DIR
+      path = normalize_input_path(cwd, filer.input_text)
+
+      if path.nil?
+        msg = "Bad path"
+      elsif !File.directory?(path)
+        msg = "No such directory"
+      else
+        cwd = path
+        filer.index = 0
+      end
+
     when ACT_RUN_RUBY
-      msg = run_ruby(cwd, filer.selected_name)
+      msg = run_ruby(target_parent_dir, target_name)
 
     when ACT_COMPILE
-      msg = compile_selected(cwd, filer.selected_name)
+      msg = compile_entry(target_parent_dir, target_name)
 
     when ACT_COMPILE_ALL
-      msg = compile_all(cwd)
+      msg = compile_all(action_target_path.empty? ? cwd : target_path)
 
     when ACT_RUN_DIR
-      msg = run_selected_dir(cwd, filer.selected_name)
+      msg = run_dir(target_parent_dir, target_name)
 
     when ACT_VIEW_MARKDOWN
-      msg = view_markdown(cwd, filer.selected_name)
+      msg = view_markdown(target_parent_dir, target_name)
 
     when ACT_RUN_PYTHON
-      msg = run_python(cwd, filer.selected_name)
+      msg = run_python(target_parent_dir, target_name)
 
     when ACT_EDIT
-      msg = edit_entry(cwd, filer.selected_name)
+      msg = edit_entry(target_parent_dir, target_name)
+
+    when ACT_EDIT_DOT
+      msg = edit_dot(target_parent_dir, target_name)
 
     when ACT_NEW_FILE
       msg = create_file(cwd, filer.input_text)
@@ -674,14 +710,19 @@ def run_filer(filer, root)
       msg = create_dir(cwd, filer.input_text)
 
     when ACT_DELETE
-      msg = delete_entry(cwd, filer.selected_name, filer.selected_type)
+      msg =
+        delete_entry(
+          target_parent_dir,
+          target_name,
+          entry_type_at(target_path)
+        )
 
     when ACT_MOVE
       msg =
         move_entry(
           cwd,
-          filer.selected_name,
-          filer.selected_type,
+          target_path,
+          entry_type_at(target_path),
           filer.input_text
         )
 
@@ -689,8 +730,8 @@ def run_filer(filer, root)
       msg =
         copy_entry(
           cwd,
-          filer.selected_name,
-          filer.selected_type,
+          target_path,
+          entry_type_at(target_path),
           filer.input_text
         )
 
