@@ -34,6 +34,17 @@ Creates an off-screen drawing surface that can be pushed to the display.
 - `text(x, y, string, color)`
 - `push(x, y, transparent=None)`
 
+## Dot
+
+Loads and edits `.a5d` dot images.
+
+- `Dot.load(path)`, `Dot.edit(path)`
+- `width()`, `height()`
+- `painted_left()`, `painted_top()`, `painted_right()`, `painted_bottom()`
+- `push(sprite, x, y)`
+- `Dot.overlap(first, first_x, first_y, second, second_x, second_y,
+  use_hitbox=False)`
+
 ## Widget
 
 Draws AREA512 user-interface components on a `Sprite` and reads keys.

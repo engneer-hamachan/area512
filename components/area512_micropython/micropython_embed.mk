@@ -9,5 +9,6 @@ CFLAGS += -I../area512_hal/include
 CFLAGS += -I../../R2P2-ESP32/components/picoruby-esp32/picoruby/mrbgems/picoruby-gpio/include
 CFLAGS += -I../../R2P2-ESP32/components/picoruby-esp32/picoruby/mrbgems/picoruby-io-console/include
 CFLAGS += -I../area512/mrbgems/picoruby-area512-widget/src
+CFLAGS += -I../area512/mrbgems/picoruby-area512-dot/src
 
 include $(MICROPYTHON_TOP)/ports/embed/embed.mk
