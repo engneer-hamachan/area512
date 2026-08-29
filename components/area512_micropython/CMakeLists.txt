@@ -45,6 +45,7 @@ idf_component_register(
     area512_micropython_python_file.c
     mphalport.c
     modules/area512_micropython_sprite.c
+    modules/area512_micropython_dot.c
     modules/area512_micropython_console.c
     modules/area512_micropython_io.c
     modules/area512_micropython_sd.c
@@ -67,14 +68,15 @@ target_compile_definitions(${COMPONENT_LIB} PRIVATE NDEBUG)
 
 # Kept private: gpio.h and io-console.h have generic names that would collide
 # with other components if these directories were exported. The widget toolkit
-# is VM-independent C that lives in the picoruby gem; the gem compiles it and
-# this component only calls into it.
+# and the dot image core are VM-independent C that live in picoruby gems; the
+# gems compile them and this component only calls into them.
 target_include_directories(
   ${COMPONENT_LIB}
   PRIVATE
     ${COMPONENT_DIR}/../../R2P2-ESP32/components/picoruby-esp32/picoruby/mrbgems/picoruby-gpio/include
     ${COMPONENT_DIR}/../../R2P2-ESP32/components/picoruby-esp32/picoruby/mrbgems/picoruby-io-console/include
     ${COMPONENT_DIR}/../area512/mrbgems/picoruby-area512-widget/src
+    ${COMPONENT_DIR}/../area512/mrbgems/picoruby-area512-dot/src
 )
 
 set_source_files_properties(
@@ -93,6 +95,7 @@ add_custom_command(
     ${COMPONENT_DIR}/micropython_embed.mk
     ${COMPONENT_DIR}/mpconfigport.h
     ${COMPONENT_DIR}/modules/area512_micropython_sprite.c
+    ${COMPONENT_DIR}/modules/area512_micropython_dot.c
     ${COMPONENT_DIR}/modules/area512_micropython_console.c
     ${COMPONENT_DIR}/modules/area512_micropython_io.c
     ${COMPONENT_DIR}/modules/area512_micropython_sd.c

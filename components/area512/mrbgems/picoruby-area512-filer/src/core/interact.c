@@ -1,6 +1,7 @@
 #if defined(PICORB_VM_MRUBYC)
 
 #include "core/filer.h"
+#include "core/terminal/terminal.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -12,20 +13,15 @@ set_message(Filer *filer, const char *text) {
 
 static int
 confirm_delete(Filer *filer, FileEntry *entry) {
-  char short_name[NAME_MAX];
   char question[MESSAGE_MAX];
 
-  fit_string(short_name, sizeof short_name, entry->name, filer->columns - 22);
-
-  if (entry->type == ENTRY_TYPE_DIR)
-    snprintf(
-      question,
-      sizeof question,
-      "Delete %s/ & contents? (y/n)",
-      short_name
-    );
-  else
-    snprintf(question, sizeof question, "Delete %s? (y/n)", short_name);
+  build_delete_question(
+    filer,
+    entry->name,
+    entry->type == ENTRY_TYPE_DIR,
+    question,
+    sizeof question
+  );
 
   return read_yes_no_confirmation(filer, question);
 }
@@ -36,6 +32,18 @@ confirm_delete(Filer *filer, FileEntry *entry) {
 int
 run_filer_interaction(Filer *filer) {
   for (;;) {
+    if (filer->terminal) {
+      int action = run_terminal_session(filer);
+
+      if (action == TERMINAL_ACTION_EXIT) {
+        close_terminal_session(filer);
+      } else {
+        area512_filer_teardown_ui(filer);
+
+        return action;
+      }
+    }
+
     draw_all(filer);
 
     int key = area512_filer_read_key();
@@ -79,6 +87,11 @@ run_filer_interaction(Filer *filer) {
       if (is_selected_python_file(filer)) {
         area512_filer_teardown_ui(filer);
         return ACTION_RUN_PYTHON;
+      }
+
+      if (is_selected_dot_image_file(filer)) {
+        area512_filer_teardown_ui(filer);
+        return ACTION_EDIT_DOT;
       }
 
       set_message(filer, "Not runnable");
@@ -174,6 +187,11 @@ run_filer_interaction(Filer *filer) {
 
       if (read_text_input(filer, "Copy to: "))
         return ACTION_COPY;
+
+      break;
+
+    case KEY_TERMINAL:
+      open_terminal_session(filer);
 
       break;
 

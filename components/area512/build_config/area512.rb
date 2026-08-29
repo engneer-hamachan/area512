@@ -80,6 +80,9 @@ MRuby::CrossBuild.new("esp32-femtoruby") do |conf|
   # Themed UI widgets shared by storage applications.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-widget', __dir__)
 
+  # Dot image format (.a5d) and its native (C) editor, launched from the filer.
+  conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-dot', __dir__)
+
   # On-screen console: mirrors app stdout (puts) and run errors to the screen.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-console', __dir__)
 

@@ -25,12 +25,14 @@ vim_string_clear(VimString *string) {
 }
 
 static int
-vim_string_reserve(VimString *string, int needed_byte_length) {
+reserve_byte_capacity(VimString *string, int needed_byte_length) {
   int required_byte_length = string->byte_length + needed_byte_length;
+
   if (required_byte_length <= string->capacity)
     return 1;
 
   int new_capacity = 16;
+
   if (string->capacity)
     new_capacity = string->capacity * 2;
 
@@ -53,7 +55,7 @@ vim_string_append(VimString *string, const char *text, int byte_length) {
   if (byte_length <= 0)
     return 1;
 
-  if (!vim_string_reserve(string, byte_length))
+  if (!reserve_byte_capacity(string, byte_length))
     return 0;
 
   memcpy(string->bytes + string->byte_length, text, (size_t)byte_length);
@@ -70,7 +72,7 @@ vim_string_append_c_string(VimString *string, const char *text) {
 
 int
 vim_string_append_byte(VimString *string, char byte) {
-  if (!vim_string_reserve(string, 1))
+  if (!reserve_byte_capacity(string, 1))
     return 0;
 
   string->bytes[string->byte_length++] = byte;

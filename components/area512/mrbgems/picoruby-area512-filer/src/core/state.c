@@ -5,6 +5,7 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <strings.h>
 
 #define PANEL_WIDTH 90
 #define PANEL_INSET_RIGHT 14
@@ -81,18 +82,87 @@ jump_to(Filer *filer, int offset) {
 }
 
 static int
-has_file_name_suffix(const char *file_name, const char *suffix) {
-  size_t file_name_byte_length = strlen(file_name);
+compare_entry_order(const FileEntry *left, const FileEntry *right) {
+  if (left->type != right->type)
+    return left->type < right->type ? -1 : 1;
+
+  return strcasecmp(left->name, right->name);
+}
+
+void
+add_entry_in_order(
+  FileEntry *entries,
+  int *entry_count,
+  int entry_capacity,
+  const FileEntry *entry
+) {
+
+  int add_index = *entry_count;
+
+  if (*entry_count >= entry_capacity)
+    return;
+
+  while (
+    add_index > 0 &&
+    compare_entry_order(&entries[add_index - 1], entry) > 0
+  ) {
+    entries[add_index] = entries[add_index - 1];
+    add_index--;
+  }
+
+  entries[add_index] = *entry;
+
+  (*entry_count)++;
+}
+
+static int
+has_path_suffix(const char *path, const char *suffix) {
+  size_t path_byte_length = strlen(path);
   size_t suffix_byte_length = strlen(suffix);
 
-  if (file_name_byte_length < suffix_byte_length)
+  if (path_byte_length < suffix_byte_length)
     return 0;
 
   return memcmp(
-    file_name + file_name_byte_length - suffix_byte_length,
+    path + path_byte_length - suffix_byte_length,
     suffix,
     suffix_byte_length
   ) == 0;
+}
+
+int
+is_ruby_file_path(const char *file_path) {
+  return has_path_suffix(file_path, ".rb") ||
+    has_path_suffix(file_path, ".mrb");
+}
+
+int
+is_python_file_path(const char *file_path) {
+  return has_path_suffix(file_path, ".py") ||
+    has_path_suffix(file_path, ".mpy");
+}
+
+int
+is_markdown_file_path(const char *file_path) {
+  return has_path_suffix(file_path, ".md");
+}
+
+int
+is_dot_image_file_path(const char *file_path) {
+  return has_path_suffix(file_path, ".a5d");
+}
+
+int
+is_source_file_path(const char *file_path) {
+  return has_path_suffix(file_path, ".rb") ||
+    has_path_suffix(file_path, ".py");
+}
+
+int
+is_editable_file_path(const char *file_path) {
+  return !has_path_suffix(file_path, ".mrb") &&
+    !has_path_suffix(file_path, ".mpy") &&
+    !has_path_suffix(file_path, ".a5d");
 }
 
 FileEntry *
@@ -108,7 +178,7 @@ is_selected_markdown_file(Filer *filer) {
   FileEntry *entry = fetch_selected_entry(filer);
 
   return entry && entry->type == ENTRY_TYPE_FILE &&
-    has_file_name_suffix(entry->name, ".md");
+    is_markdown_file_path(entry->name);
 }
 
 int
@@ -116,8 +186,7 @@ is_selected_ruby_file(Filer *filer) {
   FileEntry *entry = fetch_selected_entry(filer);
 
   return entry && entry->type == ENTRY_TYPE_FILE &&
-    (has_file_name_suffix(entry->name, ".rb") ||
-     has_file_name_suffix(entry->name, ".mrb"));
+    is_ruby_file_path(entry->name);
 }
 
 int
@@ -125,8 +194,7 @@ is_selected_python_file(Filer *filer) {
   FileEntry *entry = fetch_selected_entry(filer);
 
   return entry && entry->type == ENTRY_TYPE_FILE &&
-    (has_file_name_suffix(entry->name, ".py") ||
-     has_file_name_suffix(entry->name, ".mpy"));
+    is_python_file_path(entry->name);
 }
 
 int
@@ -134,8 +202,15 @@ is_selected_source_file(Filer *filer) {
   FileEntry *entry = fetch_selected_entry(filer);
 
   return entry && entry->type == ENTRY_TYPE_FILE &&
-    (has_file_name_suffix(entry->name, ".rb") ||
-     has_file_name_suffix(entry->name, ".py"));
+    is_source_file_path(entry->name);
+}
+
+int
+is_selected_dot_image_file(Filer *filer) {
+  FileEntry *entry = fetch_selected_entry(filer);
+
+  return entry && entry->type == ENTRY_TYPE_FILE &&
+    is_dot_image_file_path(entry->name);
 }
 
 int
@@ -143,8 +218,7 @@ is_selected_editable(Filer *filer) {
   FileEntry *entry = fetch_selected_entry(filer);
 
   return entry && entry->type == ENTRY_TYPE_FILE &&
-    !has_file_name_suffix(entry->name, ".mrb") &&
-    !has_file_name_suffix(entry->name, ".mpy");
+    is_editable_file_path(entry->name);
 }
 
 #endif

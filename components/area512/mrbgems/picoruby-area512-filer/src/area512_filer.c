@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 
 // -----------------------------------------------------------------------------
 // mruby/c value glue
@@ -76,6 +75,7 @@ mrbc_filer_free(mrbc_value *self) {
     if (filer->row)
       area512_sprite_delete(filer->row);
 
+    free(filer->terminal);
     free(filer);
   }
 }
@@ -93,14 +93,6 @@ c_filer_clear_entries(
   filer->count = 0;
 }
 
-static int
-compare_entry_order(const FileEntry *left, const FileEntry *right) {
-  if (left->type != right->type)
-    return left->type < right->type ? -1 : 1;
-
-  return strcasecmp(left->name, right->name);
-}
-
 // add_entry(name, type)
 static void
 c_filer_add_entry(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
@@ -116,9 +108,6 @@ c_filer_add_entry(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
     return;
   }
 
-  if (filer->count >= MAX_ENTRIES)
-    return;
-
   FileEntry entry;
 
   copy_string(entry.name, NAME_MAX, &v[1]);
@@ -126,17 +115,7 @@ c_filer_add_entry(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
   entry.type =
     (uint8_t)(v[2].tt == MRBC_TT_INTEGER ? v[2].i : ENTRY_TYPE_FILE);
 
-  int position = filer->count;
-
-  while (position > 0
-      && compare_entry_order(&filer->entries[position - 1], &entry) > 0) {
-    filer->entries[position] = filer->entries[position - 1];
-    position--;
-  }
-
-  filer->entries[position] = entry;
-
-  filer->count++;
+  add_entry_in_order(filer->entries, &filer->count, MAX_ENTRIES, &entry);
 }
 
 static void
@@ -217,21 +196,18 @@ c_filer_selected_name(
 }
 
 static void
-c_filer_selected_type(
+c_filer_action_target_path(
   mrbc_vm *virtual_machine,
   mrbc_value *v,
   int argument_count
 ) {
 
-  (void)virtual_machine;
   (void)argument_count;
 
-  Filer *filer = get_filer(v);
+  mrbc_value result =
+    mrbc_string_new_cstr(virtual_machine, get_filer(v)->action_target_path);
 
-  int type =
-    (filer->count > 0) ? filer->entries[filer->index].type : ENTRY_TYPE_FILE;
-
-  SET_INT_RETURN(type);
+  SET_RETURN(result);
 }
 
 static void
@@ -323,8 +299,8 @@ mrbc_area512_filer_init(mrbc_vm *virtual_machine) {
   mrbc_define_method(
     virtual_machine,
     class_Filer,
-    "selected_type",
-    c_filer_selected_type
+    "action_target_path",
+    c_filer_action_target_path
   );
 
   mrbc_define_method(

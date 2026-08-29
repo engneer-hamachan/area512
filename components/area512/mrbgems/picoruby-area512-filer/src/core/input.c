@@ -76,8 +76,32 @@ area512_filer_read_key(void) {
     return KEY_MOVE;
   case 'C':
     return KEY_COPY;
+  case 't':
+    return KEY_TERMINAL;
   default:
     return first_byte;
+  }
+}
+
+// Terminal mode types every letter, so only the arrow sequences used by the
+// command history are translated; anything else comes back as a raw byte.
+int
+read_terminal_key(void) {
+  int first_byte = area512_console_getch_block();
+
+  if (first_byte != 27)
+    return first_byte;
+
+  if (area512_console_getch_timeout(40) != '[')
+    return 27;
+
+  switch (read_csi_final_byte()) {
+  case 'A':
+    return KEY_UP;
+  case 'B':
+    return KEY_DOWN;
+  default:
+    return 0;
   }
 }
 

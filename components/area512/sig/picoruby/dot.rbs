@@ -1,0 +1,36 @@
+# Area512 built-in type declaration.
+
+class Dot
+  # Dot image width in dots
+  def width: () -> Integer
+
+  # Dot image height in dots
+  def height: () -> Integer
+
+  # Left edge of the painted dots; 0 when nothing is painted
+  def painted_left: () -> Integer
+
+  # Top edge of the painted dots; 0 when nothing is painted
+  def painted_top: () -> Integer
+
+  # Right edge of the painted dots; -1 when nothing is painted
+  def painted_right: () -> Integer
+
+  # Bottom edge of the painted dots; -1 when nothing is painted
+  def painted_bottom: () -> Integer
+
+  # Draw the dot image onto a sprite at (x, y); palette index 0 is skipped
+  def push: (Sprite sprite, Integer x, Integer y) -> nil
+
+  # Load a dot image (.a5d); the path is rooted at the card's data directory
+  def self.load: (String path) -> Dot
+
+  # Open the dot editor; an empty file starts as a 32x32 blank image
+  def self.edit: (String path) -> nil
+
+  # True when a dot overlaps between the two images placed at the given
+  # positions; compares dots with a color index other than 0, or dots marked
+  # in the editor with the x tile when use_hitbox is true
+  def self.overlap?: (Dot first, Integer first_x, Integer first_y, Dot second, Integer second_x, Integer second_y, ?bool use_hitbox) -> bool
+
+end
