@@ -249,6 +249,34 @@ append_target_error_message(
 }
 
 static int
+prepare_missing_file_edit_action(Filer *filer, const char *input_path) {
+  char message_text[MESSAGE_MAX];
+
+  if (!is_editable_file_path(input_path)) {
+    snprintf(message_text, sizeof message_text, "Cannot vim: %s", input_path);
+
+    append_output_text(filer->terminal, message_text);
+
+    return ACTION_NONE;
+  }
+
+  if (!parent_path_is_directory(filer->action_target_path)) {
+    snprintf(
+      message_text,
+      sizeof message_text,
+      "No such directory: %s",
+      input_path
+    );
+
+    append_output_text(filer->terminal, message_text);
+
+    return ACTION_NONE;
+  }
+
+  return ACTION_EDIT;
+}
+
+static int
 prepare_filer_action(Filer *filer, const CommandLine *command_line) {
   char message_text[MESSAGE_MAX];
   char question_text[MESSAGE_MAX];
@@ -414,6 +442,27 @@ prepare_filer_action(Filer *filer, const CommandLine *command_line) {
         command_line->first_argument,
         &target_is_directory
       );
+
+    if (
+      select_status == TARGET_MISSING &&
+      strcmp(command_line->command_name, "vim") == 0
+    ) {
+
+      select_status =
+        resolve_target_path(
+          filer->current_directory,
+          command_line->first_argument,
+          filer->action_target_path,
+          CURRENT_DIRECTORY_MAX,
+          &target_is_directory
+        );
+
+      if (select_status == TARGET_MISSING)
+        return prepare_missing_file_edit_action(
+                 filer,
+                 command_line->first_argument
+               );
+    }
 
     if (select_status != TARGET_RESOLVED) {
       append_target_error_message(

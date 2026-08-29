@@ -66,4 +66,6 @@ int resolve_target_path(
   int *target_is_directory
 );
 
+int parent_path_is_directory(const char *absolute_path);
+
 void append_history_line(Terminal *terminal, const char *input_line);
