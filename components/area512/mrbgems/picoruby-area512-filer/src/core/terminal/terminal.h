@@ -7,6 +7,8 @@
 #define TERMINAL_OUTPUT_ROW_CAPACITY 10
 #define TERMINAL_HISTORY_LINE_CAPACITY 5
 #define TERMINAL_CONTENT_LEFT_X 2
+#define TERMINAL_HOME_DIRECTORY "/home"
+#define TERMINAL_APPEND_AUTOSUGGESTION_KEY ('F' & 0x1F)
 
 // Returned by execute_terminal_command for the exit command only.
 #define TERMINAL_ACTION_EXIT (-1)
@@ -37,6 +39,11 @@ void clear_output_lines(Terminal *terminal);
 
 void read_terminal_input_line(Filer *filer);
 void complete_input_word(Filer *filer);
+void build_autosuggestion(
+  Filer *filer,
+  char *autosuggestion,
+  int autosuggestion_capacity
+);
 
 int execute_terminal_command(Filer *filer);
 const char *fetch_command_name(int command_index);
@@ -44,6 +51,12 @@ const char *fetch_command_name(int command_index);
 void show_terminal_entries(Filer *filer);
 void show_directory_entries(Filer *filer, const char *input_path);
 void show_metrics(Filer *filer);
+
+void expand_tilde(
+  const char *input_path,
+  char *expanded_path,
+  int expanded_path_capacity
+);
 
 int resolve_target_path(
   const char *current_directory,

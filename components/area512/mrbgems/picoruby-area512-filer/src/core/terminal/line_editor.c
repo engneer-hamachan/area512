@@ -30,6 +30,23 @@ clear_input_line(Terminal *terminal) {
 }
 
 static void
+append_autosuggestion_to_input_line(Filer *filer) {
+  char autosuggestion[LINE_MAX];
+  int autosuggestion_byte_offset = 0;
+
+  build_autosuggestion(filer, autosuggestion, sizeof autosuggestion);
+
+  while (autosuggestion[autosuggestion_byte_offset]) {
+    append_input_character(
+      filer->terminal,
+      autosuggestion[autosuggestion_byte_offset]
+    );
+
+    autosuggestion_byte_offset++;
+  }
+}
+
+static void
 recall_history_line(Terminal *terminal, int history_recall_index_delta) {
   int history_recall_index =
     terminal->history_recall_index + history_recall_index_delta;
@@ -81,6 +98,8 @@ read_terminal_input_line(Filer *filer) {
 
     if (input_key == '\t')
       complete_input_word(filer);
+    else if (input_key == TERMINAL_APPEND_AUTOSUGGESTION_KEY)
+      append_autosuggestion_to_input_line(filer);
     else if (input_key == '\b' || input_key == 127)
       remove_last_input_character(terminal);
     else if (input_key == 27)

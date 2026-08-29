@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define AUTOSUGGESTION_TEXT_COLOR_PERCENT 40
+
 static void
 draw_terminal_output_row(Filer *filer, int output_row_index) {
   area512_sprite_fill(filer->row, area512_theme_background_color());
@@ -28,6 +30,10 @@ draw_prompt_row(Filer *filer) {
   int available_input_byte_count;
   int visible_input_byte_offset;
   char visible_input_text[LINE_MAX];
+  int visible_input_byte_count;
+  char autosuggestion[LINE_MAX];
+  int available_autosuggestion_byte_count;
+  char visible_autosuggestion_text[LINE_MAX];
 
   snprintf(
     prompt_text,
@@ -56,6 +62,13 @@ draw_prompt_row(Filer *filer) {
     available_input_byte_count
   );
 
+  visible_input_byte_count = (int)strlen(visible_input_text);
+
+  build_autosuggestion(filer, autosuggestion, sizeof autosuggestion);
+
+  available_autosuggestion_byte_count =
+    available_input_byte_count - visible_input_byte_count;
+
   area512_sprite_fill(filer->row, area512_theme_background_color());
 
   area512_sprite_text(
@@ -77,11 +90,31 @@ draw_prompt_row(Filer *filer) {
   area512_sprite_text(
     filer->row,
     TERMINAL_CONTENT_LEFT_X +
-      (prompt_byte_count + (int)strlen(visible_input_text)) * FILER_CHAR_WIDTH,
+      (prompt_byte_count + visible_input_byte_count) * FILER_CHAR_WIDTH,
     0,
     "_",
     area512_theme_selected_color()
   );
+
+  if (available_autosuggestion_byte_count > 0) {
+    fit_string(
+      visible_autosuggestion_text,
+      sizeof visible_autosuggestion_text,
+      autosuggestion,
+      available_autosuggestion_byte_count
+    );
+
+    area512_sprite_text(
+      filer->row,
+      TERMINAL_CONTENT_LEFT_X +
+        (prompt_byte_count + visible_input_byte_count) * FILER_CHAR_WIDTH,
+      0,
+      visible_autosuggestion_text,
+      area512_theme_blend_text_color_over_background(
+        AUTOSUGGESTION_TEXT_COLOR_PERCENT
+      )
+    );
+  }
 
   area512_sprite_push(
     filer->row,
