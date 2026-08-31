@@ -1,6 +1,7 @@
 #if defined(PICORB_VM_MRUBYC)
 
 #include "core/filer.h"
+#include "core/terminal/terminal.h"
 
 #include "area512_hal.h"
 #include <stdbool.h>
@@ -58,6 +59,9 @@ c_filer_new(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
 
   memset(filer, 0, sizeof(Filer));
   init_filer_state(filer);
+
+  if (area512_default_ui_is_terminal())
+    open_terminal_session(filer);
 
   mrbc_value instance =
     mrbc_instance_new(virtual_machine, v->cls, sizeof(Filer *));

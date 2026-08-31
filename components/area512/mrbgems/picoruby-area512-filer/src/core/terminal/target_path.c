@@ -3,8 +3,32 @@
 #include "area512_hal.h"
 #include "core/terminal/terminal.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+
+void
+expand_tilde(
+  const char *input_path,
+  char *expanded_path,
+  int expanded_path_capacity
+) {
+
+  if (input_path[0] != '~' || (input_path[1] != 0 && input_path[1] != '/')) {
+    strncpy(expanded_path, input_path, expanded_path_capacity - 1);
+    expanded_path[expanded_path_capacity - 1] = 0;
+
+    return;
+  }
+
+  snprintf(
+    expanded_path,
+    expanded_path_capacity,
+    "%s%s",
+    TERMINAL_HOME_DIRECTORY,
+    input_path + 1
+  );
+}
 
 static int
 append_path_components(
@@ -138,6 +162,34 @@ resolve_target_path(
   *target_is_directory = S_ISDIR(stat_buffer.st_mode) ? 1 : 0;
 
   return TARGET_RESOLVED;
+}
+
+int
+parent_path_is_directory(const char *absolute_path) {
+  char parent_path[CURRENT_DIRECTORY_MAX];
+  struct stat stat_buffer;
+  int last_slash_byte_offset = (int)strlen(absolute_path) - 1;
+  int parent_path_byte_count;
+
+  while (
+    last_slash_byte_offset > 0 &&
+    absolute_path[last_slash_byte_offset] != '/'
+  )
+    last_slash_byte_offset--;
+
+  parent_path_byte_count =
+    last_slash_byte_offset > 0 ? last_slash_byte_offset : 1;
+
+  if (parent_path_byte_count > (int)sizeof parent_path - 1)
+    return 0;
+
+  memcpy(parent_path, absolute_path, parent_path_byte_count);
+  parent_path[parent_path_byte_count] = 0;
+
+  if (stat_data_path(parent_path, &stat_buffer) != 0)
+    return 0;
+
+  return S_ISDIR(stat_buffer.st_mode) ? 1 : 0;
 }
 
 #endif

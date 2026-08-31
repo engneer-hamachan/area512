@@ -68,10 +68,14 @@ uint32_t area512_theme_emphasis_color(void);
 uint32_t area512_theme_border_color(void);
 uint32_t area512_theme_selected_color(void);
 uint32_t area512_theme_box_color(void);
+uint32_t area512_theme_blend_text_color_over_background(int text_color_percent);
 void area512_theme_pick_bitmap_colors(
   uint32_t *set_bit_color,
   uint32_t *clear_bit_color
 );
+
+void area512_default_ui_load(void);
+int area512_default_ui_is_terminal(void);
 
 #ifdef __cplusplus
 }

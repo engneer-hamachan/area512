@@ -10,8 +10,8 @@
 typedef struct {
   char command_line_text[LINE_MAX];
   const char *command_name;
-  const char *first_argument;
-  const char *second_argument;
+  char first_argument[LINE_MAX];
+  char second_argument[LINE_MAX];
   int argument_count;
 } CommandLine;
 
@@ -50,14 +50,14 @@ fetch_command_name(int command_index) {
 static void
 parse_command_line(const char *input_line, CommandLine *command_line) {
   char *command_line_cursor = command_line->command_line_text;
+  const char *unexpanded_first_argument = "";
+  const char *unexpanded_second_argument = "";
   int word_index = 0;
 
   strncpy(command_line->command_line_text, input_line, LINE_MAX - 1);
   command_line->command_line_text[LINE_MAX - 1] = 0;
 
   command_line->command_name = "";
-  command_line->first_argument = "";
-  command_line->second_argument = "";
 
   while (*command_line_cursor && word_index < COMMAND_WORD_CAPACITY) {
     while (*command_line_cursor == ' ')
@@ -69,15 +69,27 @@ parse_command_line(const char *input_line, CommandLine *command_line) {
     if (word_index == 0)
       command_line->command_name = command_line_cursor;
     else if (word_index == 1)
-      command_line->first_argument = command_line_cursor;
+      unexpanded_first_argument = command_line_cursor;
     else
-      command_line->second_argument = command_line_cursor;
+      unexpanded_second_argument = command_line_cursor;
 
     word_index++;
 
     while (*command_line_cursor && *command_line_cursor != ' ')
       command_line_cursor++;
   }
+
+  expand_tilde(
+    unexpanded_first_argument,
+    command_line->first_argument,
+    LINE_MAX
+  );
+
+  expand_tilde(
+    unexpanded_second_argument,
+    command_line->second_argument,
+    LINE_MAX
+  );
 
   command_line->argument_count = word_index > 0 ? word_index - 1 : 0;
 }
@@ -237,6 +249,34 @@ append_target_error_message(
 }
 
 static int
+prepare_missing_file_edit_action(Filer *filer, const char *input_path) {
+  char message_text[MESSAGE_MAX];
+
+  if (!is_editable_file_path(input_path)) {
+    snprintf(message_text, sizeof message_text, "Cannot vim: %s", input_path);
+
+    append_output_text(filer->terminal, message_text);
+
+    return ACTION_NONE;
+  }
+
+  if (!parent_path_is_directory(filer->action_target_path)) {
+    snprintf(
+      message_text,
+      sizeof message_text,
+      "No such directory: %s",
+      input_path
+    );
+
+    append_output_text(filer->terminal, message_text);
+
+    return ACTION_NONE;
+  }
+
+  return ACTION_EDIT;
+}
+
+static int
 prepare_filer_action(Filer *filer, const CommandLine *command_line) {
   char message_text[MESSAGE_MAX];
   char question_text[MESSAGE_MAX];
@@ -333,8 +373,21 @@ prepare_filer_action(Filer *filer, const CommandLine *command_line) {
     return ACTION_COPY;
   }
 
+  if (strcmp(command_line->command_name, "cd") == 0) {
+    strncpy(
+      filer->input,
+      command_line->argument_count < 1
+        ? TERMINAL_HOME_DIRECTORY
+        : command_line->first_argument,
+      LINE_MAX - 1
+    );
+
+    filer->input[LINE_MAX - 1] = 0;
+
+    return ACTION_CHANGE_DIR;
+  }
+
   if (
-    strcmp(command_line->command_name, "cd") == 0 ||
     strcmp(command_line->command_name, "touch") == 0 ||
     strcmp(command_line->command_name, "mkdir") == 0
   ) {
@@ -354,9 +407,6 @@ prepare_filer_action(Filer *filer, const CommandLine *command_line) {
 
     strncpy(filer->input, command_line->first_argument, LINE_MAX - 1);
     filer->input[LINE_MAX - 1] = 0;
-
-    if (strcmp(command_line->command_name, "cd") == 0)
-      return ACTION_CHANGE_DIR;
 
     if (strcmp(command_line->command_name, "touch") == 0)
       return ACTION_NEW_FILE;
@@ -392,6 +442,27 @@ prepare_filer_action(Filer *filer, const CommandLine *command_line) {
         command_line->first_argument,
         &target_is_directory
       );
+
+    if (
+      select_status == TARGET_MISSING &&
+      strcmp(command_line->command_name, "vim") == 0
+    ) {
+
+      select_status =
+        resolve_target_path(
+          filer->current_directory,
+          command_line->first_argument,
+          filer->action_target_path,
+          CURRENT_DIRECTORY_MAX,
+          &target_is_directory
+        );
+
+      if (select_status == TARGET_MISSING)
+        return prepare_missing_file_edit_action(
+                 filer,
+                 command_line->first_argument
+               );
+    }
 
     if (select_status != TARGET_RESOLVED) {
       append_target_error_message(

@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define AUTOSUGGESTION_TEXT_COLOR_PERCENT 40
+
 static void
 draw_terminal_output_row(Filer *filer, int output_row_index) {
   area512_sprite_fill(filer->row, area512_theme_background_color());
@@ -22,12 +24,32 @@ draw_terminal_output_row(Filer *filer, int output_row_index) {
 }
 
 static void
+scroll_visible_input_to_cursor(
+  Terminal *terminal,
+  int available_input_byte_count
+) {
+
+  if (terminal->input_cursor_byte_offset < terminal->visible_input_byte_offset)
+    terminal->visible_input_byte_offset = terminal->input_cursor_byte_offset;
+  else if (
+    terminal->input_cursor_byte_offset >
+    terminal->visible_input_byte_offset + available_input_byte_count - 1
+  )
+    terminal->visible_input_byte_offset =
+      terminal->input_cursor_byte_offset - available_input_byte_count + 1;
+}
+
+static void
 draw_prompt_row(Filer *filer) {
   char prompt_text[LINE_MAX];
   int prompt_byte_count;
   int available_input_byte_count;
-  int visible_input_byte_offset;
   char visible_input_text[LINE_MAX];
+  int visible_input_byte_count;
+  int visible_cursor_byte_offset;
+  char autosuggestion[LINE_MAX];
+  int available_autosuggestion_byte_count;
+  char visible_autosuggestion_text[LINE_MAX];
 
   snprintf(
     prompt_text,
@@ -43,18 +65,25 @@ draw_prompt_row(Filer *filer) {
   if (available_input_byte_count < 1)
     available_input_byte_count = 1;
 
-  visible_input_byte_offset =
-    filer->terminal->input_byte_count - available_input_byte_count + 1;
-
-  if (visible_input_byte_offset < 0)
-    visible_input_byte_offset = 0;
+  scroll_visible_input_to_cursor(filer->terminal, available_input_byte_count);
 
   fit_string(
     visible_input_text,
     sizeof visible_input_text,
-    filer->terminal->input_line + visible_input_byte_offset,
+    filer->terminal->input_line + filer->terminal->visible_input_byte_offset,
     available_input_byte_count
   );
+
+  visible_input_byte_count = (int)strlen(visible_input_text);
+
+  visible_cursor_byte_offset =
+    filer->terminal->input_cursor_byte_offset -
+    filer->terminal->visible_input_byte_offset;
+
+  build_autosuggestion(filer, autosuggestion, sizeof autosuggestion);
+
+  available_autosuggestion_byte_count =
+    available_input_byte_count - visible_input_byte_count;
 
   area512_sprite_fill(filer->row, area512_theme_background_color());
 
@@ -77,11 +106,31 @@ draw_prompt_row(Filer *filer) {
   area512_sprite_text(
     filer->row,
     TERMINAL_CONTENT_LEFT_X +
-      (prompt_byte_count + (int)strlen(visible_input_text)) * FILER_CHAR_WIDTH,
+      (prompt_byte_count + visible_cursor_byte_offset) * FILER_CHAR_WIDTH,
     0,
     "_",
     area512_theme_selected_color()
   );
+
+  if (available_autosuggestion_byte_count > 0) {
+    fit_string(
+      visible_autosuggestion_text,
+      sizeof visible_autosuggestion_text,
+      autosuggestion,
+      available_autosuggestion_byte_count
+    );
+
+    area512_sprite_text(
+      filer->row,
+      TERMINAL_CONTENT_LEFT_X +
+        (prompt_byte_count + visible_input_byte_count) * FILER_CHAR_WIDTH,
+      0,
+      visible_autosuggestion_text,
+      area512_theme_blend_text_color_over_background(
+        AUTOSUGGESTION_TEXT_COLOR_PERCENT
+      )
+    );
+  }
 
   area512_sprite_push(
     filer->row,

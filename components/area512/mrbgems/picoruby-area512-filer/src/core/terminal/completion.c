@@ -22,10 +22,10 @@ typedef struct {
 static int
 find_input_word_start_byte_offset(
   const char *input_line,
-  int input_byte_count
+  int input_cursor_byte_offset
 ) {
 
-  int input_byte_offset = input_byte_count;
+  int input_byte_offset = input_cursor_byte_offset;
 
   while (input_byte_offset > 0 && input_line[input_byte_offset - 1] != ' ')
     input_byte_offset--;
@@ -84,8 +84,10 @@ collect_matching_entry_names(
   CompletionMatch *match
 ) {
 
-  char completion_directory_path[LINE_MAX];
+  char expanded_directory_path[LINE_MAX];
+  char absolute_directory_path[CURRENT_DIRECTORY_MAX];
   char resolved_path[AREA512_PATH_MAX];
+  int target_is_directory;
   DIR *directory_stream;
   struct dirent *directory_entry;
 
@@ -96,25 +98,29 @@ collect_matching_entry_names(
   match->chosen_name[0] = 0;
   match->chosen_name_is_directory = 0;
 
-  if (target->directory_path[0] == '/')
-    snprintf(
-      completion_directory_path,
-      sizeof completion_directory_path,
-      "%s",
-      target->directory_path
-    );
-  else
-    snprintf(
-      completion_directory_path,
-      sizeof completion_directory_path,
-      "%s/%s",
+  expand_tilde(
+    target->directory_path,
+    expanded_directory_path,
+    sizeof expanded_directory_path
+  );
+
+  if (
+    resolve_target_path(
       filer->current_directory,
-      target->directory_path
-    );
+      expanded_directory_path,
+      absolute_directory_path,
+      sizeof absolute_directory_path,
+      &target_is_directory
+    ) != TARGET_RESOLVED
+  )
+    return;
+
+  if (!target_is_directory)
+    return;
 
   if (
     area512_resolve_data_path(
-      completion_directory_path,
+      absolute_directory_path,
       resolved_path,
       sizeof resolved_path
     ) < 0
@@ -171,6 +177,9 @@ collect_matching_terminal_command_names(
   match->chosen_name[0] = 0;
   match->chosen_name_is_directory = 0;
 
+  if (target->directory_path[0])
+    return;
+
   while ((command_name = fetch_command_name(command_index)) != NULL) {
     command_index++;
 
@@ -200,7 +209,7 @@ collect_matching_terminal_command_names(
 }
 
 static void
-replace_terminal_input_word(
+replace_input_word_before_cursor(
   Terminal *terminal,
   int word_start_byte_offset,
   const char *replacement_word
@@ -208,8 +217,26 @@ replace_terminal_input_word(
 
   int replacement_word_byte_count = (int)strlen(replacement_word);
 
-  if (word_start_byte_offset + replacement_word_byte_count > LINE_MAX - 1)
-    replacement_word_byte_count = LINE_MAX - 1 - word_start_byte_offset;
+  int after_cursor_byte_count =
+    terminal->input_byte_count - terminal->input_cursor_byte_offset;
+
+  int available_replacement_word_byte_count =
+    LINE_MAX - 1 - word_start_byte_offset - after_cursor_byte_count;
+
+  char *after_cursor_text =
+    terminal->input_line + terminal->input_cursor_byte_offset;
+
+  if (replacement_word_byte_count > available_replacement_word_byte_count)
+    replacement_word_byte_count = available_replacement_word_byte_count;
+
+  terminal->input_cursor_byte_offset =
+    word_start_byte_offset + replacement_word_byte_count;
+
+  memmove(
+    terminal->input_line + terminal->input_cursor_byte_offset,
+    after_cursor_text,
+    after_cursor_byte_count
+  );
 
   memcpy(
     terminal->input_line + word_start_byte_offset,
@@ -218,7 +245,8 @@ replace_terminal_input_word(
   );
 
   terminal->input_byte_count =
-    word_start_byte_offset + replacement_word_byte_count;
+    terminal->input_cursor_byte_offset + after_cursor_byte_count;
+
   terminal->input_line[terminal->input_byte_count] = 0;
 }
 
@@ -227,24 +255,29 @@ complete_input_word(Filer *filer) {
   Terminal *terminal = filer->terminal;
 
   int word_start_byte_offset;
+  int completion_word_byte_count;
   char completion_word[LINE_MAX];
   CompletionTarget completion_target;
   CompletionMatch completion_match;
   char replacement_word[LINE_MAX];
 
-  word_start_byte_offset = find_input_word_start_byte_offset(
-    terminal->input_line,
-    terminal->input_byte_count
-  );
-
-  if (terminal->completion_match_index < 0) {
-    strncpy(
-      terminal->completion_word,
-      terminal->input_line + word_start_byte_offset,
-      LINE_MAX - 1
+  word_start_byte_offset =
+    find_input_word_start_byte_offset(
+      terminal->input_line,
+      terminal->input_cursor_byte_offset
     );
 
-    terminal->completion_word[LINE_MAX - 1] = 0;
+  if (terminal->completion_match_index < 0) {
+    completion_word_byte_count =
+      terminal->input_cursor_byte_offset - word_start_byte_offset;
+
+    memcpy(
+      terminal->completion_word,
+      terminal->input_line + word_start_byte_offset,
+      completion_word_byte_count
+    );
+
+    terminal->completion_word[completion_word_byte_count] = 0;
     terminal->completion_match_index = 0;
   }
 
@@ -302,10 +335,71 @@ complete_input_word(Filer *filer) {
         completion_match.matching_name_count;
   }
 
-  replace_terminal_input_word(
+  replace_input_word_before_cursor(
     terminal,
     word_start_byte_offset,
     replacement_word
+  );
+}
+
+void
+build_autosuggestion(
+  Filer *filer,
+  char *autosuggestion,
+  int autosuggestion_capacity
+) {
+
+  Terminal *terminal = filer->terminal;
+
+  int word_start_byte_offset;
+  CompletionTarget completion_target;
+  CompletionMatch completion_match;
+  int name_prefix_byte_count;
+
+  autosuggestion[0] = 0;
+
+  if (terminal->input_cursor_byte_offset != terminal->input_byte_count)
+    return;
+
+  if ((int)strspn(terminal->input_line, " ") == terminal->input_byte_count)
+    return;
+
+  word_start_byte_offset =
+    find_input_word_start_byte_offset(
+      terminal->input_line,
+      terminal->input_cursor_byte_offset
+    );
+
+  build_completion_target(
+    terminal->input_line + word_start_byte_offset,
+    &completion_target
+  );
+
+  if (word_start_byte_offset == 0)
+    collect_matching_terminal_command_names(
+      &completion_target,
+      0,
+      &completion_match
+    );
+  else
+    collect_matching_entry_names(
+      filer,
+      &completion_target,
+      0,
+      &completion_match
+    );
+
+  if (completion_match.matching_name_count == 0)
+    return;
+
+  name_prefix_byte_count = (int)strlen(completion_target.name_prefix);
+
+  snprintf(
+    autosuggestion,
+    autosuggestion_capacity,
+    "%s%s",
+    completion_match.chosen_name + name_prefix_byte_count,
+    completion_match.chosen_name_is_directory ? "/" : ""
   );
 }
 

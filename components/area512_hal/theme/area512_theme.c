@@ -29,6 +29,19 @@ luminance(uint32_t color) {
   return 2 * ((color >> 16) & 0xFF) + 5 * ((color >> 8) & 0xFF) + (color & 0xFF);
 }
 
+static uint32_t
+blend_color_channel(
+  int background_channel,
+  int text_channel,
+  int text_color_percent
+) {
+
+  return (uint32_t)(
+    background_channel +
+    (text_channel - background_channel) * text_color_percent / 100
+  );
+}
+
 static int
 read_text_line(FILE *file, char *line, size_t line_bytes) {
   int byte_count = 0;
@@ -166,6 +179,29 @@ area512_theme_selected_color(void) {
 uint32_t
 area512_theme_box_color(void) {
   return s_theme.box_color;
+}
+
+uint32_t
+area512_theme_blend_text_color_over_background(int text_color_percent) {
+  uint32_t background_color = s_theme.background_color;
+  uint32_t text_color = s_theme.text_color;
+
+  return
+    (blend_color_channel(
+      (background_color >> 16) & 0xFF,
+      (text_color >> 16) & 0xFF,
+      text_color_percent
+    ) << 16) |
+    (blend_color_channel(
+      (background_color >> 8) & 0xFF,
+      (text_color >> 8) & 0xFF,
+      text_color_percent
+    ) << 8) |
+    blend_color_channel(
+      background_color & 0xFF,
+      text_color & 0xFF,
+      text_color_percent
+    );
 }
 
 // Bitmaps are authored with the set bits as the brighter side, so a light
