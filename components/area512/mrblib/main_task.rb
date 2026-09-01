@@ -53,6 +53,7 @@ ACT_COPY = 15 unless Object.const_defined?(:ACT_COPY)
 ACT_EDIT_DOT = 16 unless Object.const_defined?(:ACT_EDIT_DOT)
 ACT_CHANGE_DIR = 17 unless Object.const_defined?(:ACT_CHANGE_DIR)
 ACT_IRB = 18 unless Object.const_defined?(:ACT_IRB)
+ACT_PYTHON_REPL = 19 unless Object.const_defined?(:ACT_PYTHON_REPL)
 
 def run_sd_error_screen(filer)
   filer.cwd = "/"
@@ -683,6 +684,9 @@ def run_filer(filer, root)
 
     when ACT_IRB
       Area512::Repl.start
+
+    when ACT_PYTHON_REPL
+      Area512::PythonRepl.start
 
     when ACT_RUN_RUBY
       msg = run_ruby(target_parent_dir, target_name)

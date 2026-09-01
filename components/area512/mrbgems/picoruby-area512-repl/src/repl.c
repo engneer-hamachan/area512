@@ -2,6 +2,7 @@
 
 #include "area512_hal.h"
 #include "area512_repl.h"
+#include "python_repl.h"
 
 #include <string.h>
 
@@ -116,6 +117,8 @@ mrbc_area512_repl_init(mrbc_vm *virtual_machine) {
     "write_line",
     c_repl_write_line
   );
+
+  define_python_repl_class(virtual_machine);
 }
 
 #endif

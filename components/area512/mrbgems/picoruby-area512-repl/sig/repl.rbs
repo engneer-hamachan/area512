@@ -7,3 +7,7 @@ class Area512::Repl
   def self.reset: () -> nil
   def self.write_line: (String text) -> nil
 end
+
+class Area512::PythonRepl
+  def self.start: () -> nil
+end

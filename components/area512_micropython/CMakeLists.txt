@@ -43,6 +43,8 @@ file(
 idf_component_register(
   SRCS
     area512_micropython_python_file.c
+    area512_micropython_gc_heap.c
+    area512_micropython_repl.c
     mphalport.c
     modules/area512_micropython_sprite.c
     modules/area512_micropython_dot.c

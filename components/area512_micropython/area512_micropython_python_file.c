@@ -1,71 +1,22 @@
 #include "area512_hal.h"
 #include "area512_micropython.h"
+#include "area512_micropython_gc_heap.h"
 #include "port/micropython_embed.h"
 #include "py/compile.h"
 #include "py/gc.h"
 #include "py/lexer.h"
 #include "py/mpprint.h"
-#include "py/mpstate.h"
 #include "py/persistentcode.h"
 #include "py/runtime.h"
-
-#include <esp_heap_caps.h>
 
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MICROPYTHON_GC_HEAP_MARGIN_BYTE_SIZE (32 * 1024)
-#define MICROPYTHON_GC_HEAP_MINIMUM_BYTE_SIZE (4 * 1024)
-#define MICROPYTHON_GC_HEAP_MAXIMUM_BYTE_SIZE (192 * 1024)
-
 typedef struct {
   FILE *bytecode_file;
   int write_failed;
 } PythonBytecodeFileWriter;
-
-static void *
-allocate_gc_heap(size_t *gc_heap_byte_size) {
-  size_t largest_free_byte_size =
-    heap_caps_get_largest_free_block(MALLOC_CAP_DMA);
-
-  size_t heap_byte_size =
-    largest_free_byte_size > MICROPYTHON_GC_HEAP_MARGIN_BYTE_SIZE
-      ? largest_free_byte_size - MICROPYTHON_GC_HEAP_MARGIN_BYTE_SIZE
-      : MICROPYTHON_GC_HEAP_MINIMUM_BYTE_SIZE;
-
-  if (heap_byte_size > MICROPYTHON_GC_HEAP_MAXIMUM_BYTE_SIZE)
-    heap_byte_size = MICROPYTHON_GC_HEAP_MAXIMUM_BYTE_SIZE;
-
-  while (heap_byte_size >= MICROPYTHON_GC_HEAP_MINIMUM_BYTE_SIZE) {
-    void *gc_heap = malloc(heap_byte_size);
-
-    if (gc_heap) {
-      *gc_heap_byte_size = heap_byte_size;
-
-      return gc_heap;
-    }
-
-    heap_byte_size /= 2;
-  }
-
-  return NULL;
-}
-
-static void
-free_gc_heap_split_areas(void) {
-  mp_state_mem_area_t *area = MP_STATE_MEM(area).next;
-
-  MP_STATE_MEM(area).next = NULL;
-
-  while (area) {
-    mp_state_mem_area_t *next_area = area->next;
-
-    free(area);
-
-    area = next_area;
-  }
-}
 
 static char *
 read_whole_file(const char *path, size_t *file_byte_length) {
@@ -223,7 +174,7 @@ area512_micropython_compile_python_source_file(
 
   size_t micropython_gc_heap_byte_size = 0;
   void *micropython_gc_heap =
-    allocate_gc_heap(&micropython_gc_heap_byte_size);
+    area512_micropython_allocate_gc_heap(&micropython_gc_heap_byte_size);
 
   if (!micropython_gc_heap) {
     fclose(python_bytecode_file);
@@ -251,7 +202,7 @@ area512_micropython_compile_python_source_file(
 
   gc_sweep_all();
   mp_embed_deinit();
-  free_gc_heap_split_areas();
+  area512_micropython_free_gc_heap_split_areas();
 
   free(micropython_gc_heap);
   free(python_source_bytes);
@@ -401,7 +352,7 @@ area512_micropython_run_python_bytecode_file(const char *python_bytecode_path) {
   size_t micropython_gc_heap_byte_size = 0;
 
   void *micropython_gc_heap =
-    allocate_gc_heap(&micropython_gc_heap_byte_size);
+    area512_micropython_allocate_gc_heap(&micropython_gc_heap_byte_size);
 
   if (!micropython_gc_heap) {
     free(python_bytecode_bytes);
@@ -425,7 +376,7 @@ area512_micropython_run_python_bytecode_file(const char *python_bytecode_path) {
 
   gc_sweep_all();
   mp_embed_deinit();
-  free_gc_heap_split_areas();
+  area512_micropython_free_gc_heap_split_areas();
   free(micropython_gc_heap);
   free(python_bytecode_bytes);
 
@@ -452,7 +403,7 @@ area512_micropython_run_python_manifest(
   size_t micropython_gc_heap_byte_size = 0;
 
   void *micropython_gc_heap =
-    allocate_gc_heap(&micropython_gc_heap_byte_size);
+    area512_micropython_allocate_gc_heap(&micropython_gc_heap_byte_size);
 
   if (!micropython_gc_heap) {
     free(manifest_text);
@@ -472,7 +423,7 @@ area512_micropython_run_python_manifest(
 
   gc_sweep_all();
   mp_embed_deinit();
-  free_gc_heap_split_areas();
+  area512_micropython_free_gc_heap_split_areas();
   free(micropython_gc_heap);
   free(manifest_text);
 

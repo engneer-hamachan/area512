@@ -34,7 +34,8 @@ static const char *const COMMAND_NAME_TABLE[] = {
   "exit",
   "clear",
   "help",
-  "irb"
+  "irb",
+  "python-repl"
 };
 
 #define COMMAND_NAME_COUNT \
@@ -103,12 +104,13 @@ is_builtin_command(const char *command_name) {
       || strcmp(command_name, "clear") == 0
       || strcmp(command_name, "help") == 0
       || strcmp(command_name, "irb") == 0
+      || strcmp(command_name, "python-repl") == 0
       || strcmp(command_name, "exit") == 0;
 }
 
 static void
 append_terminal_command_names(Filer *filer) {
-  char command_name_list_text[LINE_MAX];
+  char command_name_list_text[LINE_MAX * 2];
   int command_index = 0;
 
   command_name_list_text[0] = 0;
@@ -138,6 +140,9 @@ execute_builtin_terminal_command(
 
   if (strcmp(command_line->command_name, "irb") == 0)
     return ACTION_IRB;
+
+  if (strcmp(command_line->command_name, "python-repl") == 0)
+    return ACTION_PYTHON_REPL;
 
   if (strcmp(command_line->command_name, "ls") == 0) {
     if (command_line->argument_count < 1)

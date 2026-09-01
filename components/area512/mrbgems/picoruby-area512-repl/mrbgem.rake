@@ -7,4 +7,5 @@ MRuby::Gem::Specification.new('picoruby-area512-repl') do |spec|
   spec.add_dependency 'picoruby-area512-sandbox'
   spec.add_dependency 'picoruby-io-console'
   spec.cc.include_paths << "#{spec.dir}/../../../area512_hal/include"
+  spec.cc.include_paths << "#{spec.dir}/../../../area512_micropython/include"
 end
