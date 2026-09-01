@@ -85,6 +85,9 @@ class Sandbox
   # Release all bytecode kept by area512_exec_mrb_file_keep
   def area512_release_kept_code: () -> nil
 
+  # Release the mrc_irep produced by the last compile
+  def area512_release_mrc_irep: () -> nil
+
   # Message of the exception raised by the task, or nil
   def area512_exception_message: () -> (String | nil)
 

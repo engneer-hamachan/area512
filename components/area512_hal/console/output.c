@@ -206,3 +206,18 @@ int
 area512_console_had_output(void) {
   return s_had_output;
 }
+
+int
+area512_console_cursor_row_index(void) {
+  return s_cursor_row_index;
+}
+
+int
+area512_console_row_height(void) {
+  return CONSOLE_ROW_HEIGHT;
+}
+
+int
+area512_console_font_size(void) {
+  return CONSOLE_FONT_SIZE;
+}

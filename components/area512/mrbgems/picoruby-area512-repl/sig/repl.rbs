@@ -1,0 +1,9 @@
+class Area512::Repl
+  PRIMARY_PROMPT: String
+  CONTINUATION_PROMPT: String
+
+  def self.start: () -> nil
+  def self.read_line: (String prompt) -> String | Symbol
+  def self.reset: () -> nil
+  def self.write_line: (String text) -> nil
+end
