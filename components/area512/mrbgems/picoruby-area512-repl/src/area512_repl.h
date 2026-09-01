@@ -15,6 +15,15 @@ typedef struct {
   int input_cursor_byte_offset;
 } ReplLine;
 
+int ensure_byte_capacity(
+  char **text,
+  int *byte_capacity,
+  int required_byte_capacity
+);
+
+void write_console_line(const char *text);
+void echo_repl_input_line(const char *prompt, const ReplLine *repl_line);
+
 int open_repl_line(ReplLine *repl_line);
 void close_repl_line(ReplLine *repl_line);
 int read_repl_input_line(const char *prompt, ReplLine *repl_line);

@@ -7,31 +7,41 @@
 
 #include <mrubyc.h>
 
-static int
-ensure_input_byte_capacity(ReplLine *repl_line, int required_byte_capacity) {
-  if (required_byte_capacity <= repl_line->input_byte_capacity)
+int
+ensure_byte_capacity(
+  char **text,
+  int *byte_capacity,
+  int required_byte_capacity
+) {
+
+  if (required_byte_capacity <= *byte_capacity)
     return 1;
 
-  int new_byte_capacity = repl_line->input_byte_capacity;
+  int new_byte_capacity = *byte_capacity;
 
   while (new_byte_capacity < required_byte_capacity)
     new_byte_capacity *= 2;
 
-  char *resized_input_line =
-    (char *)mrbc_raw_realloc(repl_line->input_line, new_byte_capacity);
+  char *resized_text = (char *)mrbc_raw_realloc(*text, new_byte_capacity);
 
-  if (resized_input_line == NULL)
+  if (resized_text == NULL)
     return 0;
 
-  repl_line->input_line = resized_input_line;
-  repl_line->input_byte_capacity = new_byte_capacity;
+  *text = resized_text;
+  *byte_capacity = new_byte_capacity;
 
   return 1;
 }
 
 static int
 insert_input_character(ReplLine *repl_line, int input_key) {
-  if (!ensure_input_byte_capacity(repl_line, repl_line->input_byte_count + 2))
+  if (
+    !ensure_byte_capacity(
+      &repl_line->input_line,
+      &repl_line->input_byte_capacity,
+      repl_line->input_byte_count + 2
+    )
+  )
     return 0;
 
   char *after_cursor_text =

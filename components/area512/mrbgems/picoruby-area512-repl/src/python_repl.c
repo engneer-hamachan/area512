@@ -63,21 +63,14 @@ append_python_repl_source_line(
     input_byte_count +
     1;
 
-  if (required_byte_capacity > repl_source->source_byte_capacity) {
-    int new_byte_capacity = repl_source->source_byte_capacity;
-
-    while (new_byte_capacity < required_byte_capacity)
-      new_byte_capacity *= 2;
-
-    char *resized_source_text =
-      (char *)mrbc_raw_realloc(repl_source->source_text, new_byte_capacity);
-
-    if (resized_source_text == NULL)
-      return 0;
-
-    repl_source->source_text = resized_source_text;
-    repl_source->source_byte_capacity = new_byte_capacity;
-  }
+  if (
+    !ensure_byte_capacity(
+      &repl_source->source_text,
+      &repl_source->source_byte_capacity,
+      required_byte_capacity
+    )
+  )
+    return 0;
 
   if (separator_byte_count > 0) {
     repl_source->source_text[repl_source->source_byte_count] = '\n';
@@ -95,12 +88,6 @@ append_python_repl_source_line(
   repl_source->source_text[repl_source->source_byte_count] = '\0';
 
   return 1;
-}
-
-static void
-write_console_line(const char *text) {
-  area512_console_write(text, strlen(text));
-  area512_console_write("\n", 1);
 }
 
 static void
@@ -162,9 +149,7 @@ run_python_repl(void) {
       continue;
     }
 
-    area512_console_write(prompt, strlen(prompt));
-    area512_console_write(repl_line.input_line, repl_line.input_byte_count);
-    area512_console_write("\n", 1);
+    echo_repl_input_line(prompt, &repl_line);
 
     if (
       !append_python_repl_source_line(

@@ -4,8 +4,6 @@
 #include "area512_repl.h"
 #include "python_repl.h"
 
-#include <string.h>
-
 #include <mrubyc.h>
 
 static void
@@ -24,9 +22,7 @@ c_repl_read_line(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
   int input_status = read_repl_input_line(prompt, &repl_line);
 
   if (input_status == REPL_INPUT_SUBMITTED) {
-    area512_console_write(prompt, strlen(prompt));
-    area512_console_write(repl_line.input_line, repl_line.input_byte_count);
-    area512_console_write("\n", 1);
+    echo_repl_input_line(prompt, &repl_line);
 
     mrbc_value result =
       mrbc_string_new_cstr(virtual_machine, repl_line.input_line);
@@ -78,8 +74,7 @@ c_repl_write_line(
 
   const char *text = (const char *)v[1].string->data;
 
-  area512_console_write(text, strlen(text));
-  area512_console_write("\n", 1);
+  write_console_line(text);
 
   SET_NIL_RETURN();
 }
