@@ -284,6 +284,26 @@ c_sandbox_area512_release_kept_code(
 }
 
 static void
+c_sandbox_area512_release_mrc_irep(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  (void)virtual_machine;
+  (void)argument_count;
+
+  SANDBOX_STATE();
+
+  if (sandbox_state->irep) {
+    mrc_irep_free(sandbox_state->cc, sandbox_state->irep);
+    sandbox_state->irep = NULL;
+  }
+
+  SET_NIL_RETURN();
+}
+
+static void
 c_sandbox_area512_exception_message(
   mrbc_vm *virtual_machine,
   mrbc_value *v,
@@ -331,6 +351,13 @@ mrbc_area512_sandbox_init(mrbc_vm *virtual_machine) {
     class_Sandbox,
     "area512_release_kept_code",
     c_sandbox_area512_release_kept_code
+  );
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Sandbox,
+    "area512_release_mrc_irep",
+    c_sandbox_area512_release_mrc_irep
   );
 
   mrbc_define_method(

@@ -34,14 +34,14 @@ esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --
 
 ![The AREA512 file manager running on a Cardputer ADV](image/cardputer.jpg)
 
-The screen shows a listing of the current directory: directories first, then files. Source files (`.rb` / `.py`) and compiled files (`.mrb` / `.mpy`) are shown as separate entries with their extensions.
+The screen shows a listing of the current directory: directories first, then files. Source files (`.rb` / `.py`), compiled files (`.mrb` / `.mpy`), and dot images (`.a5d`) are shown as separate entries with their extensions.
 
 The following keys are available.
 
 | Key | Action |
 | --- | --- |
 | `;` / `.` (or `k` / `j`) | Move the cursor up / down |
-| `/` or Enter | Open (enter a directory / run a Ruby or Python file / view a Markdown file) |
+| `/` or Enter | Open (enter a directory / run a Ruby or Python file / view a Markdown file / edit an `.a5d` dot image) |
 | `,` or BS | Go to the parent directory |
 | `1`–`9` | Jump to the n-th entry |
 | `e` | Edit the selected file |
@@ -52,8 +52,56 @@ The following keys are available.
 | `K` | Create a new directory (you type the name) |
 | `x` | Delete (asks `y/n` for confirmation) |
 | `m` | Move the selected entry (you type the destination path) |
+| `t` | Open the terminal |
 | `r` | Reboot the device |
 | `q` | Quit the file manager |
+
+## Terminal
+
+Press `t` to work in a terminal instead of the list. It shares the current
+directory with the file manager, and `exit` returns to the list.
+
+| Command | Action |
+| --- | --- |
+| `cd [path]` | Change directory (without an argument, go to `/home`) |
+| `ls [path]` | List the current or the given directory |
+| `pwd` | Print the current directory |
+| `run <name>` | Run a Ruby or Python file, or a directory as an application |
+| `vim <name>` | Edit a file; a name that does not exist yet is created |
+| `md <name>` | View a Markdown file |
+| `dot <name>` | Edit an `.a5d` dot image |
+| `compile <name>` | Compile a `.rb` or `.py` file |
+| `compile --all [path]` | Compile every `.rb` and `.py` file in the directory |
+| `touch <name>` | Create a file |
+| `mkdir <name>` | Create a directory |
+| `rm <name>` | Delete (asks `y/n` for confirmation) |
+| `mv <src> <dst>` | Move |
+| `cp <src> <dst>` | Copy |
+| `irb` | Start the Ruby REPL |
+| `python-repl` | Start the MicroPython REPL |
+| `top` | Show battery, VM, RAM, and stack usage |
+| `clear` | Clear the output |
+| `help` | List the commands |
+| `reboot` | Reboot the device |
+| `exit` | Return to the file list |
+
+The following keys are available on the command line.
+
+| Key | Action |
+| --- | --- |
+| Left / Right | Move the cursor |
+| Up / Down | Recall the command history |
+| Tab | Complete the command or entry name at the cursor |
+| `Ctrl-F` | Accept the suggestion shown after the cursor |
+| Esc | Clear the line |
+
+### REPL
+
+`irb` runs Ruby and `python-repl` runs MicroPython on the console. Both read
+further lines while the input is incomplete, showing `...>` (Ruby) or `...`
+(Python) instead of the `irb>` / `>>>` prompt. `irb` prints `=> ` and the
+result of each line. Esc returns to the terminal, and `Ctrl-C` discards the
+line being typed.
 
 ## Applications
 
@@ -158,6 +206,7 @@ AREA512 provides the following features as built-ins. PicoRuby does not require
 | --- | --- | --- |
 | Display | Yes | Yes |
 | Sprite | Yes | Yes |
+| Dot | Yes | Yes |
 | Widget | Yes | Yes |
 | WidgetList | Yes | Yes |
 | WidgetTextView | Yes | Yes |
@@ -210,6 +259,18 @@ box=0x241604
 One `key=0xRRGGBB` per line; six hex digits, `0x` required. Lines without `=` and unknown keys are ignored.
 
 Bitmaps (the boot logo and an application's `image.h`) are drawn with `emphasis` and `background` only, the brighter of the two used for the set bits.
+
+## Default UI
+
+The UI the device starts in is read from `/sdcard/Area512_data/etc/ui` at boot.
+Without that file the file manager is used.
+
+```
+default=terminal
+```
+
+`default=terminal` starts in the terminal, `default=graphical` starts in the
+file manager. Lines other than these two are ignored.
 
 ## Building
 
