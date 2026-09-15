@@ -38,7 +38,16 @@ format_file_label(FileEntry *entry, char *out, int out_size) {
 
 void
 draw_entry(Filer *filer, int y, int index, int row, const PanelInfo *info) {
+  if (
+    y + ROW_HEIGHT <= area512_screen_region_top(filer->screen) ||
+    y >= area512_screen_region_bottom(filer->screen)
+  )
+    return;
+
   area512_sprite_fill(filer->row, area512_theme_background_color());
+  if (filer->has_background_image)
+    area512_screen_read_sprite(filer->screen, filer->row, 0, y);
+
   if (index < filer->count) {
     FileEntry *entry = &filer->entries[index];
     int selected = (index == filer->index);
@@ -71,9 +80,8 @@ draw_entry(Filer *filer, int y, int index, int row, const PanelInfo *info) {
       (uint32_t)scrollbar
     );
   }
-  draw_walls(filer, 0);
   draw_panel_row(filer, row, info);
-  area512_sprite_push(filer->row, 0, y);
+  area512_screen_draw_sprite(filer->screen, filer->row, 0, y);
 }
 
 void

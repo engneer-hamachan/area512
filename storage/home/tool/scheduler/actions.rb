@@ -76,7 +76,7 @@ class Scheduler
 
   def run
     Display.fill_screen(C_BACKGROUND)
-    @sp = Sprite.new(W, H, 12)
+    @sp = BandedSprite.new(12)
     begin
       SD.mount
       load_data

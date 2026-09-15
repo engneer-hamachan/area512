@@ -1,13 +1,18 @@
+set(AREA512_DISPLAY_DIR "")
+if(AREA512_EXT_DISPLAY)
+  set(AREA512_DISPLAY_DIR "captft/")
+endif()
+
 idf_component_register(
   SRCS
     console/input.cpp
     console/keyboard.cpp
     console/getch.cpp
-    console/output.c
+    ${AREA512_DISPLAY_DIR}console/output.c
     console/system_metrics.cpp
     console/vm_stats.c
-    gfx/area512_display.cpp
-    gfx/area512_gfx.cpp
+    ${AREA512_DISPLAY_DIR}gfx/area512_display.cpp
+    ${AREA512_DISPLAY_DIR}gfx/area512_gfx.cpp
     sd/area512_data_path.c
     sd/area512_sd.c
     sd/area512_seed.c
@@ -29,6 +34,10 @@ idf_component_register(
     spi_flash
     nvs_flash
 )
+
+if(AREA512_EXT_DISPLAY)
+  target_compile_definitions(${COMPONENT_LIB} PUBLIC AREA512_EXT_DISPLAY)
+endif()
 
 if(AREA512_CARDPUTER_V11)
   set_source_files_properties(

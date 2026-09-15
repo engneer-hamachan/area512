@@ -34,7 +34,7 @@ class SpaceLander:
         self.board_left = (screen_width - BOARD_WIDTH) // 2
         self.board_top = (screen_height - BOARD_HEIGHT) // 2
         Display.fill_screen(COLOR_BACKGROUND)
-        self.sprite = Sprite(screen_width, screen_height, FONT_SIZE)
+        self.sprite = BandedSprite(FONT_SIZE)
 
         try:
             start_game(self)

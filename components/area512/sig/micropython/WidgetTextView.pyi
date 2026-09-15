@@ -36,7 +36,7 @@ class WidgetTextView:
         """
         ...
 
-    def draw(self, sprite: Sprite) -> None:
+    def draw(self, sprite: Sprite | BandedSprite) -> None:
         """
         Draw word-wrapped text and the scrollbar when needed.
         """

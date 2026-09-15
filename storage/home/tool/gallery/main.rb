@@ -15,7 +15,7 @@ class WidgetGallery
 
   def run
     Display.fill_screen(Widget.theme_background)
-    @sp = Sprite.new(Display.width, Display.height, 12)
+    @sp = BandedSprite.new(12)
 
     begin
       until @quit

@@ -1,9 +1,14 @@
 class Calc
   def draw
+    while @sp.draw
+      render
+    end
+  end
+
+  def render
     @sp.fill(C_BG)
     draw_headers
     draw_cells
-    @sp.push(0, 0)
   end
 
   def draw_headers

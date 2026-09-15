@@ -1,9 +1,14 @@
 class Scheduler
   def draw
+    while @sp.draw
+      render
+    end
+  end
+
+  def render
     @sp.fill(C_BACKGROUND)
     @screen == :calendar ? draw_calendar : draw_day
     draw_footer
-    @sp.push(0, 0)
   end
 
   def draw_header(title, right)
@@ -18,13 +23,16 @@ class Scheduler
   end
 
   def draw_entry(label, text)
-    draw
-    @sp.fill_rect(0, 85, W, 36, C_BOX)
-    @sp.rect(0, 85, W - 1, 35, C_BORDER)
-    @sp.text(4, 89, label, C_TEXT)
-    shown = clip_text(text, 226)
-    @sp.text(4, 105, shown + "_", C_EMPHASIS)
-    @sp.push(0, 0)
+    shown = clip_text(text, W - 14)
+    entry_y = H - 50
+
+    while @sp.draw
+      render
+      @sp.fill_rect(0, entry_y, W, 36, C_BOX)
+      @sp.rect(0, entry_y, W - 1, 35, C_BORDER)
+      @sp.text(4, entry_y + 4, label, C_TEXT)
+      @sp.text(4, entry_y + 20, shown + "_", C_EMPHASIS)
+    end
   end
 
   def clip(text, length)

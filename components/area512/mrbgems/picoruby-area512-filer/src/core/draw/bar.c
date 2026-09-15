@@ -18,19 +18,21 @@ static const Chip BAR2[] =
 #define BAR2_COUNT ((int)(sizeof(BAR2) / sizeof(BAR2[0])))
 
 static void
-draw_chips(Filer *filer, const Chip *chips, int count, int y, int divider) {
-  area512_sprite_fill(filer->row, area512_theme_background_color());
-  draw_walls(filer, 0);
+draw_divider(Filer *filer, int y) {
+  area512_sprite_line(
+    filer->screen,
+    0,
+    y,
+    filer->width - 1,
+    y,
+    area512_theme_border_color()
+  );
+}
 
+static void
+draw_chips(Filer *filer, const Chip *chips, int count, int y, int divider) {
   if (divider)
-    area512_sprite_line(
-      filer->row,
-      0,
-      0,
-      filer->width - 1,
-      0,
-      area512_theme_border_color()
-    );
+    draw_divider(filer, y);
 
   int x = filer->content_x + 1;
   int i = 0;
@@ -39,15 +41,22 @@ draw_chips(Filer *filer, const Chip *chips, int count, int y, int divider) {
     char key[12];
 
     snprintf(key, sizeof key, "[%s]", chips[i].key);
-    area512_sprite_text(filer->row, x, 1, key, area512_theme_emphasis_color());
+
+    area512_sprite_text(
+      filer->screen,
+      x,
+      y + 1,
+      key,
+      area512_theme_emphasis_color()
+    );
 
     x +=
       (int)strlen(key) * FILER_CHAR_WIDTH + FILER_CHAR_WIDTH; // gap after [key]
 
     area512_sprite_text(
-      filer->row,
+      filer->screen,
       x,
-      1,
+      y + 1,
       chips[i].label,
       area512_theme_text_color()
     );
@@ -57,36 +66,25 @@ draw_chips(Filer *filer, const Chip *chips, int count, int y, int divider) {
 
     i++;
   }
-
-  area512_sprite_push(filer->row, 0, y);
 }
 
 // Top bar: shows a message or input state instead of chips when one is set.
 void
 draw_primary_action_bar(Filer *filer) {
   if (filer->message[0]) {
-    area512_sprite_fill(filer->row, area512_theme_background_color());
-    draw_walls(filer, 0);
-    area512_sprite_line(
-      filer->row,
-      0,
-      0,
-      filer->width - 1,
-      0,
-      area512_theme_border_color()
-    );
+    draw_divider(filer, filer->bar1_y);
 
     char fitted[LINE_MAX];
 
     fit_string(fitted, sizeof fitted, filer->message, filer->columns);
+
     area512_sprite_text(
-      filer->row,
+      filer->screen,
       filer->content_x,
-      1,
+      filer->bar1_y + 1,
       fitted,
       area512_theme_emphasis_color()
     );
-    area512_sprite_push(filer->row, 0, filer->bar1_y);
 
   } else {
     draw_chips(filer, BAR1, BAR1_COUNT, filer->bar1_y, 1);

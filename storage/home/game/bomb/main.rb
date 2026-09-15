@@ -33,7 +33,7 @@ class Bomb
   def run
     init_game
     Display.fill_screen(C_BG)
-    @sp = Sprite.new(Display.width, Display.height, 12)
+    @sp = BandedSprite.new(12)
     begin
       while !@quit
         draw

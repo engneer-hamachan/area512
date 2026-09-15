@@ -18,7 +18,7 @@ class SlideShow
     @quit = false
 
     Display.fill_screen(Widget.theme_background)
-    @sprite = Sprite.new(Display.width, Display.height, 12)
+    @sprite = BandedSprite.new(12)
 
     begin
       SD.mount

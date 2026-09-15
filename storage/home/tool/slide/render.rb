@@ -1,5 +1,11 @@
 class SlideShow
   def draw
+    while @sprite.draw
+      render
+    end
+  end
+
+  def render
     @sprite.fill(Widget.theme_background)
 
     if @error_message
@@ -9,8 +15,6 @@ class SlideShow
     else
       draw_page
     end
-
-    @sprite.push(0, 0)
   end
 
   def draw_page

@@ -1,5 +1,5 @@
 // Sprite gem: bridges the area512_gfx.cpp extern "C" API to mrubyc classes
-// Sprite (offscreen buffer) and Display (the shared screen). Colors are
+// Sprite, BandedSprite, and Display (the shared screen). Colors are
 // 0xRRGGBB.
 
 #include <stdbool.h>
@@ -60,6 +60,8 @@ fetch_color_or_raise(mrbc_vm *virtual_machine, mrbc_value *v, int index) {
   return (uint32_t)fetch_integer_or_raise(virtual_machine, v, index);
 }
 
+#define SUPPORTED_FONT_SIZE_MESSAGE "font size must be 10, 12, 14, 16, or 24"
+
 static bool
 is_supported_font_size(int font_size) {
   return font_size == 10 || font_size == 12 || font_size == 14 ||
@@ -90,7 +92,7 @@ c_sprite_new(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
       mrbc_raise(
         virtual_machine,
         MRBC_CLASS(ArgumentError),
-        "font size must be 10, 12, 14, 16, or 24"
+        SUPPORTED_FONT_SIZE_MESSAGE
       );
 
       return;
@@ -118,6 +120,78 @@ c_sprite_new(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
   *(void **)instance.instance->data = handle;
 
   SET_RETURN(instance);
+}
+
+static void
+c_banded_sprite_new(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+  if (!ensure_argument_count_or_raise(virtual_machine, argument_count, 1)) {
+    return;
+  }
+
+  int font_size = fetch_integer_or_raise(virtual_machine, v, 1);
+
+  if (!is_supported_font_size(font_size)) {
+    mrbc_raise(
+      virtual_machine,
+      MRBC_CLASS(ArgumentError),
+      SUPPORTED_FONT_SIZE_MESSAGE
+    );
+
+    return;
+  }
+
+  void *handle = area512_screen_new(font_size);
+
+  if (handle == NULL) {
+    mrbc_raise(
+      virtual_machine,
+      MRBC_CLASS(RuntimeError),
+      "the screen buffer is already in use"
+    );
+
+    return;
+  }
+
+  mrbc_value instance =
+    mrbc_instance_new(virtual_machine, v->cls, sizeof(void *));
+
+  *(void **)instance.instance->data = handle;
+
+  SET_RETURN(instance);
+}
+
+static void
+c_banded_sprite_draw(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  SET_BOOL_RETURN(area512_screen_draw(fetch_sprite_handle(v)));
+}
+
+static void
+c_banded_sprite_region_top(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  SET_INT_RETURN(area512_screen_region_top(fetch_sprite_handle(v)));
+}
+
+static void
+c_banded_sprite_region_bottom(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  SET_INT_RETURN(area512_screen_region_bottom(fetch_sprite_handle(v)));
 }
 
 static void
@@ -402,39 +476,76 @@ c_display_show_header_image(
   SET_BOOL_RETURN(shown);
 }
 
+static void
+register_sprite_drawing_methods(
+  mrbc_vm *virtual_machine,
+  mrbc_class *sprite_class
+) {
+  mrbc_define_destructor(sprite_class, mrbc_sprite_free);
+  mrbc_define_method(virtual_machine, sprite_class, "delete", c_sprite_delete);
+  mrbc_define_method(virtual_machine, sprite_class, "width", c_sprite_width);
+  mrbc_define_method(virtual_machine, sprite_class, "height", c_sprite_height);
+  mrbc_define_method(virtual_machine, sprite_class, "fill", c_sprite_fill);
+  mrbc_define_method(virtual_machine, sprite_class, "pixel", c_sprite_pixel);
+  mrbc_define_method(virtual_machine, sprite_class, "line", c_sprite_line);
+  mrbc_define_method(virtual_machine, sprite_class, "rect", c_sprite_rect);
+
+  mrbc_define_method(
+    virtual_machine,
+    sprite_class,
+    "fill_rect",
+    c_sprite_fill_rect
+  );
+
+  mrbc_define_method(virtual_machine, sprite_class, "circle", c_sprite_circle);
+
+  mrbc_define_method(
+    virtual_machine,
+    sprite_class,
+    "fill_circle",
+    c_sprite_fill_circle
+  );
+
+  mrbc_define_method(virtual_machine, sprite_class, "text", c_sprite_text);
+}
+
 void
 mrbc_area512_sprite_init(mrbc_vm *virtual_machine) {
   mrbc_class *class_Sprite =
     mrbc_define_class(virtual_machine, "Sprite", mrbc_class_object);
 
-  mrbc_define_destructor(class_Sprite, mrbc_sprite_free);
+  register_sprite_drawing_methods(virtual_machine, class_Sprite);
   mrbc_define_method(virtual_machine, class_Sprite, "new", c_sprite_new);
-  mrbc_define_method(virtual_machine, class_Sprite, "delete", c_sprite_delete);
-  mrbc_define_method(virtual_machine, class_Sprite, "width", c_sprite_width);
-  mrbc_define_method(virtual_machine, class_Sprite, "height", c_sprite_height);
-  mrbc_define_method(virtual_machine, class_Sprite, "fill", c_sprite_fill);
-  mrbc_define_method(virtual_machine, class_Sprite, "pixel", c_sprite_pixel);
-  mrbc_define_method(virtual_machine, class_Sprite, "line", c_sprite_line);
-  mrbc_define_method(virtual_machine, class_Sprite, "rect", c_sprite_rect);
-
-  mrbc_define_method(
-    virtual_machine,
-    class_Sprite,
-    "fill_rect",
-    c_sprite_fill_rect
-  );
-
-  mrbc_define_method(virtual_machine, class_Sprite, "circle", c_sprite_circle);
-
-  mrbc_define_method(
-    virtual_machine,
-    class_Sprite,
-    "fill_circle",
-    c_sprite_fill_circle
-  );
-
-  mrbc_define_method(virtual_machine, class_Sprite, "text", c_sprite_text);
   mrbc_define_method(virtual_machine, class_Sprite, "push", c_sprite_push);
+
+  mrbc_class *class_BandedSprite =
+    mrbc_define_class(virtual_machine, "BandedSprite", mrbc_class_object);
+
+  register_sprite_drawing_methods(virtual_machine, class_BandedSprite);
+  mrbc_define_method(
+    virtual_machine,
+    class_BandedSprite,
+    "new",
+    c_banded_sprite_new
+  );
+  mrbc_define_method(
+    virtual_machine,
+    class_BandedSprite,
+    "draw",
+    c_banded_sprite_draw
+  );
+  mrbc_define_method(
+    virtual_machine,
+    class_BandedSprite,
+    "region_top",
+    c_banded_sprite_region_top
+  );
+  mrbc_define_method(
+    virtual_machine,
+    class_BandedSprite,
+    "region_bottom",
+    c_banded_sprite_region_bottom
+  );
 
   mrbc_class *class_Display =
     mrbc_define_class(virtual_machine, "Display", mrbc_class_object);

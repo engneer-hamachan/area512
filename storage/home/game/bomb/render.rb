@@ -46,6 +46,12 @@ class Bomb
   end
 
   def draw
+    while @sp.draw
+      render
+    end
+  end
+
+  def render
     sp = @sp
     sp.fill(C_BG)
     sp.fill_rect(0, 0, Display.width, 14, C_PANEL)
@@ -60,7 +66,6 @@ class Bomb
       y += 1
     end
     sp.text(4, 124, "#{@msg}", C_DIM)
-    sp.push(0, 0)
   end
 
   # Center a vertical list of [text, color] lines on the screen.
@@ -75,14 +80,15 @@ class Bomb
   end
 
   def draw_end
-    sp = @sp
-    sp.fill(C_BG)
-    draw_centered(sp, [
-      [@win ? "Cleared!" : "Bomb", status_color],
-      ["", C_TEXT],
-      ["Opened #{@opened}/#{MW * MH - MINES}", C_TEXT],
-      ["Press any key.", C_DIM]
-    ], CH + 4)
-    sp.push(0, 0)
+    while @sp.draw
+      sp = @sp
+      sp.fill(C_BG)
+      draw_centered(sp, [
+        [@win ? "Cleared!" : "Bomb", status_color],
+        ["", C_TEXT],
+        ["Opened #{@opened}/#{MW * MH - MINES}", C_TEXT],
+        ["Press any key.", C_DIM]
+      ], CH + 4)
+    end
   end
 end

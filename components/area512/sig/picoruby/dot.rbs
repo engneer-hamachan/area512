@@ -20,7 +20,7 @@ class Dot
   def painted_bottom: () -> Integer
 
   # Draw the dot image onto a sprite at (x, y); palette index 0 is skipped
-  def push: (Sprite sprite, Integer x, Integer y) -> nil
+  def push: ((Sprite | BandedSprite) sprite, Integer x, Integer y) -> nil
 
   # Load a dot image (.a5d); the path is rooted at the card's data directory
   def self.load: (String path) -> Dot

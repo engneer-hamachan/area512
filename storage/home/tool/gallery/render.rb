@@ -1,5 +1,13 @@
 class WidgetGallery
   def draw
+    @busy_frame += 1
+
+    while @sp.draw
+      render
+    end
+  end
+
+  def render
     @sp.fill(Widget.theme_background)
     Widget.header(@sp, "WIDGET GALLERY", TABS[@tab])
     Widget.tabs(@sp, 18, TABS, @tab)
@@ -15,8 +23,6 @@ class WidgetGallery
 
     Widget.page_dots(@sp, 113, TABS.length, @tab)
     Widget.footer(@sp, @message)
-    @sp.push(0, 0)
-    @busy_frame += 1
   end
 
   def draw_parts

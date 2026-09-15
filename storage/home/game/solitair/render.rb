@@ -74,6 +74,12 @@ class Solitair
   end
 
   def draw
+    while @sp.draw
+      render
+    end
+  end
+
+  def render
     sp = @sp
     ox = board_x
     oy = board_y
@@ -81,7 +87,6 @@ class Solitair
     sp.fill_rect(ox - CW, oy, BOARD_W + CW, TABLEAU_Y - 8, C_PANEL)
     draw_top
     draw_tableau
-    sp.push(0, 0)
   end
 
   # Center a vertical list of [text, color] lines on the screen.
@@ -96,17 +101,18 @@ class Solitair
   end
 
   def draw_end
-    sp = @sp
-    sp.fill(C_BG)
-    draw_centered(sp, [
-      ["Solitair", C_SEL],
-      ["", C_TEXT],
-      [@won ? "Complete." : "Bye.", C_TEXT],
-      ["Moves #{@moves}", C_DIM],
-      ["Time #{format_time(@elapsed)}", C_DIM],
-      ["Score #{@score}", C_DIM],
-      ["Best #{@high_score}", C_DIM]
-    ], CH + 4)
-    sp.push(0, 0)
+    while @sp.draw
+      sp = @sp
+      sp.fill(C_BG)
+      draw_centered(sp, [
+        ["Solitair", C_SEL],
+        ["", C_TEXT],
+        [@won ? "Complete." : "Bye.", C_TEXT],
+        ["Moves #{@moves}", C_DIM],
+        ["Time #{format_time(@elapsed)}", C_DIM],
+        ["Score #{@score}", C_DIM],
+        ["Best #{@high_score}", C_DIM]
+      ], CH + 4)
+    end
   end
 end

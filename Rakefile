@@ -61,13 +61,19 @@ end
 
 desc "Build the Cardputer firmware"
 task :build => :gendb do
-  idf_py "build -DAREA512_CARDPUTER_V11=OFF"
+  idf_py "build -DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=OFF"
 end
 
 namespace :build do
   desc "Build the Cardputer v1.1 firmware"
   task :"v1.1" => :gendb do
-    idf_py "build -DAREA512_CARDPUTER_V11=ON"
+    idf_py "build -DAREA512_CARDPUTER_V11=ON -DAREA512_EXT_DISPLAY=OFF"
+  end
+
+  desc "Build the 320x240 display firmware with windows"
+  task :captft => :gendb do
+    idf_py "-B build/captft -DSDKCONFIG=build/captft/sdkconfig " \
+           "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=ON build"
   end
 end
 

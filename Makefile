@@ -10,6 +10,9 @@ MICROPYTHON_TI := $(ROOT)/components/area512/mrbgems/micropython-ti
 FIRMWARE   := $(ROOT)/firmware
 
 CLANG_FORMAT ?= clang-format
+INPUT ?= futurism.png
+OUTPUT ?= $(ROOT)/storage/etc/$(basename $(notdir $(INPUT))).rgb565
+SIZE ?= 320x240
 
 # Our own C/C++ only: skip vendored trees (R2P2-ESP32, m5gfx, M5Unified,
 # managed_components), build output, and storage image headers.
@@ -21,7 +24,7 @@ FMT_FILES := $(shell find $(ROOT)/main $(ROOT)/components \
 	-not -path '*/M5Unified/*' \
 	-not -path '*/managed_components/*')
 
-.PHONY: build flash monitor clean fullclean compile-home-mrb compile-home-mpy flash-firmware save-firmware gendb format format-check run-emulator help
+.PHONY: build flash monitor clean fullclean compile-home-mrb compile-home-mpy flash-firmware save-firmware gendb format format-check run-emulator convert help
 
 help:
 	@echo "Targets:"
@@ -40,6 +43,12 @@ help:
 	@echo "  make format     - clang-format -i over our own C/C++ (skips vendored trees)"
 	@echo "  make format-check - check formatting without writing (CI; non-zero on diff)"
 	@echo "  make run-emulator - run firmware/Area512.bin in the Cardputer ADV emulator"
+	@echo "  make convert INPUT=futurism.png - convert to storage/etc/futurism.rgb565 (320x240)"
+	@echo "                    OUTPUT=path overrides the output file; requires Python 3 and Pillow"
+	@echo "                    SIZE=240x135 converts for the Cardputer display (default 320x240)"
+
+convert:
+	python3 "$(ROOT)/convert.py" "$(INPUT)" "$(OUTPUT)" --size "$(SIZE)"
 
 build:
 	idf.py build

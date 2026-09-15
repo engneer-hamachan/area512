@@ -17,7 +17,7 @@ class WidgetTextView
   def handle: (String key) -> bool
 
   # Draw word-wrapped text and the scrollbar when needed
-  def draw: (Sprite sprite) -> nil
+  def draw: ((Sprite | BandedSprite) sprite) -> nil
 
   # Create an empty text view
   def self.new: () -> WidgetTextView

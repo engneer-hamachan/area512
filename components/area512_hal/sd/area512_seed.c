@@ -49,6 +49,39 @@ parse_octal_field(const uint8_t *field, size_t field_size) {
   return value;
 }
 
+typedef struct {
+  char name[TAR_NAME_SIZE + 1];
+  size_t size;
+  uint8_t type;
+  const uint8_t *data;
+} TarEntry;
+
+static const uint8_t *
+read_tar_entry(const uint8_t *cursor, TarEntry *entry) {
+  if (cursor + TAR_BLOCK_SIZE > area512_seed_tar_end ||
+      cursor[TAR_NAME_OFFSET] == '\0') {
+
+    return NULL;
+  }
+
+  memcpy(entry->name, cursor + TAR_NAME_OFFSET, TAR_NAME_SIZE);
+
+  entry->name[TAR_NAME_SIZE] = '\0';
+  entry->size = parse_octal_field(cursor + TAR_SIZE_OFFSET, TAR_SIZE_SIZE);
+  entry->type = cursor[TAR_TYPE_OFFSET];
+  entry->data = cursor + TAR_BLOCK_SIZE;
+
+  size_t padded_size =
+    (entry->size + TAR_BLOCK_SIZE - 1) & ~(size_t)(TAR_BLOCK_SIZE - 1);
+
+  return entry->data + padded_size;
+}
+
+static bool
+is_regular_file_entry(const TarEntry *entry) {
+  return entry->type == '0' || entry->type == '\0';
+}
+
 static int
 find_seed_directory_index(const char *entry_name) {
   for (size_t i = 0; i < SEED_DIRECTORY_COUNT; i++) {
@@ -151,40 +184,23 @@ area512_seed_restore(void) {
   }
 
   const uint8_t *cursor = area512_seed_tar_start;
+  const uint8_t *next_cursor;
+  TarEntry entry;
 
-  while (cursor + TAR_BLOCK_SIZE <= area512_seed_tar_end) {
-    if (cursor[TAR_NAME_OFFSET] == '\0') {
-      break;
-    }
-
-    char entry_name[TAR_NAME_SIZE + 1];
-
-    memcpy(entry_name, cursor + TAR_NAME_OFFSET, TAR_NAME_SIZE);
-
-    entry_name[TAR_NAME_SIZE] = '\0';
-
-    size_t entry_size =
-      parse_octal_field(cursor + TAR_SIZE_OFFSET, TAR_SIZE_SIZE);
-
-    uint8_t entry_type = cursor[TAR_TYPE_OFFSET];
-    const uint8_t *entry_data = cursor + TAR_BLOCK_SIZE;
-
-    size_t padded_size =
-      (entry_size + TAR_BLOCK_SIZE - 1) & ~(size_t)(TAR_BLOCK_SIZE - 1);
-
-    int directory_index = find_seed_directory_index(entry_name);
+  while ((next_cursor = read_tar_entry(cursor, &entry)) != NULL) {
+    int directory_index = find_seed_directory_index(entry.name);
     bool wanted = directory_index >= 0 && restore[directory_index];
 
-    if (wanted && (entry_type == '0' || entry_type == '\0')) {
-      if (!write_seed_file(entry_name, entry_data, entry_size)) {
+    if (wanted && is_regular_file_entry(&entry)) {
+      if (!write_seed_file(entry.name, entry.data, entry.size)) {
         return -1;
       }
 
-    } else if (wanted && entry_type == '5') {
-      size_t name_length = strlen(entry_name);
+    } else if (wanted && entry.type == '5') {
+      size_t name_length = strlen(entry.name);
 
-      if (name_length > 0 && entry_name[name_length - 1] == '/') {
-        entry_name[name_length - 1] = '\0';
+      if (name_length > 0 && entry.name[name_length - 1] == '/') {
+        entry.name[name_length - 1] = '\0';
       }
 
       char directory_path[sizeof(AREA512_DATA_ROOT) + TAR_NAME_SIZE + 1];
@@ -194,7 +210,7 @@ area512_seed_restore(void) {
         sizeof(directory_path),
         "%s/%s",
         AREA512_DATA_ROOT,
-        entry_name
+        entry.name
       );
 
       if (!ensure_parent_directories(directory_path) ||
@@ -204,8 +220,33 @@ area512_seed_restore(void) {
       }
     }
 
-    cursor = entry_data + padded_size;
+    cursor = next_cursor;
   }
 
   return 0;
+}
+
+const uint8_t *
+area512_seed_find_file(const char *path, size_t *size) {
+  while (*path == '/') {
+    path++;
+  }
+
+  const uint8_t *cursor = area512_seed_tar_start;
+  const uint8_t *next_cursor;
+  TarEntry entry;
+
+  while ((next_cursor = read_tar_entry(cursor, &entry)) != NULL) {
+    if (is_regular_file_entry(&entry) && strcmp(entry.name, path) == 0 &&
+        entry.data + entry.size <= area512_seed_tar_end) {
+
+      *size = entry.size;
+
+      return entry.data;
+    }
+
+    cursor = next_cursor;
+  }
+
+  return NULL;
 }
