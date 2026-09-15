@@ -36,7 +36,17 @@ idf_component_register(
 )
 
 if(AREA512_EXT_DISPLAY)
+  target_sources(${COMPONENT_LIB} PRIVATE
+    captft/gfx/area512_internal_display.cpp
+  )
   target_compile_definitions(${COMPONENT_LIB} PUBLIC AREA512_EXT_DISPLAY)
+
+  if(AREA512_CAPTFT_ILI9341)
+    set_source_files_properties(
+      captft/gfx/area512_display.cpp
+      PROPERTIES COMPILE_DEFINITIONS "AREA512_CAPTFT_ILI9341"
+    )
+  endif()
 endif()
 
 if(AREA512_CARDPUTER_V11)

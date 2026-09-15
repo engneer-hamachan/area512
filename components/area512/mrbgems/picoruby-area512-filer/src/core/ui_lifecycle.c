@@ -10,11 +10,13 @@ area512_filer_setup_ui(Filer *filer) {
   if (!filer->row) {
     filer->full_redraw = 1;
     filer->drawn.valid = 0;
-    filer->row = area512_sprite_new_with_font_size(
-      filer->width,
-      ROW_HEIGHT,
-      FILER_FONT_SIZE
-    );
+
+    filer->row =
+      area512_sprite_new_with_font_size(
+        filer->width,
+        ROW_HEIGHT,
+        FILER_FONT_SIZE
+      );
   }
 }
 

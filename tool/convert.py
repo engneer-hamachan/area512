@@ -25,6 +25,7 @@ def convert(source, destination, width, height):
         image = image.resize((width, height), Image.Resampling.LANCZOS)
 
     pixels = bytearray(width * height * 2)
+
     for index, (red, green, blue) in enumerate(image.getdata()):
         color = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3)
         struct.pack_into(">H", pixels, index * 2, color)
@@ -40,10 +41,12 @@ def main():
     parser.add_argument("--size", choices=SIZES.keys(), default="320x240")
     args = parser.parse_args()
     width, height = SIZES[args.size]
+
     try:
         convert(args.input, args.output, width, height)
     except (OSError, ValueError) as error:
         parser.exit(1, f"convert: {error}\n")
+
     print(f"{args.output}: {width}x{height} RGB565, {width * height * 2} bytes")
 
 

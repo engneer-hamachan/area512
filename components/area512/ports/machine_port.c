@@ -59,6 +59,8 @@ volatile int sigint_status = MACHINE_SIG_NONE;
 #define PICORB_STDIN_BUFFER_SIZE 1024
 #endif
 
+#define STDIN_READER_TASK_STACK_SIZE 4096
+
 static uint8_t
   s_stdin_buffer_memory[sizeof(RingBuffer) + PICORB_STDIN_BUFFER_SIZE]
   __attribute__((aligned(4)));
@@ -143,7 +145,7 @@ picorb_hal_init(void) {
   xTaskCreate(
     stdin_reader_task,
     "stdin_reader",
-    2048,
+    STDIN_READER_TASK_STACK_SIZE,
     NULL,
     tskIDLE_PRIORITY + 1,
     NULL

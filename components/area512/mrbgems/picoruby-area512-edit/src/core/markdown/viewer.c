@@ -2,13 +2,11 @@
 #include "core/markdown/draw.h"
 #include "core/markdown/parse.h"
 #include "core/markdown/row_writer.h"
+#include "area512_hal.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define MARKDOWN_FOOTER_TEXT 0xFFFFFF
-#define MARKDOWN_FOOTER_BACKGROUND 0x4E4E4E
 
 #define MARKDOWN_MEASURE_ROW_COUNT 0x3FFFFFFF
 
@@ -297,8 +295,8 @@ draw_markdown_footer(MarkdownViewer *viewer, VimCanvas *canvas) {
     0,
     text,
     byte_length,
-    MARKDOWN_FOOTER_TEXT,
-    MARKDOWN_FOOTER_BACKGROUND,
+    area512_theme_text_color(),
+    area512_theme_box_color(),
     0
   );
 

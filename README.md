@@ -264,13 +264,13 @@ Convert an image to a file manager background with Python 3 and Pillow:
 
 ```sh
 # Cardputer display (240x135, 64,800 bytes)
-make convert INPUT=futurism.png SIZE=240x135
+make convert INPUT=background.png SIZE=240x135
 
 # External 320x240 display (153,600 bytes, the default)
-make convert INPUT=futurism.png
+make convert INPUT=background.png
 ```
 
-This writes `storage/etc/futurism.rgb565`. `OUTPUT=path` overrides the output
+This writes `storage/etc/background.rgb565`. `OUTPUT=path` overrides the output
 file. The image is resized to `SIZE` and written as headerless RGB565, high byte
 first, left to right and top to bottom.
 
@@ -278,7 +278,7 @@ Everything under `storage/` is built into the firmware, so rebuild and flash,
 then add this line to the SD card's `etc/theme` and reboot:
 
 ```
-background_image=etc/futurism.rgb565
+background_image=etc/background.rgb565
 ```
 
 The image is read from the firmware, not from the SD card. If the file is not in
@@ -338,20 +338,14 @@ rake flash
 For the 320x240 display with a 240x135 application window:
 
 ```sh
-rake build:captft
-idf.py -B build/captft flash
+# ST7789 panel
+rake build:captft7789
+idf.py -B build/captft7789 flash
+
+# ILI9341 panel
+rake build:captft9341
+idf.py -B build/captft9341 flash
 ```
-
-The `captft` build enables `AREA512_EXT_DISPLAY` and selects the display,
-console, and Filer files under `captft/`. It does not include CRT processing.
-ESP-IDF output and configuration are stored in `build/captft/`; PicoRuby uses
-`build/esp32-femtoruby-captft/` under its own directory. The standard builds
-keep window support disabled.
-
-Files under `storage/` are embedded in the firmware as seed content and
-restored to the SD card's `Area512_data/` directory on first boot (each
-top-level directory is only written if it does not exist yet on the card).
-
 ## Contributing
 
 AREA512 welcomes contributions of new apps and AREA512 artwork (splash images and such)!

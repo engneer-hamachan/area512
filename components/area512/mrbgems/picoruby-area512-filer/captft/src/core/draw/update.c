@@ -9,15 +9,21 @@ find_changed_rows(Filer *filer, const PanelInfo *info, uint8_t *rows) {
   memset(rows, 0, SCREEN_HEIGHT);
 
   if (
-    filer->full_redraw || !drawn->valid || filer->draws_window_frame ||
-    drawn->draws_window_frame || !area512_theme_background_image()[0]
+    filer->full_redraw ||
+    !drawn->valid ||
+    filer->draws_window_frame ||
+    drawn->draws_window_frame ||
+    !area512_theme_background_image()[0]
   ) {
+
     memset(rows, 1, SCREEN_HEIGHT);
     return;
   }
 
+  // header -3/4-
   if (
-    filer->index != drawn->index || filer->count != drawn->count ||
+    filer->index != drawn->index ||
+    filer->count != drawn->count ||
     strcmp(filer->current_directory, drawn->current_directory) != 0
   )
     memset(rows, 1, HEADER_HEIGHT);
@@ -36,10 +42,11 @@ find_changed_rows(Filer *filer, const PanelInfo *info, uint8_t *rows) {
     int old_present = old_index < drawn->count;
 
     int changed =
-      filer->top != drawn->top || filer->count != drawn->count ||
+      filer->top != drawn->top ||
+      filer->count != drawn->count ||
       present != old_present ||
       (present && index == filer->index) !=
-        (old_present && old_index == drawn->index);
+      (old_present && old_index == drawn->index);
 
     if (present && old_present) {
       FileEntry *entry = &filer->entries[index];
@@ -71,11 +78,13 @@ save_draw_state(Filer *filer, const PanelInfo *info) {
   drawn->top = filer->top;
   drawn->count = filer->count;
   drawn->draws_window_frame = filer->draws_window_frame;
+
   memcpy(
     drawn->current_directory,
     filer->current_directory,
     CURRENT_DIRECTORY_MAX
   );
+
   memcpy(drawn->message, filer->message, MESSAGE_MAX);
 
   for (int row = 0; row < ROWS_VISIBLE; row++) {

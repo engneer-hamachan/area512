@@ -68,6 +68,7 @@ add_entry_in_order(
     add_index > 0 &&
     compare_entry_order(&entries[add_index - 1], entry) > 0
   ) {
+
     entries[add_index] = entries[add_index - 1];
     add_index--;
   }

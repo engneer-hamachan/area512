@@ -39,6 +39,7 @@ ensure_row_sprite(void) {
     s_row_sprite != NULL &&
     area512_sprite_width(s_row_sprite) != area512_gfx_width()
   ) {
+
     area512_sprite_delete(s_row_sprite);
     s_row_sprite = NULL;
   }
@@ -89,7 +90,11 @@ drop_oldest_row(void) {
   int row_count = compute_visible_row_count();
 
   for (int row_index = 0; row_index < row_count - 1; row_index++) {
-    memcpy(s_row_text[row_index], s_row_text[row_index + 1], CONSOLE_ROW_BYTES);
+    memcpy(
+      s_row_text[row_index],
+      s_row_text[row_index + 1],
+      CONSOLE_ROW_BYTES
+    );
 
     s_row_byte_count[row_index] = s_row_byte_count[row_index + 1];
     s_row_pixel_width[row_index] = s_row_pixel_width[row_index + 1];
@@ -138,10 +143,11 @@ append_character_to_current_or_next_row(
   int character_pixel_width =
     area512_sprite_text_width(s_row_sprite, character_string);
 
-  if (s_row_pixel_width[s_cursor_row_index] + character_pixel_width >
-        area512_gfx_width() ||
-      s_row_byte_count[s_cursor_row_index] + character_byte_count >=
-        CONSOLE_ROW_BYTES - 1) {
+  if (
+    s_row_pixel_width[s_cursor_row_index] + character_pixel_width > area512_gfx_width() ||
+    s_row_byte_count[s_cursor_row_index] + character_byte_count >=
+    CONSOLE_ROW_BYTES - 1
+  ) {
 
     advance_to_next_row();
   }

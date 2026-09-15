@@ -45,6 +45,15 @@ area512_sprite_line(void *p, int x0, int y0, int x1, int y1, uint32_t color);
 void area512_sprite_rect(void *p, int x, int y, int w, int h, uint32_t color);
 void
 area512_sprite_fill_rect(void *p, int x, int y, int w, int h, uint32_t color);
+void area512_sprite_blend_rect(
+  void *p,
+  int x,
+  int y,
+  int w,
+  int h,
+  uint32_t color,
+  int opacity
+);
 void area512_sprite_circle(void *p, int x, int y, int r, uint32_t color);
 void area512_sprite_fill_circle(void *p, int x, int y, int r, uint32_t color);
 void

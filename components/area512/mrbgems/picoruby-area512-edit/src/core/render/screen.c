@@ -1,4 +1,5 @@
 #include "core/render/screen.h"
+#include "area512_hal.h"
 #include "core/text/utf8.h"
 #include <string.h>
 
@@ -146,8 +147,15 @@ draw_plain_row_text(
   int byte_length,
   int inverse
 ) {
-  canvas
-    ->draw_row_text(canvas->context, column, text, byte_length, 0, 0, inverse);
+  canvas->draw_row_text(
+    canvas->context,
+    column,
+    text,
+    byte_length,
+    area512_theme_text_color(),
+    area512_theme_background_color(),
+    inverse
+  );
 }
 
 static void

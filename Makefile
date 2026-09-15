@@ -1,5 +1,7 @@
 ROOT       := $(CURDIR)
 PICORB     := $(ROOT)/R2P2-ESP32/components/picoruby-esp32/picoruby
+LIBMRUBY     := $(PICORB)/build/esp32-femtoruby/lib/libmruby.a
+LIBMRUBY_TFT := $(PICORB)/build/esp32-femtoruby-captft/lib/libmruby.a
 PICORB_ESP := $(ROOT)/components/area512
 PICORBC    := $(PICORB)/bin/picorbc
 MPY_CROSS  := $(ROOT)/components/micropython/mpy-cross/build/mpy-cross
@@ -10,7 +12,7 @@ MICROPYTHON_TI := $(ROOT)/components/area512/mrbgems/micropython-ti
 FIRMWARE   := $(ROOT)/firmware
 
 CLANG_FORMAT ?= clang-format
-INPUT ?= futurism.png
+INPUT ?= background.png
 OUTPUT ?= $(ROOT)/storage/etc/$(basename $(notdir $(INPUT))).rgb565
 SIZE ?= 320x240
 
@@ -24,7 +26,7 @@ FMT_FILES := $(shell find $(ROOT)/main $(ROOT)/components \
 	-not -path '*/M5Unified/*' \
 	-not -path '*/managed_components/*')
 
-.PHONY: build flash monitor clean fullclean compile-home-mrb compile-home-mpy flash-firmware save-firmware gendb format format-check run-emulator convert help
+.PHONY: build flash monitor clean light-clean light-clean-tft fullclean compile-home-mrb compile-home-mpy flash-firmware save-firmware gendb format format-check run-emulator convert help
 
 help:
 	@echo "Targets:"
@@ -32,6 +34,8 @@ help:
 	@echo "  make flash      - idf.py flash"
 	@echo "  make monitor    - idf.py monitor"
 	@echo "  make clean      - idf.py clean (light)"
+	@echo "  make light-clean     - remove esp32-femtoruby libmruby.a (Cardputer)"
+	@echo "  make light-clean-tft - remove esp32-femtoruby-captft libmruby.a (Cap TFT)"
 	@echo "  make compile-home-mrb - recursively compile storage/home/**/*.rb to .mrb"
 	@echo "  make compile-home-mpy - recursively compile storage/home/**/*.py to .mpy"
 	@echo "                    (storage/ is the seed copied to the SD card's Area512_data/ on first boot)"
@@ -43,12 +47,12 @@ help:
 	@echo "  make format     - clang-format -i over our own C/C++ (skips vendored trees)"
 	@echo "  make format-check - check formatting without writing (CI; non-zero on diff)"
 	@echo "  make run-emulator - run firmware/Area512.bin in the Cardputer ADV emulator"
-	@echo "  make convert INPUT=futurism.png - convert to storage/etc/futurism.rgb565 (320x240)"
+	@echo "  make convert INPUT=background.png - convert to storage/etc/background.rgb565 (320x240)"
 	@echo "                    OUTPUT=path overrides the output file; requires Python 3 and Pillow"
 	@echo "                    SIZE=240x135 converts for the Cardputer display (default 320x240)"
 
 convert:
-	python3 "$(ROOT)/convert.py" "$(INPUT)" "$(OUTPUT)" --size "$(SIZE)"
+	python3 "$(ROOT)/tool/convert.py" "$(INPUT)" "$(OUTPUT)" --size "$(SIZE)"
 
 build:
 	idf.py build
@@ -78,6 +82,14 @@ run-emulator:
 
 clean:
 	idf.py clean
+
+light-clean:
+	rm -f $(LIBMRUBY)
+	@echo "light-clean: removed $(LIBMRUBY)"
+
+light-clean-tft:
+	rm -f $(LIBMRUBY_TFT)
+	@echo "light-clean-tft: removed $(LIBMRUBY_TFT)"
 
 compile-home-mrb:
 	test -x $(PICORBC)

@@ -146,6 +146,17 @@ draw_panel_row(Filer *filer, int row, const PanelInfo *panel_information) {
   int width = PANEL_RIGHT - left + 1;
   int title_width = area512_sprite_text_width(filer->row, PANEL_TITLE);
 
+  if (filer->has_background_image)
+    area512_sprite_blend_rect(
+      filer->row,
+      left,
+      -offset,
+      width,
+      PANEL_HEIGHT,
+      area512_theme_background_color(),
+      90
+    );
+
   area512_sprite_rect(
     filer->row,
     left,

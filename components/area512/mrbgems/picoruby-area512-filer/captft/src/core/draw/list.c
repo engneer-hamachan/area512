@@ -51,6 +51,7 @@ draw_entry(Filer *filer, int y, int index, int row, const PanelInfo *info) {
     return;
 
   area512_sprite_fill(filer->row, area512_theme_background_color());
+
   if (filer->has_background_image)
     area512_screen_read_sprite(filer->screen, filer->row, 0, y);
 
@@ -62,7 +63,13 @@ draw_entry(Filer *filer, int y, int index, int row, const PanelInfo *info) {
     format_file_label(entry, label_text, sizeof label_text);
 
     char line[LINE_MAX];
-    snprintf(line, sizeof line, "%c %s", selected ? '>' : ' ', label_text);
+
+    snprintf(
+      line,
+      sizeof line,
+      "%c %s",
+      selected ? '>' : ' ', label_text
+    );
 
     int list_columns =
       panel_covers_row(row) ? PANEL_COLUMNS : CONTENT_COLUMNS;

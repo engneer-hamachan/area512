@@ -90,6 +90,7 @@ c_filer_clear_entries(
   mrbc_value *v,
   int argument_count
 ) {
+
   (void)virtual_machine;
   (void)argument_count;
 
@@ -152,6 +153,7 @@ c_filer_set_message(
 
 static void
 c_filer_set_index(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
+
   (void)virtual_machine;
   (void)argument_count;
 

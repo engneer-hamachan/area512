@@ -59,6 +59,7 @@ draw_prompt_row(Filer *filer) {
   );
 
   prompt_byte_count = (int)strlen(prompt_text);
+
   available_input_byte_count =
     filer->terminal->line_byte_capacity - prompt_byte_count;
 
@@ -123,7 +124,8 @@ draw_prompt_row(Filer *filer) {
     area512_sprite_text(
       filer->row,
       TERMINAL_CONTENT_LEFT_X +
-        (prompt_byte_count + visible_input_byte_count) * FILER_CHAR_WIDTH,
+        (prompt_byte_count + visible_input_byte_count) *
+        FILER_CHAR_WIDTH,
       0,
       visible_autosuggestion_text,
       area512_theme_blend_text_color_over_background(

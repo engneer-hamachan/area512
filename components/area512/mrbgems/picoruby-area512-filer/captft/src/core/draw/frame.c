@@ -42,6 +42,7 @@ clear_frame_rect(Filer *filer, int x, int y, int width, int height) {
       width,
       height
     );
+
     return;
   }
 
@@ -68,7 +69,6 @@ edge_text(
   int width = area512_sprite_text_width(filer->screen, text);
 
   clear_frame_rect(filer, x - 2, y, width + 4, height);
-
   area512_sprite_text(filer->screen, x, y, text, color);
 }
 
@@ -96,7 +96,13 @@ draw_header(Filer *filer) {
 
   char count[24];
 
-  snprintf(count, sizeof count, "%d/%d", filer->index + 1, filer->count);
+  snprintf(
+    count,
+    sizeof count,
+    "%d/%d",
+    filer->index + 1,
+    filer->count
+  );
 
   int count_x =
     SCREEN_WIDTH -

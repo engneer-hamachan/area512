@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "area512_hal.h"
 #include "core/syntax/picoruby/highlight.h"
 #include <prism.h>
 
@@ -215,13 +216,19 @@ write_highlight_segment(
   const uint8_t *text,
   int text_byte_length
 ) {
+
   if (text_byte_length <= 0)
     return;
+
+  uint32_t segment_color = type == EDIT_HIGHLIGHT_DEFAULT
+                             ? area512_theme_text_color()
+                             : editor_highlight_colors[type];
+
   context->write_segment(
     context->writer_context,
     (const char *)text,
     text_byte_length,
-    editor_highlight_colors[type]
+    segment_color
   );
 }
 
@@ -244,7 +251,7 @@ highlight_prism_token(
       context->writer_context,
       (const char *)(context->source + context->last_end),
       start_offset - context->last_end,
-      0
+      area512_theme_text_color()
     );
   }
 
@@ -309,7 +316,7 @@ editor_highlight_run(editor_highlight_context_t *context) {
       context->writer_context,
       (const char *)(context->source + context->last_end),
       context->source_byte_length - context->last_end,
-      0
+      area512_theme_text_color()
     );
   }
 }

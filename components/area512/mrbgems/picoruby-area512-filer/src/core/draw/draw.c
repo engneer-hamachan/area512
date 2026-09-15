@@ -17,14 +17,15 @@ draw_all(Filer *filer) {
   PanelInfo panel_info;
   build_panel_info(&panel_info);
 
-  // center the box (panel_info.count+1 rows) vertically in the list area
   filer->panel_top_row = (filer->rows_visible - (panel_info.count + 1)) / 2;
 
   if (filer->panel_top_row < 0)
     filer->panel_top_row = 0;
 
   uint8_t changed_rows[filer->height];
+
   find_changed_rows(filer, &panel_info, changed_rows);
+
   int draw_background = 1;
   int background_failed = 0;
 
@@ -44,15 +45,18 @@ draw_all(Filer *filer) {
       continue;
 
     area512_sprite_fill(filer->screen, area512_theme_background_color());
+
     filer->has_background_image = 0;
 
     if (draw_background) {
-      filer->has_background_image = area512_screen_draw_rgb565(
-        filer->screen,
-        area512_theme_background_image(),
-        filer->message,
-        sizeof(filer->message)
-      );
+      filer->has_background_image =
+        area512_screen_draw_rgb565(
+          filer->screen,
+          area512_theme_background_image(),
+          filer->message,
+          sizeof(filer->message)
+        );
+
       draw_background = filer->has_background_image;
 
       if (!draw_background) {
@@ -64,6 +68,17 @@ draw_all(Filer *filer) {
         );
       }
     }
+
+    if (filer->has_background_image)
+      area512_sprite_blend_rect(
+        filer->screen,
+        3,
+        filer->bar1_y,
+        filer->width - 6,
+        filer->close_y - filer->bar1_y,
+        area512_theme_background_color(),
+        85
+      );
 
     int row = 0;
 
@@ -88,8 +103,11 @@ draw_all(Filer *filer) {
   }
 
   area512_sprite_delete(filer->screen);
+
   filer->screen = 0;
   filer->full_redraw = 0;
+
   save_draw_state(filer, &panel_info);
+
   filer->drawn.valid = !background_failed;
 }

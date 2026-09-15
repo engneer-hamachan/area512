@@ -26,6 +26,40 @@ draw_window_frame(Filer *filer) {
   );
 }
 
+static int
+compute_corner_inset(int dy, int radius) {
+  if (dy <= 0)
+    return 0;
+
+  int dx = radius;
+
+  while (dx * dx + dy * dy > radius * radius)
+    dx--;
+
+  return radius - dx;
+}
+
+static void
+blend_action_bar_background(Filer *filer) {
+  int left = FRAME_INSET + 2;
+  int bottom = CLOSE_Y + FRAME_BOTTOM_HEIGHT - 2;
+  int radius = FRAME_RADIUS - 2;
+
+  for (int y = BAR1_Y; y < bottom; y++) {
+    int inset = compute_corner_inset(y - (bottom - radius - 1), radius);
+
+    area512_sprite_blend_rect(
+      filer->screen,
+      left + inset,
+      y,
+      SCREEN_WIDTH - (left + inset) * 2,
+      1,
+      area512_theme_background_color(),
+      85
+    );
+  }
+}
+
 void
 draw_all(Filer *filer) {
   if (!filer->row)
@@ -40,8 +74,11 @@ draw_all(Filer *filer) {
 
   PanelInfo panel_info;
   build_panel_info(&panel_info);
+
   uint8_t changed_rows[SCREEN_HEIGHT];
+
   find_changed_rows(filer, &panel_info, changed_rows);
+
   int draw_background = 1;
   int background_failed = 0;
 
@@ -64,12 +101,14 @@ draw_all(Filer *filer) {
     filer->has_background_image = 0;
 
     if (draw_background) {
-      filer->has_background_image = area512_screen_draw_rgb565(
-        filer->screen,
-        area512_theme_background_image(),
-        filer->message,
-        sizeof(filer->message)
-      );
+      filer->has_background_image =
+        area512_screen_draw_rgb565(
+          filer->screen,
+          area512_theme_background_image(),
+          filer->message,
+          sizeof(filer->message)
+        );
+
       draw_background = filer->has_background_image;
 
       if (!draw_background) {
@@ -77,6 +116,9 @@ draw_all(Filer *filer) {
         memset(changed_rows + BAR1_Y, 1, SCREEN_HEIGHT - BAR1_Y);
       }
     }
+
+    if (filer->has_background_image)
+      blend_action_bar_background(filer);
 
     int row = 0;
 
@@ -104,9 +146,12 @@ draw_all(Filer *filer) {
   }
 
   area512_sprite_delete(filer->screen);
+
   filer->screen = 0;
   filer->full_redraw = 0;
+
   save_draw_state(filer, &panel_info);
+
   filer->drawn.valid = !background_failed;
 }
 

@@ -22,7 +22,7 @@
 static constexpr int SPRITE_PIXEL_BYTE_SIZE = 2;
 static constexpr int SCREEN_REGION_ROW_COUNT = 32;
 static constexpr int ROW_SLOT_WIDTH = 320;
-static constexpr int ROW_SLOT_HEIGHT = 17;
+static constexpr int ROW_SLOT_HEIGHT = 13;
 static constexpr int ROW_SLOT_COUNT = 2;
 
 static constexpr size_t SCREEN_SLOT_BYTE_SIZE =
@@ -494,6 +494,57 @@ area512_sprite_fill_rect(void *p, int x, int y, int w, int h, uint32_t color) {
 }
 
 void
+area512_sprite_blend_rect(
+  void *p,
+  int x,
+  int y,
+  int w,
+  int h,
+  uint32_t color,
+  int opacity
+) {
+
+  if (p == nullptr || w <= 0 || h <= 0 || opacity <= 0)
+    return;
+
+  if (opacity >= 100) {
+    area512_sprite_fill_rect(p, x, y, w, h, color);
+    return;
+  }
+
+  lgfx::v1::LGFX_Sprite *spr = static_cast<lgfx::v1::LGFX_Sprite *>(p);
+  y = subtract_screen_buffer_origin(p, y);
+  int right = x + w;
+  int bottom = y + h;
+
+  if (x < 0)
+    x = 0;
+  if (y < 0)
+    y = 0;
+  if (right > spr->width())
+    right = spr->width();
+  if (bottom > spr->height())
+    bottom = spr->height();
+
+  for (int row = y; row < bottom; row++) {
+    for (int column = x; column < right; column++) {
+      uint32_t background = spr->readPixelRGB(column, row).RGB888();
+      uint32_t blended = 0;
+
+      for (int shift = 0; shift <= 16; shift += 8) {
+        uint32_t channel =
+          (((background >> shift) & 0xFF) * (100 - opacity) +
+          ((color >> shift) & 0xFF) * opacity) / 100;
+
+        blended |= channel << shift;
+      }
+
+      spr->drawPixel(column, row, blended);
+    }
+  }
+}
+
+void
 area512_sprite_round_rect(
   void *p,
   int x,
@@ -797,7 +848,12 @@ area512_screen_draw_rgb565(
   bool drawn = false;
 
   if (image == nullptr) {
-    snprintf(error, error_size, "Background: not in firmware");
+    snprintf(
+      error,
+      error_size,
+      "Background: not in firmware"
+    );
+
   } else if (image_bytes != screen_bytes) {
     snprintf(
       error,
@@ -812,6 +868,7 @@ area512_screen_draw_rgb565(
       image + row_bytes * s_screen_buffer_first_row,
       row_bytes * s_screen_buffer_row_count
     );
+
     drawn = true;
   }
 
