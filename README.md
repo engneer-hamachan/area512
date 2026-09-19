@@ -25,6 +25,12 @@ esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --
 
 # Cardputer v1.1
 esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512V11.bin
+
+# 320x240 ST7789 panel
+esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512CapTFT7789.bin
+
+# 320x240 ILI9341 panel
+esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512CapTFT9341.bin
 ```
 
 - If the port is not auto-detected, add `-p /dev/ttyACM0` to the `esptool.py` command.
@@ -270,7 +276,7 @@ make convert INPUT=background.png SIZE=240x135
 make convert INPUT=background.png
 ```
 
-This writes `storage/etc/background.rgb565`. `OUTPUT=path` overrides the output
+This writes `storage/share/backgrounds/background.rgb565`. `OUTPUT=path` overrides the output
 file. The image is resized to `SIZE` and written as headerless RGB565, high byte
 first, left to right and top to bottom.
 
@@ -278,7 +284,7 @@ Everything under `storage/` is built into the firmware, so rebuild and flash,
 then add this line to the SD card's `etc/theme` and reboot:
 
 ```
-background_image=etc/background.rgb565
+background_image=/share/backgrounds/background.rgb565
 ```
 
 The image is read from the firmware, not from the SD card. If the file is not in
@@ -328,11 +334,11 @@ git submodule update --init --recursive
 ```sh
 # Cardputer ADV build
 rake build
+rake flash
 
 # Cardputer v1.1 build
 rake build:v1.1
-
-rake flash
+idf.py -B build/v11 flash
 ```
 
 For the 320x240 display with a 240x135 application window:

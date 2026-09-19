@@ -102,6 +102,7 @@ int area512_sd_mount(const char *base_path);
 int area512_sd_unmount(void);
 int area512_sd_mounted(void);
 int area512_seed_restore(void);
+int area512_seed_update(void);
 const uint8_t *area512_seed_find_file(const char *path, size_t *size);
 
 void area512_theme_load(void);

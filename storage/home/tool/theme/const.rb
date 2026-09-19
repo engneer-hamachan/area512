@@ -2,7 +2,7 @@ require 'area512-widget'
 
 class ThemeEditor
   THEME_PATH = "/etc/theme" unless const_defined?(:THEME_PATH)
-  IMAGE_DIRECTORY = "etc" unless const_defined?(:IMAGE_DIRECTORY)
+  IMAGE_DIRECTORY = "/share/backgrounds" unless const_defined?(:IMAGE_DIRECTORY)
   IMAGE_EXTENSION = ".rgb565" unless const_defined?(:IMAGE_EXTENSION)
 
   COLOR_KEYS = ["background", "text", "emphasis", "border", "selected", "box"] unless const_defined?(:COLOR_KEYS)

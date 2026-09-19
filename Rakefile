@@ -67,7 +67,8 @@ end
 namespace :build do
   desc "Build the Cardputer v1.1 firmware"
   task :"v1.1" => :gendb do
-    idf_py "build -DAREA512_CARDPUTER_V11=ON -DAREA512_EXT_DISPLAY=OFF"
+    idf_py "-B build/v11 -DSDKCONFIG=build/v11/sdkconfig " \
+           "-DAREA512_CARDPUTER_V11=ON -DAREA512_EXT_DISPLAY=OFF build"
   end
 
   desc "Build the 320x240 ST7789 display firmware with windows"
@@ -99,7 +100,7 @@ task :flash_firmware do
      "--flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 #{image}"
 end
 
-desc "Merge freshly built binaries into firmware/Area512.bin"
+desc "Merge freshly built binaries into firmware/"
 task :save_firmware do
   sh "make save-firmware"
 end

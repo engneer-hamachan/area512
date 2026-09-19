@@ -1,5 +1,6 @@
 #include "area512_hal.h"
 
+#include <dirent.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -7,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #define TAR_BLOCK_SIZE 512
 #define TAR_NAME_OFFSET 0
@@ -22,10 +24,27 @@ extern const uint8_t
 extern const uint8_t area512_seed_tar_end[] asm("_binary_area512_seed_tar_end");
 
 static const char *const s_seed_directories[] =
-  {"home", "lib", "bin", "etc", "data"};
+  {"home", "lib", "bin", "etc", "data", "share"};
 
 #define SEED_DIRECTORY_COUNT                                                   \
   (sizeof(s_seed_directories) / sizeof(s_seed_directories[0]))
+
+static const char *const s_app_parent_directories[] = {
+  "home/tool",
+  "home/game"
+};
+
+#define APP_PARENT_DIRECTORY_COUNT                                             \
+  (sizeof(s_app_parent_directories) / sizeof(s_app_parent_directories[0]))
+
+static const char *const s_file_overwrite_directories[] = {
+  "etc",
+  "share/backgrounds"
+};
+
+#define FILE_OVERWRITE_DIRECTORY_COUNT                                         \
+  (sizeof(s_file_overwrite_directories) /                                      \
+   sizeof(s_file_overwrite_directories[0]))
 
 static bool
 ensure_directory(const char *path) {
@@ -150,6 +169,149 @@ write_seed_file(const char *relative_path, const uint8_t *data, size_t size) {
   return written == size && closed;
 }
 
+static void
+strip_trailing_slash(char *path) {
+  size_t path_length = strlen(path);
+
+  if (path_length > 0 && path[path_length - 1] == '/') {
+    path[path_length - 1] = '\0';
+  }
+}
+
+static bool
+extract_seed_entry(const TarEntry *entry) {
+  if (is_regular_file_entry(entry)) {
+    return write_seed_file(entry->name, entry->data, entry->size);
+  }
+
+  if (entry->type != '5') {
+    return true;
+  }
+
+  char directory_path[sizeof(AREA512_DATA_ROOT) + TAR_NAME_SIZE + 1];
+
+  snprintf(
+    directory_path,
+    sizeof(directory_path),
+    "%s/%s",
+    AREA512_DATA_ROOT,
+    entry->name
+  );
+
+  strip_trailing_slash(directory_path);
+
+  return ensure_parent_directories(directory_path) &&
+         ensure_directory(directory_path);
+}
+
+static const char *
+find_app_directory_name_end(const char *entry_name) {
+  for (size_t i = 0; i < APP_PARENT_DIRECTORY_COUNT; i++) {
+    size_t parent_directory_name_length = strlen(s_app_parent_directories[i]);
+
+    if (strncmp(
+          entry_name,
+          s_app_parent_directories[i],
+          parent_directory_name_length
+        ) != 0 ||
+        entry_name[parent_directory_name_length] != '/') {
+
+      continue;
+    }
+
+    const char *app_name_start = entry_name + parent_directory_name_length + 1;
+    const char *app_name_end = strchr(app_name_start, '/');
+
+    return app_name_end != app_name_start ? app_name_end : NULL;
+  }
+
+  return NULL;
+}
+
+static bool
+entry_is_app_directory(const TarEntry *entry) {
+  const char *app_name_end = find_app_directory_name_end(entry->name);
+
+  return entry->type == '5' && app_name_end != NULL && app_name_end[1] == '\0';
+}
+
+static bool
+entry_belongs_to_app_directory(const TarEntry *entry) {
+  return find_app_directory_name_end(entry->name) != NULL;
+}
+
+static bool
+entry_belongs_to_file_overwrite_directory(const TarEntry *entry) {
+  for (size_t i = 0; i < FILE_OVERWRITE_DIRECTORY_COUNT; i++) {
+    size_t directory_name_length = strlen(s_file_overwrite_directories[i]);
+
+    if (strncmp(
+          entry->name,
+          s_file_overwrite_directories[i],
+          directory_name_length
+        ) == 0 &&
+        entry->name[directory_name_length] == '/') {
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+static bool
+remove_tree(const char *path) {
+  struct stat stat_buffer;
+
+  if (stat(path, &stat_buffer) != 0) {
+    return errno == ENOENT;
+  }
+
+  if (!S_ISDIR(stat_buffer.st_mode)) {
+    return unlink(path) == 0;
+  }
+
+  DIR *directory = opendir(path);
+
+  if (directory == NULL) {
+    return false;
+  }
+
+  struct dirent *directory_entry;
+
+  while ((directory_entry = readdir(directory)) != NULL) {
+    if (strcmp(directory_entry->d_name, ".") == 0 ||
+        strcmp(directory_entry->d_name, "..") == 0) {
+
+      continue;
+    }
+
+    char child_path[AREA512_PATH_MAX];
+
+    int child_path_length = snprintf(
+      child_path,
+      sizeof(child_path),
+      "%s/%s",
+      path,
+      directory_entry->d_name
+    );
+
+    if (child_path_length >= (int)sizeof(child_path) ||
+        !remove_tree(child_path)) {
+
+      closedir(directory);
+
+      return false;
+    }
+
+    rewinddir(directory);
+  }
+
+  closedir(directory);
+
+  return rmdir(path) == 0;
+}
+
 int
 area512_seed_restore(void) {
   if (!ensure_directory(AREA512_DATA_ROOT)) {
@@ -191,33 +353,52 @@ area512_seed_restore(void) {
     int directory_index = find_seed_directory_index(entry.name);
     bool wanted = directory_index >= 0 && restore[directory_index];
 
-    if (wanted && is_regular_file_entry(&entry)) {
-      if (!write_seed_file(entry.name, entry.data, entry.size)) {
-        return -1;
-      }
+    if (wanted && !extract_seed_entry(&entry)) {
+      return -1;
+    }
 
-    } else if (wanted && entry.type == '5') {
-      size_t name_length = strlen(entry.name);
+    cursor = next_cursor;
+  }
 
-      if (name_length > 0 && entry.name[name_length - 1] == '/') {
-        entry.name[name_length - 1] = '\0';
-      }
+  return 0;
+}
 
-      char directory_path[sizeof(AREA512_DATA_ROOT) + TAR_NAME_SIZE + 1];
+int
+area512_seed_update(void) {
+  const uint8_t *cursor = area512_seed_tar_start;
+  const uint8_t *next_cursor;
+  TarEntry entry;
+
+  while ((next_cursor = read_tar_entry(cursor, &entry)) != NULL) {
+    if (entry_is_app_directory(&entry)) {
+      char app_directory_path[sizeof(AREA512_DATA_ROOT) + TAR_NAME_SIZE + 1];
 
       snprintf(
-        directory_path,
-        sizeof(directory_path),
+        app_directory_path,
+        sizeof(app_directory_path),
         "%s/%s",
         AREA512_DATA_ROOT,
         entry.name
       );
 
-      if (!ensure_parent_directories(directory_path) ||
-          !ensure_directory(directory_path)) {
+      strip_trailing_slash(app_directory_path);
 
+      if (!remove_tree(app_directory_path)) {
         return -1;
       }
+    }
+
+    cursor = next_cursor;
+  }
+
+  cursor = area512_seed_tar_start;
+
+  while ((next_cursor = read_tar_entry(cursor, &entry)) != NULL) {
+    if ((entry_belongs_to_file_overwrite_directory(&entry) ||
+         entry_belongs_to_app_directory(&entry)) &&
+        !extract_seed_entry(&entry)) {
+
+      return -1;
     }
 
     cursor = next_cursor;

@@ -1,0 +1,7 @@
+background=0x000020
+background_image=@AREA512_THEME_BLUE_BACKGROUND_IMAGE@
+text=0xCFA45F
+emphasis=0xDE2020
+border=0x2020DE
+selected=0xFFD966
+box=0x241604
