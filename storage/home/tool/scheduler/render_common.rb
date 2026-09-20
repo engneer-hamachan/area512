@@ -12,7 +12,7 @@ class Scheduler
   end
 
   def draw_header(title, right)
-    @sp.rect(0, 0, W - 1, 17, C_BORDER)
+    @sp.rect(0, 0, W, 17, C_BORDER)
     @sp.text(5, 3, title, C_EMPHASIS)
     @sp.text(158, 3, right, C_TEXT)
   end

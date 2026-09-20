@@ -1,4 +1,5 @@
 require 'area512-sprite'
+require 'area512-widget'
 
 # Constants live under the app class so they never collide with other apps in
 # the shared sandbox VM (each run keeps a global const table). Guard with the

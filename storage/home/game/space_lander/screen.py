@@ -18,26 +18,18 @@ def draw_end(game):
 
     while game.sprite.draw():
         game.sprite.fill(COLOR_BACKGROUND)
-        game.sprite.text(0, 0, "Space Lander", COLOR_SHIP)
-        game.sprite.text(0, 2 * CHARACTER_HEIGHT, text, COLOR_TEXT)
-        game.sprite.text(
-            0,
-            3 * CHARACTER_HEIGHT,
-            "Level {}".format(game.level),
-            COLOR_TEXT
-        )
-        game.sprite.text(
-            0,
-            4 * CHARACTER_HEIGHT,
-            "Fuel {}".format(int(game.fuel)),
-            COLOR_TEXT
-        )
-        game.sprite.text(
-            0,
-            6 * CHARACTER_HEIGHT,
-            "V {} H {}".format(
-                format_one_decimal(game.velocity_y),
-                format_one_decimal(game.velocity_x)
-            ),
-            COLOR_TEXT
-        )
+        Widget.center_lines(game.sprite, [
+            ("Space Lander", COLOR_SHIP),
+            ("", COLOR_TEXT),
+            (text, COLOR_TEXT),
+            ("Level {}".format(game.level), COLOR_TEXT),
+            ("Fuel {}".format(int(game.fuel)), COLOR_TEXT),
+            ("", COLOR_TEXT),
+            (
+                "V {} H {}".format(
+                    format_one_decimal(game.velocity_y),
+                    format_one_decimal(game.velocity_x)
+                ),
+                COLOR_TEXT
+            )
+        ])

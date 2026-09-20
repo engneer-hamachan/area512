@@ -110,8 +110,10 @@ class PaintApp
   def draw_goodbye
     while @screen.draw
       @screen.fill(BG_COLOR)
-      @screen.text(0, 10, "Paint closed.", TEXT_COLOR)
-      @screen.text(0, 30, "Press any key.", 0x888888)
+      Widget.center_lines(@screen, [
+        ["Paint closed.", TEXT_COLOR],
+        ["Press any key.", 0x888888]
+      ])
     end
   end
 end
