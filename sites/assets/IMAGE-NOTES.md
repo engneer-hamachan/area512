@@ -1,5 +1,23 @@
 # Image sources
 
+## Current paper treatment
+
+`paper-fiber-v2.png` was generated with the built-in imagegen tool. It replaces
+the bordered paper textures in the live stylesheet. The substrate and surface
+relief share a 768 px scale and origin; the relief is dark-neutral to avoid
+lifting black ink. Outer wear is confined to the sheet perimeter. Ink wear uses
+the existing transparent `ink-wear.svg`, without repeated sheet edges or folds.
+Photographs share a warm print tone; screen sources additionally compensate for
+their baked-in lifted blacks. Fine screen dots are CSS overlays, not edits to
+the source photographs.
+
+Generation prompt:
+
+> Use case: photorealistic-natural. Asset: seamless repeating paper substrate texture for an aged 1980s computer magazine advertisement website. Generate a square 1024x1024 full-bleed macro scan of warm cream uncoated printing paper, fine natural fibers, subtle irregular age mottling and sparse tiny embedded specks. The whole image is an interior section of a much larger sheet, evenly lit, same density at every edge. Tile seamlessly on all four sides. Pale warm ivory base, restrained fine tactile grain, a little authentic age, no large stains. Absolutely NO borders, worn edges, frames, folds, creases, shadows, vignette, tears, text, pictures or objects. Not parchment, not stone, not digital noise. Texture should remain visible but support small printed text.
+
+The older generation notes below document retained source assets, not the
+current page background.
+
 - `images/reference-ad.png` is the user-supplied `siteimage.png`. The cover uses CSS viewports to show its enclosure, operator, outpost, and technical drawing without modifying the source raster. These are labeled as concept illustrations; hardware specifications describe the actual supported Cardputer devices.
 - `paper-stock.png` was generated with the built-in imagegen tool using `siteimage.png` as the material reference.
 
