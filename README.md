@@ -13,6 +13,15 @@ It is based on FemtoRuby and includes MicroPython,
 so you can write Ruby and Python right on the Cardputer,
 then compile and run them — all on the device!
 
+## Hardware
+
+<table>
+  <tr>
+    <td><img src="image/device.jpg" alt="AREA512 on a Cardputer ADV" height="320" /></td>
+    <td><img src="image/device_ext.jpg" alt="AREA512 on a Cardputer ADV in a TERM512 case with its external display" height="320" /></td>
+  </tr>
+</table>
+
 ## Quick Install
 
 All you need is esptool:
@@ -38,17 +47,15 @@ esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --
 
 ## Using AREA512
 
-![The AREA512 file manager running on a Cardputer ADV](image/cardputer.jpg)
-
 The screen shows a listing of the current directory: directories first, then files. Source files (`.rb` / `.py`), compiled files (`.mrb` / `.mpy`), and dot images (`.a5d`) are shown as separate entries with their extensions.
 
 The following keys are available.
 
 | Key | Action |
 | --- | --- |
-| `;` / `.` (or `k` / `j`) | Move the cursor up / down |
-| `/` or Enter | Open (enter a directory / run a Ruby or Python file / view a Markdown file / edit an `.a5d` dot image) |
-| `,` or BS | Go to the parent directory |
+| `;` / `.` (or `k` / `j`, or Up / Down) | Move the cursor up / down |
+| `/`, Enter, or Right | Open (enter a directory / run a Ruby or Python file / view a Markdown file / edit an `.a5d` dot image) |
+| `,`, `u`, BS, or Left | Go to the parent directory |
 | `1`–`9` | Jump to the n-th entry |
 | `e` | Edit the selected file |
 | `c` | Compile the selected `.rb` or `.py` file |
@@ -58,9 +65,9 @@ The following keys are available.
 | `K` | Create a new directory (you type the name) |
 | `x` | Delete (asks `y/n` for confirmation) |
 | `m` | Move the selected entry (you type the destination path) |
+| `C` | Copy the selected entry (you type the destination path) |
 | `t` | Open the terminal |
 | `r` | Reboot the device |
-| `q` | Quit the file manager |
 
 ## Terminal
 

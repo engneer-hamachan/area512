@@ -21,6 +21,7 @@ GitHub Pages branch publishing supports a repository root or `/docs`, not `/site
 ## Content
 
 - `index.html`: the four approved headlines, translated into English.
+- `term512.html`: TERM512 enclosure, external display, locks, and folding stand.
 - `applications.html`, `programming.html`, `install.html`, `manual.html`: factual descriptions and instructions.
 - `*-api.html`: API references from repository documentation.
 - `assets/images/`: copies of the repository's photographs and application screens.
