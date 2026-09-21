@@ -219,6 +219,8 @@ c_sdfat__restore_seed(
     return;
   }
 
+  area512_theme_load();
+
   SET_TRUE_RETURN();
 }
 
