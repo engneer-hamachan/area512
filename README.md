@@ -391,6 +391,10 @@ idf.py -B build/tft9341 flash
 
 AREA512 welcomes contributions of new apps and AREA512 artwork (splash images and such)!
 
+## Credits
+
+TERM512 was designed and developed by the brilliant creator [Prokuon](https://github.com/Prokuon).
+
 ## License
 
 [MIT License](LICENSE)
