@@ -15,9 +15,17 @@ then compile and run them — all on the device!
 
 ## Hardware
 
+AREA512 runs on the Cardputer by itself and also supports an external display (TERM512).
+To use the external display, assemble it by following the TERM512 repository,
+then flash the binary for your display in [Quick Install](#quick-install).
+
 <table>
   <tr>
-    <td><img src="image/device.jpg" alt="AREA512 on a Cardputer ADV" height="320" /></td>
+    <th>Only AREA512</th>
+    <th>AREA512 + TERM512</th>
+  </tr>
+  <tr>
+    <td><img src="image/device.jpg" alt="AREA512 on a Cardputer ADV" height="226" /></td>
     <td><img src="image/device_ext.jpg" alt="AREA512 on a Cardputer ADV in a TERM512 case with its external display" height="320" /></td>
   </tr>
 </table>
@@ -42,8 +50,25 @@ esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --
 esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512TFT9341.bin
 ```
 
-- If the port is not auto-detected, add `-p /dev/ttyACM0` to the `esptool.py` command.
 - Insert a FAT32-formatted microSD card into the Cardputer (it is used to store app data).
+
+## Updating
+
+Flashing new firmware does not update the files already on the microSD card.
+After flashing, run `fullupdate` in the terminal and answer `y`:
+
+```
+fullupdate
+Update /etc, /share/backgrounds, /home/tool/*, /home/game/*? (y/n)
+```
+
+| Path | What happens |
+| --- | --- |
+| `/etc`, `/share/backgrounds` | Files included in the firmware are overwritten; other files are kept |
+| `/home/tool/*`, `/home/game/*` | Each preinstalled app directory is deleted and rewritten; your own apps are kept |
+
+The device reboots when the update finishes. Your edits to `etc/theme`, and any
+files you added inside a preinstalled app directory, are lost.
 
 ## Using AREA512
 
@@ -95,6 +120,7 @@ directory with the file manager, and `exit` returns to the list.
 | `top` | Show battery, VM, RAM, and stack usage |
 | `clear` | Clear the output |
 | `help` | List the commands |
+| `fullupdate` | Update the preinstalled files on the SD card from the firmware (see [Updating](#updating)) |
 | `reboot` | Reboot the device |
 | `exit` | Return to the file list |
 
@@ -324,8 +350,8 @@ file manager. Lines other than these two are ignored.
 ### Setup
 
 ```sh
-git clone --recursive git@github.com:engneer-hamachan/area512-dev.git
-cd area512-dev
+git clone --recursive git@github.com:engneer-hamachan/area512.git
+cd area512
 . $YOUR_ESP_IDF_PATH/export.sh
 rake setup
 ```
