@@ -72,14 +72,14 @@ namespace :build do
   end
 
   desc "Build the 320x240 ST7789 display firmware with windows"
-  task :captft7789 => :gendb do
-    idf_py "-B build/captft7789 -DSDKCONFIG=build/captft7789/sdkconfig " \
+  task :tft7789 => :gendb do
+    idf_py "-B build/tft7789 -DSDKCONFIG=build/tft7789/sdkconfig " \
            "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=ON -DAREA512_CAPTFT_ILI9341=OFF build"
   end
 
   desc "Build the 320x240 ILI9341 display firmware with windows"
-  task :captft9341 => :gendb do
-    idf_py "-B build/captft9341 -DSDKCONFIG=build/captft9341/sdkconfig " \
+  task :tft9341 => :gendb do
+    idf_py "-B build/tft9341 -DSDKCONFIG=build/tft9341/sdkconfig " \
            "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=ON -DAREA512_CAPTFT_ILI9341=ON build"
   end
 end

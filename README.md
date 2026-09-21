@@ -36,10 +36,10 @@ esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --
 esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512V11.bin
 
 # 320x240 ST7789 panel
-esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512CapTFT7789.bin
+esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512TFT7789.bin
 
 # 320x240 ILI9341 panel
-esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512CapTFT9341.bin
+esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512TFT9341.bin
 ```
 
 - If the port is not auto-detected, add `-p /dev/ttyACM0` to the `esptool.py` command.
@@ -352,12 +352,12 @@ For the 320x240 display with a 240x135 application window:
 
 ```sh
 # ST7789 panel
-rake build:captft7789
-idf.py -B build/captft7789 flash
+rake build:tft7789
+idf.py -B build/tft7789 flash
 
 # ILI9341 panel
-rake build:captft9341
-idf.py -B build/captft9341 flash
+rake build:tft9341
+idf.py -B build/tft9341 flash
 ```
 ## Contributing
 
