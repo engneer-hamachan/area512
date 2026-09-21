@@ -1,7 +1,6 @@
 # Theme
 
-Theme color editor for Area512/Cardputer. Edits `Area512_data/etc/theme`
-on the microSD card.
+Theme color editor for Area512/Cardputer. Edits `/etc/theme`.
 
 Rows: `background`, `text`, `emphasis`, `border`, `selected`, `box`, `image`.
 
@@ -14,10 +13,10 @@ Rows: `background`, `text`, `emphasis`, `border`, `selected`, `box`, `image`.
 - Enter: type a color as `0xRRGGBB`, or pick a background image on the
   `image` row
 - Tab: preview the theme (Tab or Esc returns)
-- `s`: save to `Area512_data/etc/theme`
+- `s`: save to `/etc/theme`
 - Esc: quit (asks to discard unsaved changes)
 
 ## Notes
 
-- Background images are the `.rgb565` files in `Area512_data/share/backgrounds`.
+- Background images are the `.rgb565` files in `/share/backgrounds`.
 - The saved theme is applied after a reboot.

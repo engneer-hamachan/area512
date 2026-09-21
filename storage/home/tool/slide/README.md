@@ -2,7 +2,7 @@
 
 Markdown slide viewer for Area512/Cardputer.
 Each page is a numbered file (`1.md`, `2.md`, ...) in
-`Area512_data/home/tool/slide` on the microSD card, shown in number order.
+`/home/tool/slide`, shown in number order.
 
 ## Controls
 
