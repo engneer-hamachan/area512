@@ -6,5 +6,5 @@ function openReference() {
     target.scrollIntoView();
   }
 }
-window.addEventListener('hashchange', openReference);
+window.addEventListener("hashchange", openReference);
 openReference();
