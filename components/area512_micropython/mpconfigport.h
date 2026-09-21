@@ -24,6 +24,7 @@
 
 // Declared incomplete: this header is read before py/obj.h defines the type.
 extern const struct _mp_obj_type_t area512_micropython_sprite_type;
+extern const struct _mp_obj_type_t area512_micropython_banded_sprite_type;
 extern const struct _mp_obj_type_t area512_micropython_display_type;
 extern const struct _mp_obj_type_t area512_micropython_dot_type;
 extern const struct _mp_obj_type_t area512_micropython_console_type;
@@ -45,6 +46,8 @@ extern const struct _mp_obj_fun_builtin_fixed_t
 
 #define MICROPY_PORT_BUILTINS                                                  \
   {MP_ROM_QSTR(MP_QSTR_Sprite), MP_ROM_PTR(&area512_micropython_sprite_type)}, \
+    {MP_ROM_QSTR(MP_QSTR_BandedSprite),                                        \
+     MP_ROM_PTR(&area512_micropython_banded_sprite_type)},                     \
     {MP_ROM_QSTR(MP_QSTR_Display),                                             \
      MP_ROM_PTR(&area512_micropython_display_type)},                           \
     {MP_ROM_QSTR(MP_QSTR_Dot), MP_ROM_PTR(&area512_micropython_dot_type)},     \

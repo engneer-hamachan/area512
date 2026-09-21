@@ -228,6 +228,8 @@ restore_sd_seed(void) {
   if (area512_seed_restore() != 0)
     mp_raise_type(&mp_type_OSError);
 
+  area512_theme_load();
+
   return mp_const_true;
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(restore_sd_seed_callable, restore_sd_seed);

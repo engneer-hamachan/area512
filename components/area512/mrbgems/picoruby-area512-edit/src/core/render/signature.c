@@ -116,6 +116,22 @@ calculate_maximum_signature_horizontal_scroll_column_count(
   return maximum_popup_horizontal_scroll_column_count;
 }
 
+static uint32_t
+pick_signature_row_background(int selected) {
+  if (selected)
+    return area512_theme_selected_color();
+
+  return area512_theme_box_color();
+}
+
+static uint32_t
+pick_signature_emphasis_foreground(int selected) {
+  if (selected)
+    return area512_theme_background_color();
+
+  return area512_theme_emphasis_color();
+}
+
 static void
 paint_signature_row_background(Vim *vim, int selected) {
   VimCanvas *canvas = vim->active_canvas;
@@ -127,8 +143,7 @@ paint_signature_row_background(Vim *vim, int selected) {
       canvas->context,
       0,
       vim->screen.width,
-      selected ? area512_theme_selected_color()
-               : area512_theme_box_color()
+      pick_signature_row_background(selected)
     );
 }
 
@@ -159,9 +174,8 @@ draw_signature_part(
       column,
       signature + start_byte_offset,
       name_end_byte_offset - start_byte_offset,
-      selected ? area512_theme_background_color()
-               : area512_theme_emphasis_color(),
-      0,
+      pick_signature_emphasis_foreground(selected),
+      pick_signature_row_background(selected),
       0
     );
 
@@ -181,7 +195,7 @@ draw_signature_part(
       signature + start_byte_offset,
       end_byte_offset - start_byte_offset,
       selected ? area512_theme_background_color() : area512_theme_text_color(),
-      0,
+      pick_signature_row_background(selected),
       0
     );
 
@@ -282,9 +296,8 @@ draw_signature_rows(
           vim->screen.width - 1 - class_name_width,
           class_name,
           (int)strlen(class_name),
-          selected ? area512_theme_background_color()
-                   : area512_theme_emphasis_color(),
-          0,
+          pick_signature_emphasis_foreground(selected),
+          pick_signature_row_background(selected),
           0
         );
       }

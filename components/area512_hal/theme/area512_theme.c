@@ -7,6 +7,7 @@
 #define THEME_LINE_BYTES 64
 
 typedef struct {
+  char background_image[THEME_LINE_BYTES];
   uint32_t background_color;
   uint32_t text_color;
   uint32_t emphasis_color;
@@ -111,13 +112,23 @@ assign_theme_color(const char *key, uint32_t color) {
 }
 
 static void
-assign_theme_color_from_line(char *line) {
+assign_theme_from_line(char *line) {
   char *equal_sign = strchr(line, '=');
 
   if (equal_sign == NULL)
     return;
 
   *equal_sign = '\0';
+
+  if (strcmp(line, "background_image") == 0) {
+    snprintf(
+      s_theme.background_image,
+      sizeof(s_theme.background_image),
+      "%s",
+      equal_sign + 1
+    );
+    return;
+  }
 
   uint32_t color;
 
@@ -146,7 +157,7 @@ area512_theme_load(void) {
   char line[THEME_LINE_BYTES];
 
   while (read_text_line(file, line, sizeof(line)))
-    assign_theme_color_from_line(line);
+    assign_theme_from_line(line);
 
   fclose(file);
 }
@@ -154,6 +165,11 @@ area512_theme_load(void) {
 uint32_t
 area512_theme_background_color(void) {
   return s_theme.background_color;
+}
+
+const char *
+area512_theme_background_image(void) {
+  return s_theme.background_image;
 }
 
 uint32_t

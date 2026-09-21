@@ -68,14 +68,29 @@ typedef struct {
 
 typedef struct Terminal Terminal;
 
+#define VISIBLE_ROW_CAPACITY 16
+#define PANEL_MAX_METRICS 4
+
+typedef struct {
+  int valid;
+  int index, top, count;
+  FileEntry entries[VISIBLE_ROW_CAPACITY];
+  char current_directory[CURRENT_DIRECTORY_MAX];
+  char message[MESSAGE_MAX];
+  int panel_percent[PANEL_MAX_METRICS];
+} FilerDrawState;
+
 typedef struct {
   void *row;
+  void *screen;
   int width, height;
   int content_x, content_right, columns, edge_columns;
   int list_top, rows_visible, bar1_y, bar2_y, close_y;
   int panel_x, panel_right, list_columns_panel;
   int panel_top_row;
   int index, top, count, full_redraw;
+  int has_background_image;
+  FilerDrawState drawn;
   char current_directory[CURRENT_DIRECTORY_MAX];
   char message[MESSAGE_MAX];
   char input[LINE_MAX];

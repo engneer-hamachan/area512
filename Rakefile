@@ -61,13 +61,26 @@ end
 
 desc "Build the Cardputer firmware"
 task :build => :gendb do
-  idf_py "build -DAREA512_CARDPUTER_V11=OFF"
+  idf_py "build -DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=OFF"
 end
 
 namespace :build do
   desc "Build the Cardputer v1.1 firmware"
   task :"v1.1" => :gendb do
-    idf_py "build -DAREA512_CARDPUTER_V11=ON"
+    idf_py "-B build/v11 -DSDKCONFIG=build/v11/sdkconfig " \
+           "-DAREA512_CARDPUTER_V11=ON -DAREA512_EXT_DISPLAY=OFF build"
+  end
+
+  desc "Build the 320x240 ST7789 display firmware with windows"
+  task :tft7789 => :gendb do
+    idf_py "-B build/tft7789 -DSDKCONFIG=build/tft7789/sdkconfig " \
+           "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=ON -DAREA512_CAPTFT_ILI9341=OFF build"
+  end
+
+  desc "Build the 320x240 ILI9341 display firmware with windows"
+  task :tft9341 => :gendb do
+    idf_py "-B build/tft9341 -DSDKCONFIG=build/tft9341/sdkconfig " \
+           "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=ON -DAREA512_CAPTFT_ILI9341=ON build"
   end
 end
 
@@ -87,7 +100,7 @@ task :flash_firmware do
      "--flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 #{image}"
 end
 
-desc "Merge freshly built binaries into firmware/Area512.bin"
+desc "Merge freshly built binaries into firmware/"
 task :save_firmware do
   sh "make save-firmware"
 end

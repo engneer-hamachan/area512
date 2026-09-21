@@ -34,7 +34,7 @@ write_markdown_inline_span(
     text,
     byte_length,
     foreground,
-    0
+    area512_theme_background_color()
   );
 }
 
@@ -89,13 +89,11 @@ draw_markdown_rule(MarkdownRowWriter *writer) {
     MARKDOWN_DASHES,
     writer->width,
     area512_theme_border_color(),
-    0
+    area512_theme_background_color()
   );
   end_markdown_output_row(writer);
 }
 
-// The lexer hands back the same colors the editor draws .rb files with; a zero
-// color means "no token here" and falls through to the terminal foreground.
 static void
 write_markdown_code_span(
   void *writer_context,
@@ -210,7 +208,7 @@ draw_markdown_table(MarkdownRowWriter *writer, const MarkdownBlock *block) {
           " | ",
           3,
           area512_theme_border_color(),
-          0
+          area512_theme_background_color()
         );
 
       write_markdown_inline(
@@ -253,7 +251,7 @@ draw_markdown_text(MarkdownRowWriter *writer, const MarkdownBlock *block) {
       block->marker,
       block->marker_byte_length,
       marker_foreground,
-      0
+      area512_theme_background_color()
     );
 
     writer->column += block->marker_byte_length;

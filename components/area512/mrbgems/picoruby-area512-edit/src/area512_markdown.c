@@ -199,6 +199,59 @@ mrbc_markdown_free(mrbc_value *self) {
   free(session);
 }
 
+#ifdef AREA512_EXT_DISPLAY
+static void
+c_markdown_show_internal(
+  mrbc_vm *virtual_machine,
+  mrbc_value *values,
+  int argument_count
+) {
+
+  if (argument_count != 1) {
+    mrbc_raise(
+      virtual_machine,
+      MRBC_CLASS(ArgumentError),
+      "wrong number of arguments"
+    );
+
+    return;
+  }
+
+  if (mrbc_type(values[1]) != MRBC_TT_STRING) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(TypeError), "expected String path");
+    return;
+  }
+
+  int shown = show_internal_markdown((const char *)values[1].string->data);
+
+  mrbc_decref(values);
+
+  *values = mrbc_bool_value(shown);
+}
+
+static void
+c_markdown_hide_internal(
+  mrbc_vm *virtual_machine,
+  mrbc_value *values,
+  int argument_count
+) {
+
+  if (argument_count != 0) {
+    mrbc_raise(
+      virtual_machine,
+      MRBC_CLASS(ArgumentError),
+      "wrong number of arguments"
+    );
+
+    return;
+  }
+
+  hide_internal_markdown();
+  mrbc_decref(values);
+  mrbc_set_nil(values);
+}
+#endif
+
 void
 define_markdown_class(mrbc_vm *virtual_machine) {
   mrbc_class *markdown_class =
@@ -207,6 +260,26 @@ define_markdown_class(mrbc_vm *virtual_machine) {
   mrbc_define_destructor(markdown_class, mrbc_markdown_free);
   mrbc_define_method(virtual_machine, markdown_class, "new", c_markdown_new);
   mrbc_define_method(virtual_machine, markdown_class, "show", c_markdown_show);
+
+#ifdef AREA512_EXT_DISPLAY
+  mrbc_value enabled = mrbc_true_value();
+
+  mrbc_set_const(mrbc_str_to_symid("AREA512_EXT_DISPLAY"), &enabled);
+
+  mrbc_define_method(
+    virtual_machine,
+    markdown_class,
+    "show_internal",
+    c_markdown_show_internal
+  );
+
+  mrbc_define_method(
+    virtual_machine,
+    markdown_class,
+    "hide_internal",
+    c_markdown_hide_internal
+  );
+#endif
 }
 
 #endif

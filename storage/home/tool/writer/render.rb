@@ -1,10 +1,15 @@
 class Writer
   def draw
+    while @sp.draw
+      render
+    end
+  end
+
+  def render
     @sp.fill(C_APP)
     draw_toolbar
     draw_page
     draw_status
-    @sp.push(0, 0)
   end
 
   def draw_toolbar

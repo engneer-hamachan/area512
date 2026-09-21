@@ -1,13 +1,18 @@
+set(AREA512_DISPLAY_DIR "")
+if(AREA512_EXT_DISPLAY)
+  set(AREA512_DISPLAY_DIR "captft/")
+endif()
+
 idf_component_register(
   SRCS
     console/input.cpp
     console/keyboard.cpp
     console/getch.cpp
-    console/output.c
+    ${AREA512_DISPLAY_DIR}console/output.c
     console/system_metrics.cpp
     console/vm_stats.c
-    gfx/area512_display.cpp
-    gfx/area512_gfx.cpp
+    ${AREA512_DISPLAY_DIR}gfx/area512_display.cpp
+    ${AREA512_DISPLAY_DIR}gfx/area512_gfx.cpp
     sd/area512_data_path.c
     sd/area512_sd.c
     sd/area512_seed.c
@@ -30,6 +35,20 @@ idf_component_register(
     nvs_flash
 )
 
+if(AREA512_EXT_DISPLAY)
+  target_sources(${COMPONENT_LIB} PRIVATE
+    captft/gfx/area512_internal_display.cpp
+  )
+  target_compile_definitions(${COMPONENT_LIB} PUBLIC AREA512_EXT_DISPLAY)
+
+  if(AREA512_CAPTFT_ILI9341)
+    set_source_files_properties(
+      captft/gfx/area512_display.cpp
+      PROPERTIES COMPILE_DEFINITIONS "AREA512_CAPTFT_ILI9341"
+    )
+  endif()
+endif()
+
 if(AREA512_CARDPUTER_V11)
   set_source_files_properties(
     console/keyboard.cpp
@@ -45,15 +64,39 @@ set_source_files_properties(
 )
 
 set(AREA512_SEED_DIR ${COMPONENT_DIR}/../../storage)
+set(AREA512_SEED_GENERATED_DIR ${CMAKE_BINARY_DIR}/area512_seed_generated)
+set(AREA512_SEED_STAGING_DIR ${CMAKE_BINARY_DIR}/area512_seed_staging)
 set(AREA512_SEED_TAR ${CMAKE_BINARY_DIR}/area512_seed.tar)
 file(GLOB AREA512_SEED_TOP_ENTRIES RELATIVE ${AREA512_SEED_DIR} ${AREA512_SEED_DIR}/*)
 file(GLOB_RECURSE AREA512_SEED_FILES ${AREA512_SEED_DIR}/*)
 
+if(AREA512_EXT_DISPLAY)
+  set(AREA512_THEME_DEFAULT_BACKGROUND_IMAGE /share/backgrounds/emblem_tft.rgb565)
+  set(AREA512_THEME_BLUE_BACKGROUND_IMAGE /share/backgrounds/space_tft.rgb565)
+else()
+  set(AREA512_THEME_DEFAULT_BACKGROUND_IMAGE /share/backgrounds/emblem.rgb565)
+  set(AREA512_THEME_BLUE_BACKGROUND_IMAGE /share/backgrounds/space.rgb565)
+endif()
+
+set(AREA512_SEED_GENERATED_FILES "")
+
+foreach(AREA512_SEED_THEME_FILE etc/theme etc/theme_default.bak etc/theme_blue.bak)
+  configure_file(
+    ${AREA512_SEED_DIR}/${AREA512_SEED_THEME_FILE}
+    ${AREA512_SEED_GENERATED_DIR}/${AREA512_SEED_THEME_FILE}
+    @ONLY
+  )
+  list(APPEND AREA512_SEED_GENERATED_FILES ${AREA512_SEED_GENERATED_DIR}/${AREA512_SEED_THEME_FILE})
+endforeach()
+
 add_custom_command(
   OUTPUT ${AREA512_SEED_TAR}
-  COMMAND ${CMAKE_COMMAND} -E tar cf ${AREA512_SEED_TAR} --format=gnutar -- ${AREA512_SEED_TOP_ENTRIES}
-  WORKING_DIRECTORY ${AREA512_SEED_DIR}
-  DEPENDS ${AREA512_SEED_FILES}
+  COMMAND ${CMAKE_COMMAND} -E rm -rf ${AREA512_SEED_STAGING_DIR}
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${AREA512_SEED_DIR} ${AREA512_SEED_STAGING_DIR}
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${AREA512_SEED_GENERATED_DIR} ${AREA512_SEED_STAGING_DIR}
+  COMMAND ${CMAKE_COMMAND} -E chdir ${AREA512_SEED_STAGING_DIR}
+    ${CMAKE_COMMAND} -E tar cf ${AREA512_SEED_TAR} --format=gnutar -- ${AREA512_SEED_TOP_ENTRIES}
+  DEPENDS ${AREA512_SEED_FILES} ${AREA512_SEED_GENERATED_FILES}
   VERBATIM
 )
 

@@ -38,7 +38,7 @@ class Writer
   def run
     init_app
     Display.fill_screen(C_APP)
-    @sp = Sprite.new(Display.width, Display.height, 12)
+    @sp = BandedSprite.new(12)
     begin
       SD.mount
       while !@quit

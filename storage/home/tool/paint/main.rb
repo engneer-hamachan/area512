@@ -2,7 +2,7 @@ class PaintApp
   def run
     init
     Display.fill_screen(BG_COLOR)
-    @screen = Sprite.new(APP_W, APP_H)
+    @screen = BandedSprite.new(10)
     draw_screen
     begin
       while !@quit

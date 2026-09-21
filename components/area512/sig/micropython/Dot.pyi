@@ -44,7 +44,7 @@ class Dot:
         """
         ...
 
-    def push(self, sprite: Sprite, x: int, y: int) -> None:
+    def push(self, sprite: Sprite | BandedSprite, x: int, y: int) -> None:
         """
         Draw the dot image onto a sprite at (x, y); palette index 0 is skipped.
         """

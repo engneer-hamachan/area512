@@ -45,6 +45,15 @@ area512_sprite_line(void *p, int x0, int y0, int x1, int y1, uint32_t color);
 void area512_sprite_rect(void *p, int x, int y, int w, int h, uint32_t color);
 void
 area512_sprite_fill_rect(void *p, int x, int y, int w, int h, uint32_t color);
+void area512_sprite_blend_rect(
+  void *p,
+  int x,
+  int y,
+  int w,
+  int h,
+  uint32_t color,
+  int opacity
+);
 void area512_sprite_circle(void *p, int x, int y, int r, uint32_t color);
 void area512_sprite_fill_circle(void *p, int x, int y, int r, uint32_t color);
 void
@@ -52,6 +61,36 @@ area512_sprite_text(void *p, int x, int y, const char *str, uint32_t color);
 int area512_sprite_text_width(void *p, const char *str);
 void area512_sprite_push(void *p, int x, int y);
 void area512_sprite_push_transparent(void *p, int x, int y, uint32_t transp);
+
+// One sprite draws the whole screen a band of rows at a time, reusing the
+// screen pixel buffer. Drawing between area512_screen_begin_region() and
+// area512_screen_push_region() uses screen coordinates; rows outside the band
+// are clipped away.
+void *area512_screen_new(int font_size);
+void area512_screen_draw_sprite(void *screen, void *sprite, int x, int y);
+void area512_screen_draw_sprite_clipped(
+  void *screen,
+  void *sprite,
+  int x,
+  int y,
+  int clip_x,
+  int clip_y,
+  int clip_width,
+  int clip_height
+);
+void area512_screen_read_sprite(void *screen, void *sprite, int x, int y);
+int area512_screen_draw_rgb565(
+  void *screen,
+  const char *path,
+  char *error,
+  size_t error_size
+);
+// Transfer the previous region, then prepare the next; false after the final transfer.
+int area512_screen_draw(void *p);
+int area512_screen_begin_region(void *p);
+int area512_screen_region_top(void *p);
+int area512_screen_region_bottom(void *p);
+void area512_screen_push_region(void *p);
 
 int area512_gfx_width(void);
 int area512_gfx_height(void);
@@ -63,9 +102,12 @@ int area512_sd_mount(const char *base_path);
 int area512_sd_unmount(void);
 int area512_sd_mounted(void);
 int area512_seed_restore(void);
+int area512_seed_update(void);
+const uint8_t *area512_seed_find_file(const char *path, size_t *size);
 
 void area512_theme_load(void);
 uint32_t area512_theme_background_color(void);
+const char *area512_theme_background_image(void);
 uint32_t area512_theme_text_color(void);
 uint32_t area512_theme_emphasis_color(void);
 uint32_t area512_theme_border_color(void);
@@ -79,6 +121,10 @@ void area512_theme_pick_bitmap_colors(
 
 void area512_default_ui_load(void);
 int area512_default_ui_is_terminal(void);
+
+#ifdef AREA512_EXT_DISPLAY
+#include "../captft/include/area512_hal.h"
+#endif
 
 #ifdef __cplusplus
 }

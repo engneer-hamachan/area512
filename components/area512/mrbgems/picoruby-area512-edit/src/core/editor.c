@@ -1,4 +1,5 @@
 #include "core/editor.h"
+#include "area512_hal.h"
 #include "core/mode/command.h"
 #include "core/mode/insert.h"
 #include "core/mode/normal.h"
@@ -174,7 +175,7 @@ vim_draw_diagnostics(
       diagnostic_text,
       diagnostic_byte_length,
       VIM_DIAGNOSTIC_FOREGROUND,
-      0,
+      area512_theme_background_color(),
       0
     );
 

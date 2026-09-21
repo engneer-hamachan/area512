@@ -27,11 +27,13 @@ free_dram(void) {
 #define AREA512_SD_PIN_MISO 39
 #define AREA512_SD_PIN_MOSI 14
 #define AREA512_SD_PIN_CS 12
-#define AREA512_SD_SPI_HOST SPI2_HOST // display owns SPI3_HOST
+#define AREA512_SD_SPI_HOST SPI2_HOST // shared with Cap TFT; internal display uses SPI3
 #define AREA512_SD_FREQ_KHZ 20000     // stable on Cardputer SD
 
 static sdmmc_card_t *s_card = NULL;
+#if !defined(AREA512_EXT_DISPLAY)
 static bool s_bus_inited = false;
+#endif
 static char s_base[24] = {0};
 static int s_mount_reference_count = 0;
 
@@ -51,6 +53,8 @@ area512_sd_mount(const char *base_path) {
   unsigned int dram0 = free_dram();
   ESP_LOGI(TAG, "[heap] before mount: internal free=%u", dram0);
 
+  // Cap TFT initializes SPI2 before the first SD mount, including MISO.
+#if !defined(AREA512_EXT_DISPLAY)
   if (!s_bus_inited) {
     spi_bus_config_t bus_cfg = {
       .mosi_io_num = AREA512_SD_PIN_MOSI,
@@ -66,6 +70,7 @@ area512_sd_mount(const char *base_path) {
     }
     s_bus_inited = true;
   }
+#endif
   unsigned int dram1 = free_dram();
   ESP_LOGI(
     TAG,

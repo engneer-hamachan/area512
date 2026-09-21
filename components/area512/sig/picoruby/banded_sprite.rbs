@@ -1,0 +1,48 @@
+# Area512 built-in type declaration.
+
+class BandedSprite
+  # Sprite width in pixels
+  def width: () -> Integer
+
+  # Sprite height in pixels
+  def height: () -> Integer
+
+  # Fill the whole sprite with an RGB888 color
+  def fill: (Integer color) -> BandedSprite
+
+  # Draw a single pixel (x, y, color)
+  def pixel: (Integer x, Integer y, Integer color) -> BandedSprite
+
+  # Draw a line (x0, y0, x1, y1, color)
+  def line: (Integer x0, Integer y0, Integer x1, Integer y1, Integer color) -> BandedSprite
+
+  # Draw a rectangle outline (x, y, w, h, color)
+  def rect: (Integer x, Integer y, Integer width, Integer height, Integer color) -> BandedSprite
+
+  # Draw a filled rectangle (x, y, w, h, color)
+  def fill_rect: (Integer x, Integer y, Integer width, Integer height, Integer color) -> BandedSprite
+
+  # Draw a circle outline (x, y, r, color)
+  def circle: (Integer x, Integer y, Integer radius, Integer color) -> BandedSprite
+
+  # Draw a filled circle (x, y, r, color)
+  def fill_circle: (Integer x, Integer y, Integer radius, Integer color) -> BandedSprite
+
+  # Draw text at (x, y, str, color); efont supports Japanese
+  def text: (Integer x, Integer y, String string, Integer color) -> BandedSprite
+
+  # Transfer the previous region and prepare the next; false after the final transfer
+  def draw: () -> bool
+
+  # First screen row held by the current region
+  def region_top: () -> Integer
+
+  # One past the last screen row held by the current region
+  def region_bottom: () -> Integer
+
+  # Free the sprite buffer immediately
+  def delete: () -> nil
+
+  # Create a sprite that draws the screen one band of rows at a time
+  def self.new: (Integer font_size) -> BandedSprite
+end

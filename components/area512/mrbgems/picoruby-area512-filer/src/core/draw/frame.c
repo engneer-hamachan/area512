@@ -3,92 +3,127 @@
 #include <stdio.h>
 #include <string.h>
 
-// Double side walls; top!=0 extends down from the header rule to form corners.
 void
-draw_walls(Filer *filer, int top) {
-  int outer_top = top ? (HALF_ROW_HEIGHT - 1) : 0;
-  int inner_top = top ? (HALF_ROW_HEIGHT + 1) : 0;
+draw_frame(Filer *filer) {
+  int outer_top = HALF_ROW_HEIGHT - 1;
+  int inner_top = HALF_ROW_HEIGHT + 1;
+  int outer_bottom = filer->close_y + 2;
+  int inner_bottom = filer->close_y;
+  int right = filer->width - 1;
+
+  if (filer->has_background_image)
+    area512_screen_read_sprite(filer->screen, filer->row, 0, 0);
 
   area512_sprite_line(
-    filer->row,
+    filer->screen,
+    0,
+    outer_top,
+    right,
+    outer_top,
+    area512_theme_border_color()
+  );
+
+  area512_sprite_line(
+    filer->screen,
+    0,
+    outer_bottom,
+    right,
+    outer_bottom,
+    area512_theme_border_color()
+  );
+
+  area512_sprite_line(
+    filer->screen,
     0,
     outer_top,
     0,
-    ROW_HEIGHT - 1,
-    area512_theme_border_color()
-  );
-  area512_sprite_line(
-    filer->row,
-    2,
-    inner_top,
-    2,
-    ROW_HEIGHT - 1,
+    outer_bottom,
     area512_theme_border_color()
   );
 
   area512_sprite_line(
-    filer->row,
-    filer->width - 1,
+    filer->screen,
+    right,
     outer_top,
-    filer->width - 1,
-    ROW_HEIGHT - 1,
+    right,
+    outer_bottom,
     area512_theme_border_color()
   );
 
   area512_sprite_line(
-    filer->row,
-    filer->width - 3,
+    filer->screen,
+    2,
     inner_top,
-    filer->width - 3,
-    ROW_HEIGHT - 1,
+    right - 2,
+    inner_top,
+    area512_theme_border_color()
+  );
+
+  area512_sprite_line(
+    filer->screen,
+    2,
+    inner_bottom,
+    right - 2,
+    inner_bottom,
+    area512_theme_border_color()
+  );
+
+  area512_sprite_line(
+    filer->screen,
+    2,
+    inner_top,
+    2,
+    inner_bottom,
+    area512_theme_border_color()
+  );
+
+  area512_sprite_line(
+    filer->screen,
+    right - 2,
+    inner_top,
+    right - 2,
+    inner_bottom,
     area512_theme_border_color()
   );
 }
 
 static void
-draw_rule(Filer *filer, int outer_y, int inner_y) {
-  area512_sprite_line(
-    filer->row,
-    0,
-    outer_y,
-    filer->width - 1,
-    outer_y,
-    area512_theme_border_color()
-  );
+clear_frame_rect(Filer *filer, int x, int y, int width, int height) {
+  if (filer->has_background_image) {
+    area512_screen_draw_sprite_clipped(
+      filer->screen,
+      filer->row,
+      0,
+      0,
+      x,
+      y,
+      width,
+      height
+    );
+    return;
+  }
 
-  area512_sprite_line(
-    filer->row,
-    2,
-    inner_y,
-    filer->width - 3,
-    inner_y,
-    area512_theme_border_color()
+  area512_sprite_fill_rect(
+    filer->screen,
+    x,
+    y,
+    width,
+    height,
+    area512_theme_background_color()
   );
 }
 
-// Draw text over a border, clearing the rule behind it first.
 static void
 edge_text(Filer *filer, int x, const char *text, uint32_t color) {
   int width = (int)strlen(text) * FILER_CHAR_WIDTH;
 
-  area512_sprite_fill_rect(
-    filer->row,
-    x - 1,
-    0,
-    width + 2,
-    ROW_HEIGHT,
-    area512_theme_background_color()
-  );
+  clear_frame_rect(filer, x - 1, 0, width + 2, ROW_HEIGHT);
 
-  area512_sprite_text(filer->row, x, 0, text, color);
+  area512_sprite_text(filer->screen, x, 0, text, color);
 }
 
 void
 draw_header(Filer *filer) {
-  area512_sprite_fill(filer->row, area512_theme_background_color());
-  draw_walls(filer, 1);
-  draw_rule(filer, HALF_ROW_HEIGHT - 1, HALF_ROW_HEIGHT + 1);
-
   const char *brand = " AREA 512 ";
   int brand_x = (filer->width - (int)strlen(brand) * FILER_CHAR_WIDTH) / 2;
 
@@ -116,40 +151,4 @@ draw_header(Filer *filer) {
 
     edge_text(filer, 4, fitted_path, area512_theme_text_color());
   }
-
-  area512_sprite_push(filer->row, 0, 0);
-}
-
-// Close the frame bottom with a double rule.
-void
-draw_close(Filer *filer) {
-  area512_sprite_fill(filer->row, area512_theme_background_color());
-  area512_sprite_line(filer->row, 0, 0, 0, 2, area512_theme_border_color());
-
-  area512_sprite_line(
-    filer->row,
-    filer->width - 1,
-    0,
-    filer->width - 1,
-    2,
-    area512_theme_border_color()
-  );
-
-  area512_sprite_line(
-    filer->row,
-    0,
-    2,
-    filer->width - 1,
-    2,
-    area512_theme_border_color()
-  );
-  area512_sprite_line(
-    filer->row,
-    2,
-    0,
-    filer->width - 3,
-    0,
-    area512_theme_border_color()
-  );
-  area512_sprite_push(filer->row, 0, filer->close_y);
 }

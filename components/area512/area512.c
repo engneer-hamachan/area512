@@ -12,7 +12,7 @@
 
 #include <mrubyc.h>
 
-#include "mrb/main_task.c"
+#include <mrb/main_task.c>
 
 // Cardputer has no PSRAM. The mruby/c VM heap (120KB) is sized to leave
 // room for native allocations such as Sprites. See

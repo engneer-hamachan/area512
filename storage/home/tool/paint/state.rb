@@ -34,36 +34,27 @@ class PaintApp
   end
 
   def next_color
-    restore_cursor_area
     @color_index += 1
     @color_index = 0 if @color_index >= PALETTE.length
     @color_mark = PALETTE_MARK[@color_index]
     @last_paint_x = -1
     @last_paint_mark = ""
     @message = "color: #{active_name}"
-    draw_status(@screen)
-    draw_cursor(@screen)
-    @screen.push(0, 0)
+    draw_screen
   end
 
   def bigger_brush
-    restore_cursor_area
     @brush += 1
     @brush = 8 if @brush > 8
     @message = "brush: #{@brush}"
-    draw_status(@screen)
-    draw_cursor(@screen)
-    @screen.push(0, 0)
+    draw_screen
   end
 
   def smaller_brush
-    restore_cursor_area
     @brush -= 1
     @brush = 1 if @brush < 1
     @message = "brush: #{@brush}"
-    draw_status(@screen)
-    draw_cursor(@screen)
-    @screen.push(0, 0)
+    draw_screen
   end
 
   def erase_here
@@ -75,7 +66,6 @@ class PaintApp
   end
 
   def stroke_here(mark, message)
-    restore_cursor_area
     if @last_paint_x < 0 || @last_paint_mark != mark
       draw_dot(mark)
     else
@@ -85,9 +75,7 @@ class PaintApp
     @last_paint_y = @cursor_y
     @last_paint_mark = mark
     @message = message
-    draw_status(@screen)
-    draw_cursor(@screen)
-    @screen.push(0, 0)
+    draw_screen
   end
 
   def clear_canvas
@@ -99,7 +87,6 @@ class PaintApp
   end
 
   def move_cursor(dx, dy)
-    restore_cursor_area
     nx = @cursor_x + dx
     ny = @cursor_y + dy
     nx = 0 if nx < 0
@@ -117,12 +104,10 @@ class PaintApp
       @last_paint_x = @cursor_x
       @last_paint_y = @cursor_y
     end
-    draw_cursor(@screen)
-    @screen.push(0, 0)
+    draw_screen
   end
 
   def toggle_pen
-    restore_cursor_area
     @pen_down = !@pen_down
     if @pen_down
       @last_paint_x = @cursor_x
@@ -134,9 +119,7 @@ class PaintApp
       @last_paint_mark = ""
       @message = "pen up"
     end
-    draw_status(@screen)
-    draw_cursor(@screen)
-    @screen.push(0, 0)
+    draw_screen
   end
 
   def handle(key)

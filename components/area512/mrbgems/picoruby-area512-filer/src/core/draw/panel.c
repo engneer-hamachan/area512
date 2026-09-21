@@ -147,6 +147,17 @@ draw_panel_row(Filer *filer, int row, const PanelInfo *panel_information) {
   int offset = compute_panel_strip_offset(filer, row);
   int left_x = filer->panel_x, right_x = filer->panel_right;
 
+  if (filer->has_background_image)
+    area512_sprite_blend_rect(
+      filer->row,
+      left_x,
+      -offset,
+      right_x - left_x + 1,
+      box_height,
+      area512_theme_background_color(),
+      90
+    );
+
   area512_sprite_line(
     filer->row,
     left_x,

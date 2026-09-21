@@ -1,0 +1,7 @@
+background=0x000000
+background_image=@AREA512_THEME_DEFAULT_BACKGROUND_IMAGE@
+text=0xCFA45F
+emphasis=0xEC5E00
+border=0xF5972D
+selected=0xFFD966
+box=0x241604

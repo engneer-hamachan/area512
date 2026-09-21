@@ -13,6 +13,25 @@ It is based on FemtoRuby and includes MicroPython,
 so you can write Ruby and Python right on the Cardputer,
 then compile and run them — all on the device!
 
+## Hardware
+
+AREA512 runs on the Cardputer by itself and also supports an external display (TERM512).
+
+> [!TIP]
+> Build the external display and case: **[TERM512 on GitHub →](https://github.com/Prokuon/term512)**
+> Then flash the binary for your display in [Quick Install](#quick-install).
+
+<table>
+  <tr>
+    <th>Only AREA512</th>
+    <th>AREA512 + TERM512</th>
+  </tr>
+  <tr>
+    <td><img src="image/device.jpg" alt="AREA512 on a Cardputer ADV" height="226" /></td>
+    <td><img src="image/device_ext.jpg" alt="AREA512 on a Cardputer ADV in a TERM512 case with its external display" height="320" /></td>
+  </tr>
+</table>
+
 ## Quick Install
 
 All you need is esptool:
@@ -25,14 +44,35 @@ esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --
 
 # Cardputer v1.1
 esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512V11.bin
+
+# 320x240 ST7789 panel
+esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512TFT7789.bin
+
+# 320x240 ILI9341 panel
+esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512TFT9341.bin
 ```
 
-- If the port is not auto-detected, add `-p /dev/ttyACM0` to the `esptool.py` command.
 - Insert a FAT32-formatted microSD card into the Cardputer (it is used to store app data).
 
-## Using AREA512
+## Updating
 
-![The AREA512 file manager running on a Cardputer ADV](image/cardputer.jpg)
+Flashing new firmware does not update the files already on the microSD card.
+After flashing, run `fullupdate` in the terminal and answer `y`:
+
+```
+fullupdate
+Update /etc, /share/backgrounds, /home/tool/*, /home/game/*? (y/n)
+```
+
+| Path | What happens |
+| --- | --- |
+| `/etc`, `/share/backgrounds` | Files included in the firmware are overwritten; other files are kept |
+| `/home/tool/*`, `/home/game/*` | Each preinstalled app directory is deleted and rewritten; your own apps are kept |
+
+The device reboots when the update finishes. Your edits to `etc/theme`, and any
+files you added inside a preinstalled app directory, are lost.
+
+## Using AREA512
 
 The screen shows a listing of the current directory: directories first, then files. Source files (`.rb` / `.py`), compiled files (`.mrb` / `.mpy`), and dot images (`.a5d`) are shown as separate entries with their extensions.
 
@@ -40,9 +80,9 @@ The following keys are available.
 
 | Key | Action |
 | --- | --- |
-| `;` / `.` (or `k` / `j`) | Move the cursor up / down |
-| `/` or Enter | Open (enter a directory / run a Ruby or Python file / view a Markdown file / edit an `.a5d` dot image) |
-| `,` or BS | Go to the parent directory |
+| `;` / `.` (or `k` / `j`, or Up / Down) | Move the cursor up / down |
+| `/`, Enter, or Right | Open (enter a directory / run a Ruby or Python file / view a Markdown file / edit an `.a5d` dot image) |
+| `,`, `u`, BS, or Left | Go to the parent directory |
 | `1`–`9` | Jump to the n-th entry |
 | `e` | Edit the selected file |
 | `c` | Compile the selected `.rb` or `.py` file |
@@ -52,9 +92,9 @@ The following keys are available.
 | `K` | Create a new directory (you type the name) |
 | `x` | Delete (asks `y/n` for confirmation) |
 | `m` | Move the selected entry (you type the destination path) |
+| `C` | Copy the selected entry (you type the destination path) |
 | `t` | Open the terminal |
 | `r` | Reboot the device |
-| `q` | Quit the file manager |
 
 ## Terminal
 
@@ -82,6 +122,7 @@ directory with the file manager, and `exit` returns to the list.
 | `top` | Show battery, VM, RAM, and stack usage |
 | `clear` | Clear the output |
 | `help` | List the commands |
+| `fullupdate` | Update the preinstalled files on the SD card from the firmware (see [Updating](#updating)) |
 | `reboot` | Reboot the device |
 | `exit` | Return to the file list |
 
@@ -258,6 +299,33 @@ box=0x241604
 
 One `key=0xRRGGBB` per line; six hex digits, `0x` required. Lines without `=` and unknown keys are ignored.
 
+### Background Image
+
+Convert an image to a file manager background with Python 3 and Pillow:
+
+```sh
+# Cardputer display (240x135, 64,800 bytes)
+make convert INPUT=background.png SIZE=240x135
+
+# External 320x240 display (153,600 bytes, the default)
+make convert INPUT=background.png
+```
+
+This writes `storage/share/backgrounds/background.rgb565`. `OUTPUT=path` overrides the output
+file. The image is resized to `SIZE` and written as headerless RGB565, high byte
+first, left to right and top to bottom.
+
+Everything under `storage/` is built into the firmware, so rebuild and flash,
+then add this line to the SD card's `etc/theme` and reboot:
+
+```
+background_image=/share/backgrounds/background.rgb565
+```
+
+The image is read from the firmware, not from the SD card. If the file is not in
+the firmware or its size does not match the display, the file manager uses the
+solid `background` color and shows the reason in the action bar.
+
 Bitmaps (the boot logo and an application's `image.h`) are drawn with `emphasis` and `background` only, the brighter of the two used for the set bits.
 
 ## Default UI
@@ -284,8 +352,8 @@ file manager. Lines other than these two are ignored.
 ### Setup
 
 ```sh
-git clone --recursive git@github.com:engneer-hamachan/area512-dev.git
-cd area512-dev
+git clone --recursive git@github.com:engneer-hamachan/area512.git
+cd area512
 . $YOUR_ESP_IDF_PATH/export.sh
 rake setup
 ```
@@ -301,20 +369,31 @@ git submodule update --init --recursive
 ```sh
 # Cardputer ADV build
 rake build
+rake flash
 
 # Cardputer v1.1 build
 rake build:v1.1
-
-rake flash
+idf.py -B build/v11 flash
 ```
 
-Files under `storage/` are embedded in the firmware as seed content and
-restored to the SD card's `Area512_data/` directory on first boot (each
-top-level directory is only written if it does not exist yet on the card).
+For the 320x240 display with a 240x135 application window:
 
+```sh
+# ST7789 panel
+rake build:tft7789
+idf.py -B build/tft7789 flash
+
+# ILI9341 panel
+rake build:tft9341
+idf.py -B build/tft9341 flash
+```
 ## Contributing
 
 AREA512 welcomes contributions of new apps and AREA512 artwork (splash images and such)!
+
+## Credits
+
+TERM512 was designed and developed by the brilliant creator [Prokuon](https://github.com/Prokuon).
 
 ## License
 

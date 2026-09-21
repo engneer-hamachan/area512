@@ -89,7 +89,7 @@ begin_markdown_output_row(MarkdownRowWriter *writer, int start_column) {
       0,
       MARKDOWN_SPACES,
       writer->width,
-      0,
+      area512_theme_text_color(),
       writer->background
     );
 
@@ -204,7 +204,7 @@ write_markdown_preformatted_text(
         text + chunk_start_byte_offset,
         byte_offset - chunk_start_byte_offset,
         foreground,
-        0
+        area512_theme_background_color()
       );
 
     writer->column += chunk_columns;

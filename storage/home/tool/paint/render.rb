@@ -15,10 +15,7 @@ class PaintApp
           dy = y - cy
           if dx * dx + dy * dy <= r * r
             row = @pixels.at(y)
-            if row.is_a?(String)
-              row[x] = mark
-              draw_cell(@screen, x, y)
-            end
+            row[x] = mark if row.is_a?(String)
           end
         end
         x += 1
@@ -72,54 +69,51 @@ class PaintApp
     sp.pixel(sx, sy, CURSOR_COLOR)
   end
 
-  def draw_cell(sp, x, y)
+  # One fill_rect per run of equal marks, so a mostly empty canvas costs one
+  # call per row instead of one per cell.
+  def draw_canvas_row(sp, y, cell_y)
     row = @pixels.at(y)
-    if row.is_a?(String)
-      byte = row.getbyte(x)
-      if byte.is_a?(Integer)
-        color = PALETTE[byte - 48]
-        sp.fill_rect(x * CELL, CANVAS_Y + y * CELL, CELL, CELL, color)
-      end
-    end
-  end
+    return unless row.is_a?(String)
 
-  def restore_cursor_area
-    r = @brush + 2
-    y = @cursor_y - r
-    while y <= @cursor_y + r
-      x = @cursor_x - r
-      while x <= @cursor_x + r
-        draw_cell(@screen, x, y) if x >= 0 && x < CANVAS_W && y >= 0 && y < CANVAS_H
-        x += 1
+    x = 0
+    while x < CANVAS_W
+      byte = row.getbyte(x)
+      run = 1
+      while x + run < CANVAS_W && row.getbyte(x + run) == byte
+        run += 1
       end
-      y += 1
+      sp.fill_rect(x * CELL, cell_y, run * CELL, CELL, PALETTE[byte - 48])
+      x += run
     end
   end
 
   def draw_canvas(sp)
+    top = sp.region_top
+    bottom = sp.region_bottom
     y = 0
     while y < CANVAS_H
-      x = 0
-      while x < CANVAS_W
-        draw_cell(sp, x, y)
-        x += 1
-      end
+      cell_y = CANVAS_Y + y * CELL
+      draw_canvas_row(sp, y, cell_y) if cell_y + CELL > top && cell_y < bottom
       y += 1
     end
   end
 
   def draw_screen
-    @screen.fill(BG_COLOR)
-    draw_status(@screen)
-    draw_canvas(@screen)
-    draw_cursor(@screen)
-    @screen.push(0, 0)
+    while @screen.draw
+      @screen.fill(BG_COLOR)
+      draw_status(@screen)
+      draw_canvas(@screen)
+      draw_cursor(@screen)
+    end
   end
 
   def draw_goodbye
-    @screen.fill(BG_COLOR)
-    @screen.text(0, 10, "Paint closed.", TEXT_COLOR)
-    @screen.text(0, 30, "Press any key.", 0x888888)
-    @screen.push(0, 0)
+    while @screen.draw
+      @screen.fill(BG_COLOR)
+      Widget.center_lines(@screen, [
+        ["Paint closed.", TEXT_COLOR],
+        ["Press any key.", 0x888888]
+      ])
+    end
   end
 end

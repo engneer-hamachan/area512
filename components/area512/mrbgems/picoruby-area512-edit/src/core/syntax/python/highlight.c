@@ -1,4 +1,5 @@
 #include "core/syntax/python/highlight.h"
+#include "area512_hal.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
@@ -217,16 +218,20 @@ write_python_highlight_segment(
       context->writer_context,
       (const char *)(context->source + context->last_end_byte_offset),
       start_byte_offset - context->last_end_byte_offset,
-      0
+      area512_theme_text_color()
     );
   }
 
   if (end_byte_offset > start_byte_offset) {
+    uint32_t segment_color = highlight_type == EDIT_PYTHON_HIGHLIGHT_DEFAULT
+                               ? area512_theme_text_color()
+                               : EDITOR_PYTHON_HIGHLIGHT_COLORS[highlight_type];
+
     context->write_segment(
       context->writer_context,
       (const char *)(context->source + start_byte_offset),
       end_byte_offset - start_byte_offset,
-      EDITOR_PYTHON_HIGHLIGHT_COLORS[highlight_type]
+      segment_color
     );
   }
 
@@ -336,7 +341,7 @@ editor_python_highlight_run(
       writer_context,
       (const char *)(source + context.last_end_byte_offset),
       source_byte_length - context.last_end_byte_offset,
-      0
+      area512_theme_text_color()
     );
   }
 

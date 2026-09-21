@@ -53,16 +53,21 @@ draw_input_panel(void *sprite, const char *label, const char *input) {
   int two_line_height = WIDGET_ROW_HEIGHT + WIDGET_FONT_HEIGHT;
   int label_y = y + (36 - two_line_height) / 2;
 
-  area512_widget_draw_panel(sprite, 0, y, width, 36);
-  area512_sprite_text(sprite, 4, label_y, label, area512_theme_text_color());
-  area512_sprite_text(
-    sprite,
-    4,
-    label_y + WIDGET_ROW_HEIGHT,
-    visible,
-    area512_theme_emphasis_color()
-  );
-  area512_sprite_push(sprite, 0, 0);
+  while (area512_screen_begin_region(sprite)) {
+    area512_sprite_fill(sprite, area512_theme_background_color());
+    area512_widget_draw_panel(sprite, 0, y, width, 36);
+    area512_sprite_text(sprite, 4, label_y, label, area512_theme_text_color());
+
+    area512_sprite_text(
+      sprite,
+      4,
+      label_y + WIDGET_ROW_HEIGHT,
+      visible,
+      area512_theme_emphasis_color()
+    );
+
+    area512_screen_push_region(sprite);
+  }
 }
 
 static int
@@ -196,34 +201,40 @@ area512_widget_run_dialog_modal(
     return -1;
 
   int selected = 0;
+
   int panel_width =
     panel_width_for_items(sprite, message, buttons, button_count);
+
   int panel_x = (area512_gfx_width() - panel_width) / 2;
   int panel_y = (area512_gfx_height() - 44) / 2;
   int button_width = (panel_width - 12) / button_count;
 
   for (;;) {
-    area512_widget_draw_titled_panel(
-      sprite,
-      panel_x,
-      panel_y,
-      panel_width,
-      44,
-      message
-    );
-
-    for (int i = 0; i < button_count; i++) {
-      area512_widget_draw_button(
+    while (area512_screen_begin_region(sprite)) {
+      area512_sprite_fill(sprite, area512_theme_background_color());
+      area512_widget_draw_titled_panel(
         sprite,
-        panel_x + 6 + i * button_width,
-        panel_y + 22,
-        button_width - 2,
-        buttons[i],
-        i == selected
+        panel_x,
+        panel_y,
+        panel_width,
+        44,
+        message
       );
+
+      for (int i = 0; i < button_count; i++) {
+        area512_widget_draw_button(
+          sprite,
+          panel_x + 6 + i * button_width,
+          panel_y + 22,
+          button_width - 2,
+          buttons[i],
+          i == selected
+        );
+      }
+
+      area512_screen_push_region(sprite);
     }
 
-    area512_sprite_push(sprite, 0, 0);
     WidgetKey key = area512_widget_read_key();
 
     if (key.kind == WIDGET_KEY_ESCAPE)
@@ -269,51 +280,56 @@ area512_widget_run_menu_modal(
     if (top < 0)
       top = 0;
 
-    area512_widget_draw_titled_panel(
-      sprite,
-      panel_x,
-      panel_y,
-      panel_width,
-      panel_height,
-      title
-    );
+    while (area512_screen_begin_region(sprite)) {
+      area512_sprite_fill(sprite, area512_theme_background_color());
 
-    for (int row = 0; row < visible_count; row++) {
-      int index = top + row;
-      int row_y = panel_y + 16 + row * WIDGET_ROW_HEIGHT;
+      area512_widget_draw_titled_panel(
+        sprite,
+        panel_x,
+        panel_y,
+        panel_width,
+        panel_height,
+        title
+      );
 
-      if (index == selected) {
-        area512_sprite_fill_rect(
+      for (int row = 0; row < visible_count; row++) {
+        int index = top + row;
+        int row_y = panel_y + 16 + row * WIDGET_ROW_HEIGHT;
+
+        if (index == selected) {
+          area512_sprite_fill_rect(
+            sprite,
+            panel_x + 2,
+            row_y,
+            panel_width - 4,
+            WIDGET_ROW_HEIGHT,
+            area512_theme_box_color()
+          );
+        }
+
+        area512_sprite_text(
           sprite,
-          panel_x + 2,
-          row_y,
-          panel_width - 4,
-          WIDGET_ROW_HEIGHT,
-          area512_theme_box_color()
+          panel_x + 8,
+          area512_widget_vcenter_text_y(row_y, WIDGET_ROW_HEIGHT),
+          items[index],
+          index == selected ? area512_theme_selected_color()
+                            : area512_theme_text_color()
         );
       }
 
-      area512_sprite_text(
+      area512_widget_draw_scrollbar(
         sprite,
-        panel_x + 8,
-        area512_widget_vcenter_text_y(row_y, WIDGET_ROW_HEIGHT),
-        items[index],
-        index == selected ? area512_theme_selected_color()
-                          : area512_theme_text_color()
+        panel_x + panel_width - 4,
+        panel_y + 16,
+        visible_count * WIDGET_ROW_HEIGHT,
+        top,
+        visible_count,
+        item_count
       );
+
+      area512_screen_push_region(sprite);
     }
 
-    area512_widget_draw_scrollbar(
-      sprite,
-      panel_x + panel_width - 4,
-      panel_y + 16,
-      visible_count * WIDGET_ROW_HEIGHT,
-      top,
-      visible_count,
-      item_count
-    );
-
-    area512_sprite_push(sprite, 0, 0);
     WidgetKey key = area512_widget_read_key();
 
     if (key.kind == WIDGET_KEY_ESCAPE)
@@ -322,43 +338,56 @@ area512_widget_run_menu_modal(
     if (key.kind == WIDGET_KEY_ENTER)
       return selected;
 
-    if (key.kind == WIDGET_KEY_UP ||
-        (key.kind == WIDGET_KEY_BYTE && (key.byte == 'k' || key.byte == ';')))
+    if (
+      key.kind == WIDGET_KEY_UP ||
+      (key.kind == WIDGET_KEY_BYTE && (key.byte == 'k' || key.byte == ';'))
+    )
       selected = clamp(selected - 1, 0, item_count - 1);
 
-    if (key.kind == WIDGET_KEY_DOWN ||
-        (key.kind == WIDGET_KEY_BYTE && (key.byte == 'j' || key.byte == '.')))
+    if (
+      key.kind == WIDGET_KEY_DOWN ||
+      (key.kind == WIDGET_KEY_BYTE && (key.byte == 'j' || key.byte == '.'))
+    )
       selected = clamp(selected + 1, 0, item_count - 1);
   }
 }
 
 void
 area512_widget_run_alert_modal(void *sprite, const char *message) {
-  int panel_width = clamp(
-    area512_widget_text_width(sprite, message) + 24,
-    96,
-    area512_gfx_width() - 24
-  );
+  int panel_width =
+    clamp(
+      area512_widget_text_width(sprite, message) + 24,
+      96,
+      area512_gfx_width() - 24
+    );
+
   int panel_x = (area512_gfx_width() - panel_width) / 2;
   int panel_y = (area512_gfx_height() - 44) / 2;
 
   int two_line_height = WIDGET_ROW_HEIGHT + WIDGET_FONT_HEIGHT;
   int message_y = panel_y + (44 - two_line_height) / 2;
 
-  area512_widget_draw_panel(sprite, panel_x, panel_y, panel_width, 44);
-  area512_widget_draw_text_center(
-    sprite,
-    message_y,
-    message,
-    area512_theme_emphasis_color()
-  );
-  area512_widget_draw_text_center(
-    sprite,
-    message_y + WIDGET_ROW_HEIGHT,
-    "Press any key",
-    area512_theme_text_color()
-  );
-  area512_sprite_push(sprite, 0, 0);
+  while (area512_screen_begin_region(sprite)) {
+    area512_sprite_fill(sprite, area512_theme_background_color());
+    area512_widget_draw_panel(sprite, panel_x, panel_y, panel_width, 44);
+
+    area512_widget_draw_text_center(
+      sprite,
+      message_y,
+      message,
+      area512_theme_emphasis_color()
+    );
+
+    area512_widget_draw_text_center(
+      sprite,
+      message_y + WIDGET_ROW_HEIGHT,
+      "Press any key",
+      area512_theme_text_color()
+    );
+
+    area512_screen_push_region(sprite);
+  }
+
   area512_widget_read_key();
 }
 

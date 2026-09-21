@@ -350,6 +350,33 @@ def run_python(dir, name)
   run_mpy(join_path(dir, python_bytecode_name(name)))
 end
 
+def show_readme(readme_path)
+  return unless Object.const_defined?(:AREA512_EXT_DISPLAY)
+
+  begin
+    Markdown.show_internal(readme_path)
+  rescue
+    # README display is optional, like the splash image.
+  end
+end
+
+def show_app_readme(dir)
+  show_readme(join_path(dir, "README.md"))
+end
+
+def show_etc_readme(readme_name)
+  show_readme("/etc/readme/#{readme_name}.md")
+end
+
+def hide_readme
+  return unless Object.const_defined?(:AREA512_EXT_DISPLAY)
+
+  begin
+    Markdown.hide_internal
+  rescue
+  end
+end
+
 def show_app_image(dir)
   image_path = join_path(dir, "image.h")
   return unless File.exist?(image_path)
@@ -394,52 +421,79 @@ def run_dir(dir, name)
   ruby_main_path = join_path(app_dir, "main.mrb")
   python_main_path = join_path(app_dir, "main.mpy")
 
-  if File.exist?(manifest_path)
-    show_app_image(app_dir)
+  app_started = false
 
-    if python_manifest?(manifest_path)
-      run_python_manifest(app_dir, manifest_path, name)
+  begin
+    if File.exist?(manifest_path)
+      app_started = true
+
+      show_app_readme(app_dir)
+      show_app_image(app_dir)
+
+      if python_manifest?(manifest_path)
+        run_python_manifest(app_dir, manifest_path, name)
+      else
+        run_manifest(app_dir, manifest_path, name)
+      end
+
+    elsif File.exist?(ruby_main_path)
+      app_started = true
+
+      show_app_readme(app_dir)
+      show_app_image(app_dir)
+      run_mrb(ruby_main_path, name)
+
+    elsif File.exist?(python_main_path)
+      app_started = true
+
+      show_app_readme(app_dir)
+      show_app_image(app_dir)
+      run_mpy(python_main_path, name)
+
     else
-      run_manifest(app_dir, manifest_path, name)
+      "No main.manifest, main.mrb or main.mpy in #{name}"
     end
-
-  elsif File.exist?(ruby_main_path)
-    show_app_image(app_dir)
-    run_mrb(ruby_main_path, name)
-
-  elsif File.exist?(python_main_path)
-    show_app_image(app_dir)
-    run_mpy(python_main_path, name)
-
-  else
-    "No main.manifest, main.mrb or main.mpy in #{name}"
+  ensure
+    hide_readme if app_started
   end
 end
 
 def view_markdown(dir, name)
   begin
+    show_etc_readme("markdown")
     Markdown.new(join_path(dir, name)).show
+
     "Returned from viewer"
   rescue => e
     "#{e.class}: #{e.message}"
+  ensure
+    hide_readme
   end
 end
 
 def edit_dot(dir, name)
   begin
+    show_etc_readme("dot")
     Dot.edit(join_path(dir, name))
+
     "Returned from dot"
   rescue => e
     "#{e.class}: #{e.message}"
+  ensure
+    hide_readme
   end
 end
 
 def edit_entry(dir, name)
   begin
+    show_etc_readme("vim")
     Vim.new(join_path(dir, name)).start
+
     "Returned from vim"
   rescue => e
     "#{e.class}: #{e.message}"
+  ensure
+    hide_readme
   end
 end
 
@@ -638,12 +692,24 @@ end
 # --- Dispatch shell ---
 
 def run_filer(filer, root)
+  readme_shown = false
   cwd = root
   filer.cwd = cwd
   build_entries(filer, cwd)
 
   while true
+    unless readme_shown
+      show_etc_readme("filer")
+      readme_shown = true
+    end
+
     act = filer.run
+
+    unless act == ACT_OPEN_DIR || act == ACT_UP || act == ACT_CHANGE_DIR
+      hide_readme
+      readme_shown = false
+    end
+
     msg = ""
 
     action_target_path = filer.action_target_path
@@ -752,6 +818,8 @@ def run_filer(filer, root)
     build_entries(filer, cwd)
     filer.message = msg
   end
+ensure
+  hide_readme if readme_shown
 end
 
 begin

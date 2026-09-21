@@ -32,6 +32,9 @@ init_filer_state(Filer *filer) {
   if (filer->rows_visible < 1)
     filer->rows_visible = 1;
 
+  if (filer->rows_visible > VISIBLE_ROW_CAPACITY)
+    filer->rows_visible = VISIBLE_ROW_CAPACITY;
+
   filer->bar1_y = filer->list_top + filer->rows_visible * ROW_HEIGHT;
   filer->bar2_y = filer->bar1_y + ROW_HEIGHT;
   filer->close_y = filer->bar2_y + ROW_HEIGHT;

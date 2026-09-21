@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ded2b9" />
+    <meta
+      name="description"
+      content="AREA512 is an OS for Cardputer ADV and Cardputer v1.1, with on-device Ruby and Python programming, built-in applications, and customizable colors."
+    />
+    <title>Manual — AREA512</title>
+    <link rel="icon" href="assets/images/emblem-transparent.webp" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <div class="sheet">
+      <header class="masthead">
+        <a class="wordmark" href="index.html" aria-label="AREA512 home"
+          ><img src="assets/wordmark.svg" alt="AREA512" width="448" height="80"
+        /></a>
+        <div class="masthead-info">
+          OPERATING SYSTEM<br />FOR CARDPUTER<br /><span>RUBY / PYTHON</span>
+        </div>
+      </header>
+      <nav class="navigation" aria-label="Main navigation">
+        <a class="emblem" href="index.html" aria-label="AREA512 home"
+          ><img
+            src="assets/images/emblem-transparent.webp"
+            alt=""
+            width="160"
+            height="96" /></a
+        ><a href="index.html"><span>01</span>Overview</a
+        ><a href="term512.html"><span>02</span>TERM512</a
+        ><a href="applications.html"><span>03</span>Applications</a
+        ><a href="programming.html"><span>04</span>Programming</a
+        ><a href="install.html"><span>05</span>Installation</a
+        ><a href="manual.html" aria-current="page"><span>06</span>Manual</a>
+      </nav>
+      <main id="main">
+        <header class="page-heading">
+          <span class="section-label">06 / AREA512</span>
+          <h1>MANUAL</h1>
+          <p>
+            File manager, terminal, editor, applications, and configuration.
+          </p>
+        </header>
+        <nav class="contents" aria-label="Manual contents">
+          <a href="#filer">01 File manager</a><a href="#terminal">02 Terminal</a
+          ><a href="#editor">03 Editor</a
+          ><a href="#theme">04 Theme &amp; startup</a
+          ><a href="#applications">05 Applications</a
+          ><a href="#references">06 API references</a>
+        </nav>
+        <section class="section" id="filer">
+          <h2 class="condensed">01 / FILE MANAGER</h2>
+          <p>
+            Keys are case-sensitive. Enter opens a directory; uppercase R runs
+            it as an application.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Key</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>j / k or Down / Up</td>
+                  <td>Select an entry.</td>
+                </tr>
+                <tr>
+                  <td>Enter / Right / /</td>
+                  <td>
+                    Open an entry. Source files compile and run; Markdown and
+                    dot images open in their viewers.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Backspace / Left / , / u</td>
+                  <td>Open the parent directory.</td>
+                </tr>
+                <tr>
+                  <td>1–9</td>
+                  <td>Select an entry in the visible list.</td>
+                </tr>
+                <tr>
+                  <td>R</td>
+                  <td>Run the selected directory application.</td>
+                </tr>
+                <tr>
+                  <td>e</td>
+                  <td>Edit the selected file.</td>
+                </tr>
+                <tr>
+                  <td>c / a</td>
+                  <td>
+                    Compile the selected source / all sources directly in the
+                    directory.
+                  </td>
+                </tr>
+                <tr>
+                  <td>N / K</td>
+                  <td>Create a file / directory.</td>
+                </tr>
+                <tr>
+                  <td>m / C</td>
+                  <td>Move or rename / copy an entry.</td>
+                </tr>
+                <tr>
+                  <td>x</td>
+                  <td>
+                    Delete after confirmation. Directory contents are included.
+                  </td>
+                </tr>
+                <tr>
+                  <td>t</td>
+                  <td>Open the terminal.</td>
+                </tr>
+                <tr>
+                  <td>r</td>
+                  <td>Reboot.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="section" id="terminal">
+          <h2 class="condensed">02 / TERMINAL</h2>
+          <p>
+            The terminal and file manager share the current directory.
+            <code>exit</code> returns to the file manager.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Command</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>cd [path] / ls [path] / pwd</td>
+                  <td>Change directory / list entries / show directory.</td>
+                </tr>
+                <tr>
+                  <td>run &lt;file-or-directory&gt;</td>
+                  <td>
+                    Run a source file, bytecode file, or application directory.
+                  </td>
+                </tr>
+                <tr>
+                  <td>vim &lt;file&gt;</td>
+                  <td>Edit a file.</td>
+                </tr>
+                <tr>
+                  <td>md &lt;file&gt; / dot &lt;file&gt;</td>
+                  <td>View Markdown / edit a dot image.</td>
+                </tr>
+                <tr>
+                  <td>compile &lt;file&gt;</td>
+                  <td>Compile Ruby or Python source.</td>
+                </tr>
+                <tr>
+                  <td>compile --all [path]</td>
+                  <td>Compile source files directly in a directory.</td>
+                </tr>
+                <tr>
+                  <td>touch / mkdir / mv / cp / rm</td>
+                  <td>
+                    Create a file or directory, move, copy, or delete entries.
+                  </td>
+                </tr>
+                <tr>
+                  <td>irb / python-repl</td>
+                  <td>Start the Ruby / Python REPL.</td>
+                </tr>
+                <tr>
+                  <td>top</td>
+                  <td>Show battery, VM, RAM, and stack usage.</td>
+                </tr>
+                <tr>
+                  <td>help / clear / reboot / exit</td>
+                  <td>
+                    List commands / clear output / reboot / return to file
+                    manager.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Up / Down recalls history. Tab completes commands and paths. Ctrl-F
+            accepts the displayed suggestion. Esc clears the input line.
+            Arguments are separated by spaces; quoting and escaping spaces in
+            names are not supported.
+          </p>
+          <p>
+            In a REPL, Esc returns to the terminal and Ctrl-C discards the line
+            being typed.
+          </p>
+        </section>
+        <section class="section" id="editor">
+          <h2 class="condensed">03 / EDITOR</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Key or command</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>i / a / I / A / o / O</td>
+                  <td>Enter insert mode. Esc returns to normal mode.</td>
+                </tr>
+                <tr>
+                  <td>h / j / k / l</td>
+                  <td>Move the cursor.</td>
+                </tr>
+                <tr>
+                  <td>w / b / e</td>
+                  <td>Move by word.</td>
+                </tr>
+                <tr>
+                  <td>gg / G</td>
+                  <td>First / last line.</td>
+                </tr>
+                <tr>
+                  <td>x / dd / D</td>
+                  <td>Delete character / line / to end of line.</td>
+                </tr>
+                <tr>
+                  <td>yy / p / P</td>
+                  <td>Copy line / paste after / paste before.</td>
+                </tr>
+                <tr>
+                  <td>v / V</td>
+                  <td>Visual mode.</td>
+                </tr>
+                <tr>
+                  <td>/ then n / N</td>
+                  <td>Search and move between matches.</td>
+                </tr>
+                <tr>
+                  <td>K</td>
+                  <td>Show hover information or diagnostics.</td>
+                </tr>
+                <tr>
+                  <td>Ctrl-N in insert mode</td>
+                  <td>Open completion.</td>
+                </tr>
+                <tr>
+                  <td>:w / :q / :q! / :wq</td>
+                  <td>Save / quit / quit without saving / save and quit.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="section" id="theme">
+          <h2 class="condensed">04 / THEME &amp; STARTUP</h2>
+          <h3>Theme editor</h3>
+          <p>
+            Run <code>/home/tool/theme</code>. Use j / k to select a row, h / l
+            to select a color channel, + / − to adjust by 1, and ] / [ to adjust
+            by 16. Enter opens color input or background selection. Tab opens
+            the preview; s saves; Esc quits.
+          </p>
+          <p>
+            Saved settings apply after reboot. The editor selects background
+            images included in the firmware.
+          </p>
+          <h3>Theme file</h3>
+          <p>
+            Edit <code>/sdcard/Area512_data/etc/theme</code>. Use one
+            <code>key=0xRRGGBB</code> entry per line.
+          </p>
+          <pre><code>background=0x000000
+text=0xCFA45F
+emphasis=0xF5972D
+border=0xF5972D
+selected=0xFFD966
+box=0x241604</code></pre>
+          <h3>Background images</h3>
+          <p>
+            Backgrounds are headerless RGB565 files stored in the firmware.
+            Cardputer images use 240 × 135 pixels; external displays use 320 ×
+            240. Adding a new image requires rebuilding and flashing the
+            firmware.
+          </p>
+          <p>
+            In the repository, Python 3 and Pillow are required for conversion:
+          </p>
+          <pre><code>make convert INPUT=background.png SIZE=240x135
+# External 320 × 240 display:
+make convert INPUT=background.png</code></pre>
+          <p>
+            The output is
+            <code>storage/share/backgrounds/background.rgb565</code>. Rebuild
+            and flash, then add the following to the theme file and reboot:
+          </p>
+          <pre><code>background_image=/share/backgrounds/background.rgb565</code></pre>
+          <h3>Startup interface</h3>
+          <p>
+            Edit <code>/sdcard/Area512_data/etc/ui</code> and reboot. The file
+            manager is the default.
+          </p>
+          <pre><code>default=terminal
+# To start in the file manager instead:
+# default=graphical</code></pre>
+        </section>
+        <section class="section" id="applications">
+          <h2 class="condensed">05 / APPLICATION CONTROLS</h2>
+          <details id="app-writer">
+            <summary>Writer</summary>
+            <div class="reference-text">
+              <p>
+                Small word processor for Area512/Cardputer. Edits one document,
+                saved as <code>Area512_data/data/writer.txt</code> on the
+                microSD card.
+              </p>
+              <h4>Controls</h4>
+              <ul>
+                <li>
+                  Type to insert text; Enter starts a new line; Backspace
+                  deletes
+                </li>
+                <li>Arrow keys: move the cursor</li>
+                <li><code>Ctrl+Space</code>: toggle JP / EN input</li>
+                <li>
+                  <code>Ctrl+K</code> / <code>Ctrl+J</code>: page up / page down
+                </li>
+                <li>
+                  <code>Ctrl+S</code>: save to
+                  <code>Area512_data/data/writer.txt</code>
+                </li>
+                <li>
+                  <code>Ctrl+O</code>: open
+                  <code>Area512_data/data/writer.txt</code> (replaces the
+                  current document)
+                </li>
+                <li><code>Ctrl+Q</code>: quit</li>
+                <li>Esc: show the help line</li>
+              </ul>
+              <h4>Notes</h4>
+              <ul>
+                <li>
+                  Save and open need a microSD card; it is mounted while the app
+                  runs.
+                </li>
+                <li>
+                  Quitting does not save automatically — press
+                  <code>Ctrl+S</code> first.
+                </li>
+              </ul>
+            </div>
+          </details>
+          <details id="app-calc">
+            <summary>Calc</summary>
+            <div class="reference-text">
+              <p>
+                Tiny spreadsheet for Area512/Cardputer. 26x26 cells
+                (<code>A1</code>..<code>Z26</code>).
+              </p>
+              <h4>Controls</h4>
+              <ul>
+                <li>
+                  <code>h</code> / <code>j</code> / <code>k</code> /
+                  <code>l</code>: move the cell cursor
+                </li>
+                <li>
+                  <code>e</code> / Enter: edit the current cell (Enter commits,
+                  Esc cancels, Backspace deletes)
+                </li>
+                <li><code>c</code>: clear the current cell</li>
+                <li>
+                  <code>g</code>: go to a cell by name (e.g. <code>B12</code>;
+                  Enter confirms, Esc cancels)
+                </li>
+                <li>
+                  <code>s</code>: save the sheet to
+                  <code>Area512_data/data/sheet.txt</code> on the microSD card
+                </li>
+                <li>
+                  <code>o</code>: load
+                  <code>Area512_data/data/sheet.txt</code> from the microSD card
+                  (replaces the current sheet)
+                </li>
+                <li><code>q</code>: quit</li>
+              </ul>
+              <h4>Formulas</h4>
+              <p>
+                A cell starting with <code>=</code> is a formula. Anything else
+                is plain text.
+              </p>
+              <ul>
+                <li>
+                  Operators: <code>+</code> <code>-</code> <code>*</code>
+                  <code>/</code> and parentheses; decimal numbers are allowed
+                </li>
+                <li>Cell references: <code>=A1+B2</code></li>
+                <li>
+                  Range functions: <code>SUM</code>, <code>AVG</code> (or
+                  <code>AVERAGE</code>), <code>MIN</code>, <code>MAX</code>,
+                  <code>COUNT</code> over a cell or a range, e.g.
+                  <code>=SUM(A1:B3)</code>
+                </li>
+                <li>
+                  A formula that cannot be evaluated shows <code>#ERR</code>
+                </li>
+                <li>Division by zero evaluates to 0</li>
+              </ul>
+              <h4>Notes</h4>
+              <ul>
+                <li>
+                  Save and open (<code>s</code> / <code>o</code>) need a microSD
+                  card; it is mounted while the app runs.
+                </li>
+              </ul>
+            </div>
+          </details>
+          <details id="app-scheduler">
+            <summary>Scheduler</summary>
+            <div class="reference-text">
+              <p>
+                Monthly calendar with per-day events for Area512/Cardputer. Data
+                is saved as <code>Area512_data/data/scheduler.txt</code> on the
+                microSD card and loaded on start.
+              </p>
+              <h4>Calendar screen</h4>
+              <ul>
+                <li><code>h</code> / <code>l</code>: previous / next day</li>
+                <li><code>k</code> / <code>j</code>: previous / next week</li>
+                <li><code>[</code> / <code>]</code>: previous / next month</li>
+                <li>
+                  <code>space</code> / Enter: open the day view for the selected
+                  date
+                </li>
+              </ul>
+              <h4>Day screen</h4>
+              <ul>
+                <li><code>h</code> / <code>l</code>: previous / next day</li>
+                <li><code>j</code> / <code>k</code>: select an event</li>
+                <li>
+                  <code>a</code>: add an event — enter a time as
+                  <code>HH:MM</code>, then the text (Enter confirms, Esc cancels
+                  each entry)
+                </li>
+                <li><code>d</code>: delete the selected event</li>
+                <li><code>c</code> / Esc: back to the calendar</li>
+              </ul>
+              <h4>Both screens</h4>
+              <ul>
+                <li>
+                  <code>s</code>: save to
+                  <code>Area512_data/data/scheduler.txt</code>
+                </li>
+                <li><code>q</code>: quit</li>
+              </ul>
+              <h4>Notes</h4>
+              <ul>
+                <li>
+                  Saving needs a microSD card; it is mounted while the app runs.
+                </li>
+                <li>
+                  The device has no clock, so the selected date is stored in the
+                  save file and restored on the next start.
+                </li>
+                <li>
+                  Quitting does not save automatically — press
+                  <code>s</code> first.
+                </li>
+              </ul>
+            </div>
+          </details>
+          <details id="app-paint">
+            <summary>Paint</summary>
+            <div class="reference-text">
+              <p>
+                Pixel paint for Area512/Cardputer. 120x60 canvas (2px cells),
+                8-color palette.
+              </p>
+              <h4>Controls</h4>
+              <ul>
+                <li>
+                  <code>h</code> / <code>j</code> / <code>k</code> /
+                  <code>l</code>: move cursor left / down / up / right
+                </li>
+                <li>
+                  <code>y</code> / <code>u</code> / <code>b</code> /
+                  <code>n</code>: move diagonally
+                </li>
+                <li>
+                  <code>space</code>: paint at the cursor; pressing it at
+                  another spot draws a line from the last painted point
+                </li>
+                <li>
+                  <code>p</code>: pen down / up — while the pen is down, moving
+                  the cursor draws
+                </li>
+                <li>
+                  <code>c</code>: cycle the palette (white, red, gold, green,
+                  cyan, blue, pink, black)
+                </li>
+                <li><code>e</code>: erase at the cursor</li>
+                <li><code>+</code> / <code>=</code>: bigger brush (up to 8)</li>
+                <li><code>-</code>: smaller brush (down to 1)</li>
+                <li><code>x</code>: clear the canvas</li>
+                <li><code>q</code>: quit</li>
+              </ul>
+              <h4>Notes</h4>
+              <ul>
+                <li>Cursor movement steps by the brush size.</li>
+                <li>There is no save; the canvas is gone when you quit.</li>
+              </ul>
+            </div>
+          </details>
+          <details id="app-solitair">
+            <summary>Solitair</summary>
+            <div class="reference-text">
+              <p>Tiny Klondike solitaire for Area512/Cardputer.</p>
+              <h4>Screen</h4>
+              <ul>
+                <li><code>ST</code>: stock</li>
+                <li><code>WA</code>: waste</li>
+                <li>
+                  <code>F1</code>..<code>F4</code>: foundations. These are
+                  screen labels, not keyboard keys.
+                </li>
+                <li><code>1</code>..<code>7</code>: tableau columns</li>
+              </ul>
+              <h4>Controls</h4>
+              <ul>
+                <li><code>h</code> / <code>l</code>: move cursor</li>
+                <li>
+                  <code>1</code>..<code>7</code>: jump to that tableau column —
+                  selects it, or moves the selected card there
+                </li>
+                <li>
+                  <code>0</code>: jump to the waste, selecting it when nothing
+                  is selected
+                </li>
+                <li>
+                  <code>d</code>: draw from stock, or reset stock when it is
+                  empty
+                </li>
+                <li>
+                  <code>space</code> / Enter: select a card, or move the
+                  selected card to the cursor
+                </li>
+                <li>
+                  <code>k</code>: scroll the current tableau column up, or widen
+                  a selected stack
+                </li>
+                <li>
+                  <code>j</code>: scroll the current tableau column down, or
+                  narrow a selected stack
+                </li>
+                <li>
+                  <code>f</code>: move the selected card to its foundation, or
+                  cycle the cursor through <code>F1</code>..<code>F4</code>
+                </li>
+                <li>
+                  <code>a</code>: auto-move one available card to a foundation
+                </li>
+                <li><code>n</code>: start a new game</li>
+                <li><code>q</code>: quit</li>
+              </ul>
+              <p>
+                To move a card to a foundation, press <code>f</code> with a card
+                selected, or move the cursor to <code>F1</code>..<code>F4</code>
+                and press <code>space</code> or Enter.
+              </p>
+              <p>
+                The high score is kept in
+                <code>Area512_data/data/solitair.txt</code> on the microSD card
+                when one is inserted.
+              </p>
+            </div>
+          </details>
+          <details id="app-bomb">
+            <summary>Bomb</summary>
+            <div class="reference-text">
+              <p>Minesweeper for Area512/Cardputer. 9x9 board with 10 mines.</p>
+              <h4>Controls</h4>
+              <ul>
+                <li>
+                  <code>h</code> / <code>j</code> / <code>k</code> /
+                  <code>l</code>: move cursor left / down / up / right
+                </li>
+                <li>
+                  <code>y</code> / <code>u</code> / <code>b</code> /
+                  <code>n</code>: move diagonally
+                </li>
+                <li>
+                  <code>space</code> / Enter: open the cell under the cursor
+                </li>
+                <li><code>f</code>: flag / unflag the cell</li>
+                <li><code>r</code>: start a new game</li>
+                <li><code>q</code>: quit</li>
+              </ul>
+              <h4>Notes</h4>
+              <ul>
+                <li>
+                  Mines are placed after your first open, so the first cell is
+                  always safe.
+                </li>
+                <li>
+                  Opening a mine reveals the whole minefield. Press
+                  <code>r</code> to try again.
+                </li>
+                <li>You win when every safe cell is open.</li>
+              </ul>
+            </div>
+          </details>
+          <details id="app-space_lander">
+            <summary>Space Lander</summary>
+            <div class="reference-text">
+              <p>A lunar landing game for AREA512, written in Python.</p>
+              <p>
+                Land the ship entirely on the pad without exceeding the safe
+                vertical or horizontal speed. Later levels have a narrower pad,
+                less fuel, moving debris, and lower safe landing speeds.
+              </p>
+              <h4>Screen</h4>
+              <ul>
+                <li><code>L</code>: current level</li>
+                <li><code>F</code>: remaining fuel</li>
+                <li><code>V</code>: vertical velocity</li>
+                <li><code>H</code>: horizontal velocity</li>
+              </ul>
+              <h4>Controls</h4>
+              <ul>
+                <li>
+                  <code>space</code> / Enter: start, use the main thruster, or
+                  continue after landing
+                </li>
+                <li><code>w</code>: use the main thruster</li>
+                <li><code>a</code> / <code>h</code>: steer left</li>
+                <li><code>d</code> / <code>l</code>: steer right</li>
+                <li><code>r</code> / <code>n</code>: restart from level 1</li>
+                <li><code>q</code>: quit</li>
+              </ul>
+              <h4>Notes</h4>
+              <ul>
+                <li>The main thruster uses 1.2 units of fuel per input.</li>
+                <li>A side thruster uses 0.5 units of fuel per input.</li>
+                <li>
+                  Touching the ground outside the pad or above the safe landing
+                  speed crashes the ship.
+                </li>
+                <li>Contact with moving debris crashes the ship.</li>
+              </ul>
+            </div>
+          </details>
+          <details id="dot">
+            <summary>Dot</summary>
+            <div class="reference-text">
+              <p>Dot image (<code>.a5d</code>) editor for Area512/Cardputer.</p>
+              <h4>Controls</h4>
+              <ul>
+                <li>
+                  <code>h</code> / <code>j</code> / <code>k</code> /
+                  <code>l</code>: move the cursor
+                </li>
+                <li>
+                  <code>0</code>..<code>9</code>,
+                  <code>a</code>..<code>f</code>: select a palette color
+                </li>
+                <li>Space: paint the selection at the cursor</li>
+                <li><code>p</code>: pen down / up (paints while moving)</li>
+                <li>
+                  <code>x</code> / <code>z</code>: select hitbox add / hitbox
+                  delete
+                </li>
+                <li><code>g</code>: show / hide the grid</li>
+                <li><code>s</code>: save</li>
+                <li><code>q</code>: quit (does not save)</li>
+              </ul>
+            </div>
+          </details>
+          <details id="markdown">
+            <summary>Markdown</summary>
+            <div class="reference-text">
+              <p>Markdown viewer for Area512/Cardputer.</p>
+              <h4>Controls</h4>
+              <ul>
+                <li>
+                  <code>j</code> / <code>k</code>: scroll down / up one line
+                </li>
+                <li>Space / <code>b</code>: next / previous page</li>
+                <li><code>g</code> / <code>G</code>: top / bottom</li>
+                <li><code>q</code> / Esc: quit</li>
+              </ul>
+            </div>
+          </details>
+        </section>
+        <section class="section" id="references">
+          <h2 class="condensed">06 / API REFERENCES</h2>
+          <div class="link-row">
+            <a class="text-link" href="ruby-api.html">Ruby API reference ↗</a
+            ><a class="text-link" href="python-api.html"
+              >MicroPython API reference ↗</a
+            ><a class="text-link" href="widget-api.html">Widget reference ↗</a>
+          </div>
+        </section>
+        <script src="assets/manual.js" defer></script>
+      </main>
+      <footer>
+        <div class="footer-links">
+          <a href="https://github.com/engneer-hamachan/area512">Source code ↗</a
+          ><a href="LICENSE.txt">MIT License</a
+          ><a href="https://github.com/engneer-hamachan/area512/issues"
+            >Issues ↗</a
+          >
+        </div>
+        <p class="footer-note">App and artwork contributions are welcome.</p>
+      </footer>
+    </div>
+  </body>
+</html>

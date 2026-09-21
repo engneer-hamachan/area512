@@ -76,7 +76,7 @@ draw_diagnostic_popup(Vim *vim, const char *message) {
       message + message_byte_offset,
       row_byte_length,
       DIAGNOSTIC_POPUP_FOREGROUND,
-      0,
+      area512_theme_box_color(),
       0
     );
 

@@ -84,7 +84,7 @@ class WidgetList:
         """
         ...
 
-    def draw(self, sprite: Sprite) -> None:
+    def draw(self, sprite: Sprite | BandedSprite) -> None:
         """
         Draw rows, selection, marks, and the scrollbar when needed.
         """

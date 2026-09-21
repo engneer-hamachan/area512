@@ -1,4 +1,5 @@
 #include "core/render/screen.h"
+#include "area512_hal.h"
 #include "core/text/utf8.h"
 #include <string.h>
 
@@ -146,8 +147,15 @@ draw_plain_row_text(
   int byte_length,
   int inverse
 ) {
-  canvas
-    ->draw_row_text(canvas->context, column, text, byte_length, 0, 0, inverse);
+  canvas->draw_row_text(
+    canvas->context,
+    column,
+    text,
+    byte_length,
+    area512_theme_text_color(),
+    area512_theme_background_color(),
+    inverse
+  );
 }
 
 static void
@@ -160,9 +168,12 @@ draw_display_slice(
   int width,
   int inverse
 ) {
+
   if (width <= 0)
     return;
+
   int byte_begin, byte_end;
+
   measure_column_span_byte_range(
     segment,
     segment_byte_length,
@@ -171,6 +182,7 @@ draw_display_slice(
     &byte_begin,
     &byte_end
   );
+
   if (byte_end > byte_begin)
     draw_plain_row_text(
       canvas,
@@ -192,6 +204,10 @@ draw_segment(
   int start_column,
   int max_width
 ) {
+
+  if (byte_length <= 0)
+    return;
+
   int byte_begin, byte_end;
   measure_column_span_byte_range(
     line,
@@ -201,8 +217,10 @@ draw_segment(
     &byte_begin,
     &byte_end
   );
+
   const char *segment = line + byte_begin;
   int segment_byte_length = byte_end - byte_begin;
+
   VimBuffer *buffer = &screen->buffer;
   int has_selection = vim_buffer_has_selection(buffer);
 
@@ -219,14 +237,17 @@ draw_segment(
       );
     else
       draw_plain_row_text(canvas, draw_column, segment, segment_byte_length, 0);
+
     return;
   }
+
   if (!has_selection) {
     draw_plain_row_text(canvas, draw_column, segment, segment_byte_length, 0);
     return;
   }
 
   int start_line_index, start_byte_offset, end_line_index, end_byte_offset;
+
   if (!vim_buffer_selection_range(
         buffer,
         &start_line_index,
@@ -234,9 +255,11 @@ draw_segment(
         &end_line_index,
         &end_byte_offset
       )) {
+
     draw_plain_row_text(canvas, draw_column, segment, segment_byte_length, 0);
     return;
   }
+
   if (buffer->selection_mode == VIM_SELECTION_LINE) {
     int inverse =
       (line_index >= start_line_index && line_index <= end_line_index);
@@ -249,6 +272,7 @@ draw_segment(
     );
     return;
   }
+
   if (line_index < start_line_index || line_index > end_line_index) {
     draw_plain_row_text(canvas, draw_column, segment, segment_byte_length, 0);
     return;
@@ -258,28 +282,48 @@ draw_segment(
   if (line_index == start_line_index)
     selection_start_column =
       vim_byte_to_column(line, byte_length, start_byte_offset);
+
   int line_display_width = vim_display_width(line, byte_length);
+
   int selection_end_column;
-  if (line_index == end_line_index) {
+
+  if (line_index == end_line_index && end_byte_offset < byte_length) {
     int character_width = vim_cell_width((uint8_t)line[end_byte_offset]);
+
     selection_end_column =
       vim_byte_to_column(line, byte_length, end_byte_offset) + character_width -
       1;
+
   } else {
     selection_end_column = line_display_width - 1;
   }
+
   int segment_display_width = vim_display_width(segment, segment_byte_length);
   int segment_end_column = start_column + segment_display_width - 1;
+
   if (selection_start_column < start_column)
     selection_start_column = start_column;
+
   if (selection_end_column > segment_end_column)
     selection_end_column = segment_end_column;
-  if (selection_start_column > segment_end_column ||
-      selection_end_column < start_column) {
-    draw_plain_row_text(canvas, draw_column, segment, segment_byte_length, 0);
-    return;
+
+  if (
+    selection_start_column > segment_end_column ||
+    selection_end_column < start_column
+  ) {
+        draw_plain_row_text(
+          canvas,
+          draw_column,
+          segment,
+          segment_byte_length,
+          0
+        );
+
+        return;
   }
+
   int before_width = selection_start_column - start_column;
+
   draw_display_slice(
     canvas,
     draw_column,
@@ -289,7 +333,9 @@ draw_segment(
     before_width,
     0
   );
+
   int selection_width = selection_end_column - selection_start_column + 1;
+
   draw_display_slice(
     canvas,
     draw_column + before_width,
@@ -299,7 +345,9 @@ draw_segment(
     selection_width,
     1
   );
+
   int after_column = selection_end_column - start_column + 1;
+
   draw_display_slice(
     canvas,
     draw_column + after_column,
@@ -315,25 +363,37 @@ static void
 draw_gutter(VimCanvas *canvas, int line_index, int wrap_index) {
   if (wrap_index > 0)
     return;
+
   char number[8];
-  int number_byte_length = 0, line_number = line_index + 1;
   char reversed[8];
+
+  int number_byte_length = 0, line_number = line_index + 1;
   int reversed_byte_length = 0;
+
   while (line_number > 0 && reversed_byte_length < 7) {
     reversed[reversed_byte_length++] = (char)('0' + line_number % 10);
     line_number /= 10;
   }
+
   for (int i = 0; i < reversed_byte_length; i++)
     number[number_byte_length++] = reversed[reversed_byte_length - 1 - i];
+
   number[number_byte_length++] = ' ';
 
   char padded[VIM_GUTTER_WIDTH];
+
   int padded_index = 0;
+
   for (int i = 0; i < VIM_GUTTER_WIDTH - number_byte_length; i++)
     padded[padded_index++] = ' ';
-  for (int i = 0; i < number_byte_length && padded_index < VIM_GUTTER_WIDTH;
-       i++)
+
+  for (
+    int i = 0;
+    i < number_byte_length && padded_index < VIM_GUTTER_WIDTH;
+    i++
+  )
     padded[padded_index++] = number[i];
+
   draw_plain_row_text(canvas, 0, padded, VIM_GUTTER_WIDTH, 0);
 }
 
@@ -341,29 +401,42 @@ static void
 adjust_scroll(VimScreen *screen) {
   int content_height = screen->height - screen->footer_height;
   int content_width = screen->width - VIM_GUTTER_WIDTH;
+
   if (content_width <= 0)
     content_width = 1;
+
   int margin = screen->content_margin_height;
+
   if (margin > (content_height - 1) / 2)
     margin = (content_height - 1) / 2;
+
   if (margin < 0)
     margin = 0;
+
   vim_screen_calculate_cursor(screen);
+
   int offset;
   if ((offset = screen->visual_cursor_row - margin) < 0) {
     screen->visual_offset -= offset;
+
     if (screen->visual_offset > 0)
       screen->visual_offset = 0;
+
     vim_screen_calculate_cursor(screen);
-  } else if ((offset =
-                content_height - margin - screen->visual_cursor_row - 1) < 0) {
+
+  } else if (
+      (offset = content_height - margin - screen->visual_cursor_row - 1) < 0
+  ) {
     screen->visual_offset += offset;
     vim_screen_calculate_cursor(screen);
   }
+
   int total_rows = buffer_total_wrapped_rows(screen, content_width);
   int max_scroll = total_rows - content_height;
+
   if (max_scroll < 0)
     max_scroll = 0;
+
   if (screen->visual_offset < -max_scroll) {
     screen->visual_offset = -max_scroll;
     vim_screen_calculate_cursor(screen);
@@ -427,6 +500,7 @@ adjust_scroll_and_refresh_all_rows(VimScreen *screen, VimCanvas *canvas) {
           );
 
         canvas->push_row(canvas->context, screen_row);
+
         screen_row += 1;
         content_height -= 1;
 

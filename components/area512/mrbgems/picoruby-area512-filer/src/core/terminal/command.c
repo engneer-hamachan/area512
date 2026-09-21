@@ -2,6 +2,7 @@
 
 #include "core/terminal/terminal.h"
 
+#include "area512_hal.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -28,6 +29,7 @@ static const char *const COMMAND_NAME_TABLE[] = {
   "mv",
   "cp",
   "reboot",
+  "fullupdate",
   "ls",
   "pwd",
   "top",
@@ -295,6 +297,23 @@ prepare_filer_action(Filer *filer, const CommandLine *command_line) {
 
   if (strcmp(command_line->command_name, "reboot") == 0)
     return ACTION_REBOOT;
+
+  if (strcmp(command_line->command_name, "fullupdate") == 0) {
+    if (
+      !read_terminal_yes_no_confirmation(
+        filer,
+        "Update /etc, /share/backgrounds, /home/tool/*, /home/game/*? (y/n)"
+      )
+    )
+      return ACTION_NONE;
+
+    if (area512_seed_update() == 0)
+      return ACTION_REBOOT;
+
+    append_output_text(filer->terminal, "Update failed");
+
+    return ACTION_NONE;
+  }
 
   if (
     strcmp(command_line->command_name, "compile") == 0 &&

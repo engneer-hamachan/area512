@@ -1,8 +1,6 @@
 #include "core/render/footer.h"
+#include "area512_hal.h"
 #include <string.h>
-
-#define FOOTER_FOREGROUND 0xFFFFFF
-#define FOOTER_BACKGROUND 0x4E4E4E
 
 void
 show_message(Vim *vim, const char *text, int byte_length) {
@@ -47,22 +45,31 @@ draw_vim_footer(void *vim_context, VimCanvas *canvas) {
   }
 
   int max_byte_length = width - column;
+
   if (max_byte_length < 0)
     max_byte_length = 0;
   if (text_byte_length > max_byte_length)
     text_byte_length = max_byte_length;
 
   canvas->clear_row(canvas->context);
-  canvas->fill_row_span(canvas->context, 0, width, FOOTER_BACKGROUND);
+
+  canvas->fill_row_span(
+    canvas->context,
+    0,
+    width,
+    area512_theme_box_color()
+  );
+
   canvas->draw_row_text(
     canvas->context,
     column,
     text,
     text_byte_length,
-    FOOTER_FOREGROUND,
-    FOOTER_BACKGROUND,
+    area512_theme_text_color(),
+    area512_theme_box_color(),
     0
   );
+
   canvas->push_row(canvas->context, footer_row);
 
   if (vim->status.has_message) {

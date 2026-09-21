@@ -1,6 +1,7 @@
 # Area512 build config: Cardputer (ESP32-S3, no PSRAM), femtoruby (mrubyc) VM only.
-# Build name stays "esp32-femtoruby" so build/esp32-femtoruby paths in CMakeLists match.
-MRuby::CrossBuild.new("esp32-femtoruby") do |conf|
+# Build names match LIBMRUBY_PATH in CMakeLists.txt.
+build_name = ENV['AREA512_EXT_DISPLAY'] == 'ON' ? "esp32-femtoruby-captft" : "esp32-femtoruby"
+MRuby::CrossBuild.new(build_name) do |conf|
   conf.toolchain("gcc")
 
   conf.cc.command = "xtensa-#{ENV['CONFIG_IDF_TARGET']}-elf-gcc"
@@ -23,6 +24,7 @@ MRuby::CrossBuild.new("esp32-femtoruby") do |conf|
   conf.cc.defines << "NDEBUG"
   conf.cc.defines << "MAX_SYMBOLS_COUNT=2000"
   conf.cc.defines << "TI_ARENA_SIZE=24576"
+  conf.cc.defines << "AREA512_EXT_DISPLAY" if ENV['AREA512_EXT_DISPLAY'] == 'ON'
   conf.femtoruby(alloc_libc: false)
 
   # Pristine gems from ./R2P2-ESP32; the build root stays the Area512 tree.

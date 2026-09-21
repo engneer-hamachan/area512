@@ -40,6 +40,14 @@ static constexpr uint8_t ASCII_BACKSPACE = 0x08;
 static constexpr uint8_t ASCII_ESCAPE = 0x1B;
 static constexpr uint8_t ASCII_DELETE = 0x7F;
 
+#ifdef AREA512_EXT_DISPLAY
+static constexpr char NEXT_PAGE_CHARACTER = 'j';
+static constexpr char PREVIOUS_PAGE_CHARACTER = 'k';
+
+extern "C" void show_next_internal_markdown_page(void);
+extern "C" void show_previous_internal_markdown_page(void);
+#endif
+
 static bool s_ime_active = false;
 static char s_ime_buffer[8];
 static int s_ime_buffer_length = 0;
@@ -386,7 +394,7 @@ cardputer_lookup_key(uint8_t code) {
 }
 
 static bool s_cardputer_shift = false;
-static bool s_cardputer_fn = false;
+static bool is_cardputer_fn_pressed = false;
 static bool s_cardputer_ctrl = false;
 static bool s_cardputer_opt = false;
 static bool s_cardputer_alt = false;
@@ -583,7 +591,7 @@ cardputer_handle_key(uint8_t code, bool pressed) {
     s_cardputer_shift = pressed;
     return;
   case CardputerKeyKind::Fn:
-    s_cardputer_fn = pressed;
+    is_cardputer_fn_pressed = pressed;
     return;
   case CardputerKeyKind::Ctrl:
     s_cardputer_ctrl = pressed;
@@ -641,12 +649,26 @@ cardputer_handle_key(uint8_t code, bool pressed) {
     return;
   }
 
-  char base = key.character;
+  char unshifted_character = key.character;
 
-  if (s_cardputer_fn) {
+  if (is_cardputer_fn_pressed) {
+#ifdef AREA512_EXT_DISPLAY
+    if (unshifted_character == NEXT_PAGE_CHARACTER) {
+      show_next_internal_markdown_page();
+
+      return;
+    }
+
+    if (unshifted_character == PREVIOUS_PAGE_CHARACTER) {
+      show_previous_internal_markdown_page();
+
+      return;
+    }
+#endif
+
     const char *sequence = nullptr;
 
-    if (cardputer_lookup_fn_sequence(base, &sequence)) {
+    if (cardputer_lookup_fn_sequence(unshifted_character, &sequence)) {
       ime_flush();
 
       area512_console_stdin_push_bytes(sequence);
@@ -655,7 +677,9 @@ cardputer_handle_key(uint8_t code, bool pressed) {
     }
   }
 
-  char character = s_cardputer_shift ? cardputer_apply_shift(base) : base;
+  char character = s_cardputer_shift
+                     ? cardputer_apply_shift(unshifted_character)
+                     : unshifted_character;
   if (character == '`') {
     ime_flush();
 
@@ -728,7 +752,7 @@ cardputer_clear_repeat_state(void) {
 static void
 cardputer_reset_local_state(void) {
   s_cardputer_shift = false;
-  s_cardputer_fn = false;
+  is_cardputer_fn_pressed = false;
   s_cardputer_ctrl = false;
   s_cardputer_opt = false;
   s_cardputer_alt = false;

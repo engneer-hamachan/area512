@@ -315,12 +315,7 @@ c_dot_edit(mrbc_vm *virtual_machine, mrbc_value *values, int argument_count) {
     return;
   }
 
-  void *screen_sprite =
-    area512_sprite_new_with_font_size(
-      area512_gfx_width(),
-      area512_gfx_height(),
-      DOT_EDITOR_FONT_SIZE
-    );
+  void *screen_sprite = area512_screen_new(DOT_EDITOR_FONT_SIZE);
 
   if (screen_sprite == NULL) {
     free_dot_image(image);

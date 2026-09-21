@@ -309,14 +309,16 @@ draw_status(const DotEditor *editor) {
 
 void
 draw_dot_editor_screen(const DotEditor *editor) {
-  area512_sprite_fill(editor->screen_sprite, BACKGROUND_RGB888);
+  while (area512_screen_begin_region(editor->screen_sprite)) {
+    area512_sprite_fill(editor->screen_sprite, BACKGROUND_RGB888);
 
-  draw_canvas(editor);
-  draw_palette(editor);
-  draw_preview(editor);
-  draw_status(editor);
+    draw_canvas(editor);
+    draw_palette(editor);
+    draw_preview(editor);
+    draw_status(editor);
 
-  area512_sprite_push(editor->screen_sprite, 0, 0);
+    area512_screen_push_region(editor->screen_sprite);
+  }
 }
 
 #endif

@@ -31,35 +31,27 @@ draw_editor_canvas_row_text(
   if (byte_length <= 0)
     return;
 
-  uint32_t draw_foreground = area512_theme_text_color();
-  if (foreground)
-    draw_foreground = foreground;
-
-  uint32_t draw_background = area512_theme_background_color();
-  if (background)
-    draw_background = background;
-
   if (inverse) {
-    uint32_t previous_foreground = draw_foreground;
-    draw_foreground = draw_background;
-    draw_background = previous_foreground;
+    uint32_t previous_foreground = foreground;
+    foreground = background;
+    background = previous_foreground;
   }
 
   int pixel_left = column * canvas->char_width;
 
-  if (draw_background != area512_theme_background_color())
-    area512_sprite_fill_rect(
-      canvas->row_sprite,
-      pixel_left,
-      0,
-      vim_display_width(text, byte_length) * canvas->char_width,
-      canvas->row_height,
-      draw_background
-    );
+  area512_sprite_fill_rect(
+    canvas->row_sprite,
+    pixel_left,
+    0,
+    vim_display_width(text, byte_length) * canvas->char_width,
+    canvas->row_height,
+    background
+  );
 
   char text_buffer[256];
 
   int copy_byte_length = (int)sizeof(text_buffer) - 1;
+
   if (byte_length < copy_byte_length)
     copy_byte_length = byte_length;
 
@@ -72,7 +64,7 @@ draw_editor_canvas_row_text(
     pixel_left,
     0,
     text_buffer,
-    draw_foreground
+    foreground
   );
 }
 
@@ -259,7 +251,7 @@ draw_highlight_segment(
     drawn_text,
     drawn_byte_length,
     color,
-    0,
+    area512_theme_background_color(),
     0
   );
 
@@ -328,8 +320,8 @@ highlight_visible_row_text(
       column,
       text + visible_byte_begin,
       visible_byte_end - visible_byte_begin,
-      0,
-      0,
+      area512_theme_text_color(),
+      area512_theme_background_color(),
       0
     );
     break;
