@@ -16,8 +16,10 @@ then compile and run them — all on the device!
 ## Hardware
 
 AREA512 runs on the Cardputer by itself and also supports an external display (TERM512).
-To use the external display, assemble it by following the TERM512 repository,
-then flash the binary for your display in [Quick Install](#quick-install).
+
+> [!TIP]
+> Build the external display and case: **[TERM512 on GitHub →](https://github.com/Prokuon/term512)**
+> Then flash the binary for your display in [Quick Install](#quick-install).
 
 <table>
   <tr>
