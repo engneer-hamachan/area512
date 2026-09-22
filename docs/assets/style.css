@@ -484,9 +484,6 @@ details[open] summary {
   details:not([open]) > *:not(summary) {
     display: block;
   }
-  .order-panel {
-    break-inside: avoid;
-  }
 }
 .wordmark img {
   width: 100%;
@@ -1109,8 +1106,8 @@ img.screen-photo {
   display: grid;
   grid-template-columns: 420fr 300fr 328fr;
   gap: 10px;
-  border-top: 1px solid var(--ink);
-  margin-top: 11px;
+  border-block: 1px solid var(--ink);
+  margin: 11px 0 14px;
   padding: 12px 0 15px;
 }
 .configurations .photo-plate {
@@ -1133,25 +1130,13 @@ img.screen-photo {
     border-right: 0;
   }
 }
-.fine-print {
-  display: flex;
+footer:has(.footer-mark) {
+  grid-template-columns: 1fr auto auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  border-top: 1px solid var(--line);
-  padding: 8px 0 10px;
 }
-.fine-print p {
-  font: 9px/1.4 "Courier New", monospace;
-  margin: 0;
-  max-width: 640px;
-}
-.fine-print .mark {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.fine-print .mark img {
+.footer-mark {
+  grid-row: 1;
+  grid-column: 3;
   width: 86px;
   height: auto;
 }
@@ -1170,38 +1155,6 @@ img.screen-photo {
   margin: 0;
 }
 /* A printed reply-panel leads directly to the installation instructions. */
-.order-panel {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 16px 28px;
-  border-block: 2px solid var(--ink);
-  padding: 18px 0;
-  margin: 4px 0 16px;
-}
-.order-panel h2 {
-  font-size: clamp(28px, 2.7vw, 36px);
-  margin: 0;
-  line-height: 1.1;
-}
-.order-action {
-  flex-shrink: 0;
-}
-.order-action a {
-  font: 700 clamp(24px, 2.2vw, 30px) / 1.1 var(--display);
-  text-transform: uppercase;
-  display: inline-block;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 5px;
-}
-@media (max-width: 900px) {
-  .order-panel {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 16px 0;
-  }
-}
 /* TERM512: a hardware advertisement using the site's printed type and ink. */
 .term-product {
   display: grid;
@@ -1276,32 +1229,43 @@ img.screen-photo {
   line-height: 1.25;
   margin: 10px 0 0;
 }
-.term-colophon {
+.term-colophon,
+.install-colophon {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 18px;
-  background: var(--orange) url("ink-grain.webp") -320px -50px/1024px 1024px
-    repeat;
   border-block: 2px solid var(--ink);
   padding: 14px;
   margin: 0 0 14px;
 }
-.term-colophon p {
+.term-colophon {
+  background: var(--orange) url("ink-grain.webp") -320px -50px/1024px 1024px
+    repeat;
+}
+.install-colophon {
+  background: #24231f url("ink-grain.webp") -320px -50px/1024px 1024px repeat;
+  color: var(--paper);
+}
+.term-colophon p,
+.install-colophon p {
   font: 700 32px/1 var(--display);
   letter-spacing: -0.02em;
   margin: 0;
   max-width: 440px;
 }
-.term-colophon a {
+.term-colophon a,
+.install-colophon a {
   font: 700 24px/1 var(--display);
   text-decoration: none;
 }
-.term-colophon a span {
+.term-colophon a span,
+.install-colophon a span {
   font: 12px/1.5 "Courier New", monospace;
   text-decoration: underline;
 }
-.term-colophon a:hover {
+.term-colophon a:hover,
+.install-colophon a:hover {
   color: var(--paper);
 }
 @media (max-width: 1000px) and (min-width: 681px) {
@@ -1346,7 +1310,8 @@ img.screen-photo {
     border-top: 1px solid var(--line);
     padding: 16px 0 0;
   }
-  .term-colophon {
+  .term-colophon,
+  .install-colophon {
     align-items: flex-start;
     flex-direction: column;
     gap: 12px;
