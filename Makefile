@@ -10,7 +10,7 @@ TI_GENERATED := $(ROOT)/components/area512/mrbgems/picoruby-ti/src/generated
 MICROPYTHON_TI := $(ROOT)/components/area512/mrbgems/micropython-ti
 
 FIRMWARE   := $(ROOT)/firmware
-SITES_FIRMWARE := $(ROOT)/sites/firmware
+DOCS_FIRMWARE := $(ROOT)/docs/firmware
 
 CLANG_FORMAT ?= clang-format
 INPUT ?= background.png
@@ -41,7 +41,7 @@ help:
 	@echo "  make compile-home-mpy - recursively compile storage/home/**/*.py to .mpy"
 	@echo "                    (storage/ is the seed copied to the SD card's Area512_data/ on first boot)"
 	@echo "  make flash-firmware   - flash committed firmware/ binaries (no rebuild)"
-	@echo "  make save-firmware    - copy build/, build/v11/, build/tft7789/, build/tft9341/ artifacts into firmware/ and sites/firmware/"
+	@echo "  make save-firmware    - copy build/, build/v11/, build/tft7789/, build/tft9341/ artifacts into firmware/ and docs/firmware/"
 	@echo "  make gendb            - regenerate the built-in TI database"
 	@echo "  make fullclean  - nuke everything: build/, picoruby/build/ (esp32-*, host, repos),"
 	@echo "                    generated mrb/*.c. Use after editing build_config/*.rb."
@@ -81,8 +81,8 @@ save-firmware:
 	$(call merge_firmware,$(ROOT)/build/tft7789,Area512TFT7789.bin)
 	$(call merge_firmware,$(ROOT)/build/tft9341,Area512TFT9341.bin)
 	cp $(FIRMWARE)/Area512Adv.bin $(FIRMWARE)/Area512V11.bin \
-	  $(FIRMWARE)/Area512TFT7789.bin $(FIRMWARE)/Area512TFT9341.bin $(SITES_FIRMWARE)/
-	@echo "firmware/ and sites/firmware/ refreshed from build/"
+	  $(FIRMWARE)/Area512TFT7789.bin $(FIRMWARE)/Area512TFT9341.bin $(DOCS_FIRMWARE)/
+	@echo "firmware/ and docs/firmware/ refreshed from build/"
 
 monitor:
 	idf.py monitor
