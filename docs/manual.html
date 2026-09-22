@@ -58,6 +58,11 @@
             Keys are case-sensitive. Enter opens a directory; uppercase R runs
             it as an application.
           </p>
+          <p>
+            Directories appear before files. Source files (.rb / .py), bytecode
+            (.mrb / .mpy), and dot images (.a5d) are listed separately with
+            their extensions.
+          </p>
           <div class="table-wrap">
             <table>
               <thead>
@@ -68,7 +73,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>j / k or Down / Up</td>
+                  <td>j / k or Down / Up or . / ;</td>
                   <td>Select an entry.</td>
                 </tr>
                 <tr>
@@ -144,7 +149,7 @@
               <tbody>
                 <tr>
                   <td>cd [path] / ls [path] / pwd</td>
-                  <td>Change directory / list entries / show directory.</td>
+                  <td>Change directory / list entries / show directory. With no path, cd goes to /home and ls lists the current directory.</td>
                 </tr>
                 <tr>
                   <td>run &lt;file-or-directory&gt;</td>
@@ -154,7 +159,7 @@
                 </tr>
                 <tr>
                   <td>vim &lt;file&gt;</td>
-                  <td>Edit a file.</td>
+                  <td>Edit a file, creating it if it does not exist.</td>
                 </tr>
                 <tr>
                   <td>md &lt;file&gt; / dot &lt;file&gt;</td>
@@ -169,9 +174,10 @@
                   <td>Compile source files directly in a directory.</td>
                 </tr>
                 <tr>
-                  <td>touch / mkdir / mv / cp / rm</td>
+                  <td>touch &lt;name&gt; / mkdir &lt;name&gt; / mv &lt;src&gt; &lt;dst&gt; / cp &lt;src&gt; &lt;dst&gt; / rm &lt;name&gt;</td>
                   <td>
                     Create a file or directory, move, copy, or delete entries.
+                    Deletion asks for y/n confirmation.
                   </td>
                 </tr>
                 <tr>
@@ -181,6 +187,10 @@
                 <tr>
                   <td>top</td>
                   <td>Show battery, VM, RAM, and stack usage.</td>
+                </tr>
+                <tr>
+                  <td>fullupdate</td>
+                  <td><a href="install.html#updating">Update preinstalled files on the microSD card from the firmware.</a></td>
                 </tr>
                 <tr>
                   <td>help / clear / reboot / exit</td>
@@ -193,7 +203,7 @@
             </table>
           </div>
           <p>
-            Up / Down recalls history. Tab completes commands and paths. Ctrl-F
+            Left / Right moves the cursor. Up / Down recalls history. Tab completes commands and paths. Ctrl-F
             accepts the displayed suggestion. Esc clears the input line.
             Arguments are separated by spaces; quoting and escaping spaces in
             names are not supported.
@@ -202,9 +212,19 @@
             In a REPL, Esc returns to the terminal and Ctrl-C discards the line
             being typed.
           </p>
+          <p>
+            Both REPLs read further lines when input is incomplete, showing
+            <code>...&gt;</code> (Ruby) or <code>...</code> (Python) instead
+            of <code>irb&gt;</code> / <code>&gt;&gt;&gt;</code>.
+            Ruby prints <code>=&gt;</code> and the result of each line.
+          </p>
         </section>
         <section class="section" id="editor">
           <h2 class="condensed">03 / EDITOR</h2>
+          <p>
+            In insert mode, Ctrl-N opens completion. Completion also opens
+            automatically after a dot or uppercase letter in .rb and .py files.
+          </p>
           <div class="table-wrap">
             <table>
               <thead>
@@ -255,8 +275,8 @@
                   <td>Open completion.</td>
                 </tr>
                 <tr>
-                  <td>:w / :q / :q! / :wq</td>
-                  <td>Save / quit / quit without saving / save and quit.</td>
+                  <td>:w / :q / :q! / :wq or :x</td>
+                  <td>Save / quit (refuses unsaved changes) / quit without saving / save and quit.</td>
                 </tr>
               </tbody>
             </table>
@@ -279,6 +299,11 @@
           <p>
             Edit <code>/sdcard/Area512_data/etc/theme</code>. Use one
             <code>key=0xRRGGBB</code> entry per line.
+          </p>
+          <p>
+            Colors are read at boot; without this file, the defaults below
+            apply. Six hexadecimal digits and the <code>0x</code> prefix are
+            required. Unknown keys and lines without <code>=</code> are ignored.
           </p>
           <pre><code>background=0x000000
 text=0xCFA45F
@@ -305,6 +330,24 @@ make convert INPUT=background.png</code></pre>
             and flash, then add the following to the theme file and reboot:
           </p>
           <pre><code>background_image=/share/backgrounds/background.rgb565</code></pre>
+          <p>
+            <code>OUTPUT=path</code> overrides the conversion output path.
+            Images are resized to <code>SIZE</code> and written as headerless
+            RGB565, high byte first, left to right and top to bottom. A
+            240 × 135 image is 64,800 bytes; a 320 × 240 image is 153,600 bytes.
+          </p>
+          <p>
+            Everything under <code>storage/</code> is included in the firmware.
+            Background images are read from the firmware, not the microSD card.
+            If an image is missing or its size does not match the display,
+            the file manager uses the solid background color and shows the
+            reason in the action bar.
+          </p>
+          <p>
+            The boot logo and application <code>image.h</code> bitmaps use only
+            the emphasis and background colors, with the brighter color used
+            for set bits.
+          </p>
           <h3>Startup interface</h3>
           <p>
             Edit <code>/sdcard/Area512_data/etc/ui</code> and reboot. The file
@@ -313,9 +356,28 @@ make convert INPUT=background.png</code></pre>
           <pre><code>default=terminal
 # To start in the file manager instead:
 # default=graphical</code></pre>
+          <p>Only <code>default=terminal</code> and <code>default=graphical</code> are recognized; other lines are ignored.</p>
         </section>
         <section class="section" id="applications">
           <h2 class="condensed">05 / APPLICATION CONTROLS</h2>
+          <details id="app-slide">
+            <summary>Slide</summary>
+            <div class="reference-text">
+              <p>
+                Add numbered Markdown files such as <code>1.md</code>,
+                <code>2.md</code>, and <code>3.md</code> to
+                <code>/home/tool/slide</code>. They are displayed in numeric order.
+              </p>
+              <p>
+                Supported syntax: headings with #, ##, or ###; lists starting
+                with -; inline code enclosed in backticks; and Ruby code blocks
+                enclosed in <code>```ruby</code> and <code>```</code>.
+              </p>
+              <p>
+                h / l changes pages; j / k scrolls down / up; Esc quits.
+              </p>
+            </div>
+          </details>
           <details id="app-writer">
             <summary>Writer</summary>
             <div class="reference-text">

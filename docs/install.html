@@ -167,6 +167,33 @@
           </ol>
           <a class="text-link" href="manual.html">Operation manual ↗</a>
         </section>
+        <section class="section" id="updating">
+          <span class="section-label">05 / UPDATING</span>
+          <h2 class="condensed">UPDATE PREINSTALLED FILES</h2>
+          <p>
+            Flashing new firmware does not update files already on the microSD
+            card. After flashing, press <kbd>t</kbd> to open the terminal, run
+            <code>fullupdate</code>, and answer <code>y</code>:
+          </p>
+          <pre><code>fullupdate
+Update /etc, /share/backgrounds, /home/tool/*, /home/game/*? (y/n)</code></pre>
+          <ul class="square-list">
+            <li>
+              In <code>/etc</code> and <code>/share/backgrounds</code>, files
+              included in the firmware are overwritten; other files are kept.
+            </li>
+            <li>
+              Each preinstalled app directory under <code>/home/tool</code>
+              and <code>/home/game</code> is deleted and rewritten. Your own
+              app directories are kept.
+            </li>
+          </ul>
+          <p>
+            Back up your changes first: edits to <code>etc/theme</code> and
+            files added inside preinstalled app directories are lost.
+            The device reboots when the update finishes.
+          </p>
+        </section>
       </main>
       <footer>
         <div class="footer-links">

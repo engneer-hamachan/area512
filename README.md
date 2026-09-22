@@ -1,7 +1,7 @@
 # AREA512
 
 <p align="center">
-  <img src="image/area512.png" alt="AREA512" width="480" />
+  <img src="docs/assets/images/emblem-transparent.webp" alt="AREA512" width="480" />
 </p>
 
 Welcome to AREA512!
@@ -13,9 +13,11 @@ It is based on FemtoRuby and includes MicroPython,
 so you can write Ruby and Python right on the Cardputer,
 then compile and run them — all on the device!
 
-## Hardware
+[Website](https://engneer-hamachan.github.io/area512/) · [Installation](https://engneer-hamachan.github.io/area512/install.html) · [Manual](https://engneer-hamachan.github.io/area512/manual.html)
 
-AREA512 runs on the Cardputer by itself and also supports an external display (TERM512).
+## Supported Devices
+
+AREA512 supports Cardputer ADV and Cardputer v1.1, either on their own or with the TERM512 external display and case.
 
 > [!TIP]
 > Build the external display and case: **[TERM512 on GitHub →](https://github.com/Prokuon/term512)**
@@ -23,14 +25,42 @@ AREA512 runs on the Cardputer by itself and also supports an external display (T
 
 <table align="center">
   <tr>
-    <th>Only AREA512</th>
-    <th>AREA512 + TERM512</th>
+    <th>Cardputer</th>
+    <th>Cardputer + TERM512</th>
   </tr>
   <tr>
     <td><img src="image/device.jpg" alt="AREA512 on a Cardputer ADV" height="226" /></td>
     <td><img src="image/device_ext.jpg" alt="AREA512 on a Cardputer ADV in a TERM512 case with its external display" height="320" /></td>
   </tr>
 </table>
+
+## Applications
+
+![Solitair, one of the built-in apps, running on the device](image/solitair_ui.jpg)
+
+Write documents with Writer, organize your days with Scheduler, work with
+spreadsheets in Calc, or draw with Paint. Take a break with Solitair, Bomb,
+and Space Lander, a lunar landing game written in Python.
+
+Apps come preinstalled under `/home/tool` and `/home/game`, with a README in
+each app directory. Slide, Gallery, Theme, and the Dot editor provide tools
+for presentations, exploring widgets, and customizing your device.
+
+[Explore the applications](https://engneer-hamachan.github.io/area512/applications.html) · [App controls](https://engneer-hamachan.github.io/area512/manual.html#applications)
+
+## On-device Programming
+
+![Editing Ruby code in the on-device vim](image/edutor_ui.jpg)
+
+Write Ruby and Python right on the Cardputer. The built-in vim-style editor
+provides syntax highlighting, automatic indentation, code completion,
+diagnostics, and hover information. Edit, compile, and run your code on the
+device, or try ideas interactively in the Ruby and MicroPython REPLs.
+
+Built-in APIs cover graphics, sprites, widgets, files, and hardware access.
+The preinstalled apps are examples you can read and build on.
+
+[Programming guide](https://engneer-hamachan.github.io/area512/programming.html) · [Ruby API](https://engneer-hamachan.github.io/area512/ruby-api.html) · [MicroPython API](https://engneer-hamachan.github.io/area512/python-api.html) · [Widget API](https://engneer-hamachan.github.io/area512/widget-api.html)
 
 ## Quick Install
 
@@ -54,293 +84,29 @@ esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --
 
 - Insert a FAT32-formatted microSD card into the Cardputer (it is used to store app data).
 
+See the [installation guide](https://engneer-hamachan.github.io/area512/install.html) for firmware downloads and setup details.
+
+After startup, use `j` / `k` to select an entry, Enter to open a directory,
+and Backspace to go back. Select an app directory under `/home/tool` or
+`/home/game` and press uppercase `R` to run it.
+See the [operation manual](https://engneer-hamachan.github.io/area512/manual.html) for more controls.
+
 ## Updating
 
-Flashing new firmware does not update the files already on the microSD card.
-After flashing, run `fullupdate` in the terminal and answer `y`:
-
-```
-fullupdate
-Update /etc, /share/backgrounds, /home/tool/*, /home/game/*? (y/n)
-```
-
-| Path | What happens |
-| --- | --- |
-| `/etc`, `/share/backgrounds` | Files included in the firmware are overwritten; other files are kept |
-| `/home/tool/*`, `/home/game/*` | Each preinstalled app directory is deleted and rewritten; your own apps are kept |
-
-The device reboots when the update finishes. Your edits to `etc/theme`, and any
-files you added inside a preinstalled app directory, are lost.
-
-## Using AREA512
-
-The screen shows a listing of the current directory: directories first, then files. Source files (`.rb` / `.py`), compiled files (`.mrb` / `.mpy`), and dot images (`.a5d`) are shown as separate entries with their extensions.
-
-The following keys are available.
-
-| Key | Action |
-| --- | --- |
-| `;` / `.` (or `k` / `j`, or Up / Down) | Move the cursor up / down |
-| `/`, Enter, or Right | Open (enter a directory / run a Ruby or Python file / view a Markdown file / edit an `.a5d` dot image) |
-| `,`, `u`, BS, or Left | Go to the parent directory |
-| `1`–`9` | Jump to the n-th entry |
-| `e` | Edit the selected file |
-| `c` | Compile the selected `.rb` or `.py` file |
-| `a` | Compile every `.rb` and `.py` file in the current directory |
-| `R` | Run the selected directory as an application |
-| `N` | Create a new file (you type the name) |
-| `K` | Create a new directory (you type the name) |
-| `x` | Delete (asks `y/n` for confirmation) |
-| `m` | Move the selected entry (you type the destination path) |
-| `C` | Copy the selected entry (you type the destination path) |
-| `t` | Open the terminal |
-| `r` | Reboot the device |
-
-## Terminal
-
-Press `t` to work in a terminal instead of the list. It shares the current
-directory with the file manager, and `exit` returns to the list.
-
-| Command | Action |
-| --- | --- |
-| `cd [path]` | Change directory (without an argument, go to `/home`) |
-| `ls [path]` | List the current or the given directory |
-| `pwd` | Print the current directory |
-| `run <name>` | Run a Ruby or Python file, or a directory as an application |
-| `vim <name>` | Edit a file; a name that does not exist yet is created |
-| `md <name>` | View a Markdown file |
-| `dot <name>` | Edit an `.a5d` dot image |
-| `compile <name>` | Compile a `.rb` or `.py` file |
-| `compile --all [path]` | Compile every `.rb` and `.py` file in the directory |
-| `touch <name>` | Create a file |
-| `mkdir <name>` | Create a directory |
-| `rm <name>` | Delete (asks `y/n` for confirmation) |
-| `mv <src> <dst>` | Move |
-| `cp <src> <dst>` | Copy |
-| `irb` | Start the Ruby REPL |
-| `python-repl` | Start the MicroPython REPL |
-| `top` | Show battery, VM, RAM, and stack usage |
-| `clear` | Clear the output |
-| `help` | List the commands |
-| `fullupdate` | Update the preinstalled files on the SD card from the firmware (see [Updating](#updating)) |
-| `reboot` | Reboot the device |
-| `exit` | Return to the file list |
-
-The following keys are available on the command line.
-
-| Key | Action |
-| --- | --- |
-| Left / Right | Move the cursor |
-| Up / Down | Recall the command history |
-| Tab | Complete the command or entry name at the cursor |
-| `Ctrl-F` | Accept the suggestion shown after the cursor |
-| Esc | Clear the line |
-
-### REPL
-
-`irb` runs Ruby and `python-repl` runs MicroPython on the console. Both read
-further lines while the input is incomplete, showing `...>` (Ruby) or `...`
-(Python) instead of the `irb>` / `>>>` prompt. `irb` prints `=> ` and the
-result of each line. Esc returns to the terminal, and `Ctrl-C` discards the
-line being typed.
-
-## Applications
-
-![Solitair, one of the built-in apps, running on the device](image/solitair.jpg)
-
-The following come preinstalled under `/home/tool` and `/home/game`.
-
-Each app's directory also contains a README explaining how to use it!
-
-<table>
-  <tr>
-    <td><img src="image/writer.png" alt="Writer" /></td>
-    <td><img src="image/scheduler.png" alt="Scheduler" /></td>
-    <td><img src="image/calc.png" alt="Calc" /></td>
-  </tr>
-  <tr>
-    <td><img src="image/paint.png" alt="Paint" /></td>
-    <td><img src="image/solitair.png" alt="Solitair" /></td>
-    <td><img src="image/bomb.png" alt="Bomb" /></td>
-  </tr>
-</table>
-
-### Writer — `/home/tool/writer`
-
-A word processor. From business documents to poetry, write anything you like!
-
-### Scheduler — `/home/tool/scheduler`
-
-The greatest schedule management software.
-
-### Calc — `/home/tool/calc`
-
-A spreadsheet. Manage all of your money.
-
-### Paint — `/home/tool/paint`
-
-Draw anything!
-
-### Solitair — `/home/game/solitair`
-
-The world's finest card game. Compete for the high score!
-
-### Bomb — `/home/game/bomb`
-
-Launch it and you'll get it! That nostalgic game!
-
-### Space Lander — `/home/game/space_lander`
-
-A lunar landing game written in Python.
-
-### Slide — `/home/tool/slide`
-
-Displays numbered Markdown files as slides. Add files such as `1.md`, `2.md`,
-and `3.md` to `/home/tool/slide`; they are displayed in numeric order.
-
-Supported Markdown syntax:
-
-- `#`, `##`, and `###` headings
-- Lists starting with `-`
-- Inline code enclosed in backticks
-- Ruby code blocks enclosed in `` ```ruby `` and `` ``` ``
-
-| Key | Action |
-| --- | --- |
-| `h` / `l` | Previous / next page |
-| `j` / `k` | Scroll down / up |
-| Esc | Quit |
-
-### Gallery — `/home/tool/gallery`
-
-A gallery of the built-in Widget components.
-
-## Editing Code
-
-The editor opened with `e` is a tiny vim running on the device. It has normal, insert, visual, operator, and command modes, plus search. Ruby and Python files have syntax highlighting, automatic indentation, code completion, diagnostics, and hover information. The keys your fingers remember mostly just work!
-
-In insert mode, press `Ctrl-N` to open completion; it also opens automatically after `.` and uppercase letters in `.rb` and `.py` files.
-
-![Editing Ruby code in the on-device vim](image/editor.jpg)
-
-| Command | Action |
-| --- | --- |
-| `:w` | Save |
-| `:q` | Quit (refuses if there are unsaved changes) |
-| `:q!` | Quit without saving |
-| `:wq` / `:x` | Save and quit |
-
-## Compiling and Running
-
-The device compiles `.rb` into `.mrb` and `.py` into `.mpy` (bytecode) on the spot (see `c` / `a` in the key list). Ruby bytecode runs inside a sandbox, and Python bytecode runs with MicroPython.
-
-## Application Development
-
-New applications should follow this layout.
-
-### Available Features
-
-AREA512 provides the following features as built-ins. PicoRuby does not require
-`require`, and MicroPython does not require `import`, to use them.
-
-| Feature | PicoRuby | MicroPython |
-| --- | --- | --- |
-| Display | Yes | Yes |
-| Sprite | Yes | Yes |
-| Dot | Yes | Yes |
-| Widget | Yes | Yes |
-| WidgetList | Yes | Yes |
-| WidgetTextView | Yes | Yes |
-| GPIO | Yes | Yes |
-| ADC | — | Yes |
-| I2C | Yes | — |
-| SD / File / Dir | Yes | Yes |
-| IO | Yes | Yes |
-| RNG | Yes | Yes |
-| Sandbox | Yes | — |
-| Console | — | Yes |
-
-See [PicoRuby features](PicoRuby.md) and
-[MicroPython features](MicroPython.md) for the available APIs.
-
-### Directory Layout
-
-An application is a single directory. Press `R` in the file manager to run it.
-
-```
-myapp/
-├── main.manifest   # optional: lists .mrb or .mpy files to load, one per line
-├── main.mrb        # Ruby entry point when there is no main.manifest
-├── main.mpy        # Python entry point when there is no main.manifest or main.mrb
-├── *.rb / *.mrb    # Ruby modules
-├── *.py / *.mpy    # Python modules
-└── image.h         # optional: splash image shown at launch
-```
-
-- If `main.manifest` lists `.mrb` files, they are loaded into a single sandbox in order. Put dependencies first and `main.mrb` last.
-- If `main.manifest` lists `.mpy` files, MicroPython runs them in order. Put dependencies first and `main.mpy` last.
-- Without `main.manifest`, `main.mrb` is executed if it exists; otherwise, `main.mpy` is executed.
-- If none exists, `No main.manifest, main.mrb or main.mpy in <directory>` is shown.
-
-Applications can use the built-in Widget components directly. See [the Widget component documentation](components/area512/mrbgems/picoruby-area512-widget/README.md) and the preinstalled `/home/tool/gallery` app.
-
-## Theme
-
-Colors are read from `/sdcard/Area512_data/etc/theme` at boot. Without that file the defaults below are used. Edit it and reboot to apply.
-
-```
-background=0x000000
-text=0xCFA45F
-emphasis=0xF5972D
-border=0xF5972D
-selected=0xFFD966
-box=0x241604
-```
-
-One `key=0xRRGGBB` per line; six hex digits, `0x` required. Lines without `=` and unknown keys are ignored.
-
-### Background Image
-
-Convert an image to a file manager background with Python 3 and Pillow:
-
-```sh
-# Cardputer display (240x135, 64,800 bytes)
-make convert INPUT=background.png SIZE=240x135
-
-# External 320x240 display (153,600 bytes, the default)
-make convert INPUT=background.png
-```
-
-This writes `storage/share/backgrounds/background.rgb565`. `OUTPUT=path` overrides the output
-file. The image is resized to `SIZE` and written as headerless RGB565, high byte
-first, left to right and top to bottom.
-
-Everything under `storage/` is built into the firmware, so rebuild and flash,
-then add this line to the SD card's `etc/theme` and reboot:
-
-```
-background_image=/share/backgrounds/background.rgb565
-```
-
-The image is read from the firmware, not from the SD card. If the file is not in
-the firmware or its size does not match the display, the file manager uses the
-solid `background` color and shows the reason in the action bar.
-
-Bitmaps (the boot logo and an application's `image.h`) are drawn with `emphasis` and `background` only, the brighter of the two used for the set bits.
-
-## Default UI
-
-The UI the device starts in is read from `/sdcard/Area512_data/etc/ui` at boot.
-Without that file the file manager is used.
-
-```
-default=terminal
-```
-
-`default=terminal` starts in the terminal, `default=graphical` starts in the
-file manager. Lines other than these two are ignored.
-
-## Building
+After flashing new firmware, open the terminal with `t`, run `fullupdate`,
+and answer `y` to update the preinstalled files on the microSD card.
+The device reboots when the update finishes.
+
+> [!WARNING]
+> Back up your changes first. Firmware-provided files in `/etc` and
+> `/share/backgrounds` are overwritten, and each preinstalled app directory
+> under `/home/tool` and `/home/game` is deleted and rewritten. This removes
+> edits to `etc/theme` and files you added inside those app directories.
+> Your own app directories are kept.
+
+[Update details](https://engneer-hamachan.github.io/area512/install.html#updating)
+
+## Building for Contributors
 
 ### Requirements
 
@@ -387,6 +153,7 @@ idf.py -B build/tft7789 flash
 rake build:tft9341
 idf.py -B build/tft9341 flash
 ```
+
 ## Contributing
 
 AREA512 welcomes contributions of new apps and AREA512 artwork (splash images and such)!
