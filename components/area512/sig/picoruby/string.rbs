@@ -46,9 +46,6 @@ class String
   # Return byte sequence of string as array
   def bytes: () -> Array[Integer]
 
-  # Return characters of string as array
-  def chars: () -> Array[String]
-
   # Return string with trailing newline removed
   def chomp: () -> String
 
