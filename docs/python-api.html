@@ -91,6 +91,29 @@
             <li><code>text(x, y, string, color)</code></li>
             <li><code>push(x, y, transparent=None)</code></li>
           </ul>
+          <h2>BandedSprite</h2>
+          <p>
+            Draws the screen one band of rows at a time. <code>draw()</code>
+            transfers the previous region and prepares the next one, and returns
+            <code>False</code> after the final transfer.
+          </p>
+          <ul>
+            <li><code>BandedSprite(font_size)</code></li>
+            <li>
+              <code>width()</code>, <code>height()</code>, <code>delete()</code>
+            </li>
+            <li><code>fill(color)</code>, <code>pixel(x, y, color)</code></li>
+            <li><code>line(x0, y0, x1, y1, color)</code></li>
+            <li><code>rect(x, y, width, height, color)</code></li>
+            <li><code>fill_rect(x, y, width, height, color)</code></li>
+            <li><code>circle(x, y, radius, color)</code></li>
+            <li><code>fill_circle(x, y, radius, color)</code></li>
+            <li><code>text(x, y, string, color)</code></li>
+            <li>
+              <code>draw()</code>, <code>region_top()</code>,
+              <code>region_bottom()</code>
+            </li>
+          </ul>
           <h2>Dot</h2>
           <p>Loads and edits <code>.a5d</code> dot images.</p>
           <ul>
