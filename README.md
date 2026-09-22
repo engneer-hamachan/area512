@@ -21,7 +21,7 @@ AREA512 runs on the Cardputer by itself and also supports an external display (T
 > Build the external display and case: **[TERM512 on GitHub →](https://github.com/Prokuon/term512)**
 > Then flash the binary for your display in [Quick Install](#quick-install).
 
-<table>
+<table align="center">
   <tr>
     <th>Only AREA512</th>
     <th>AREA512 + TERM512</th>
