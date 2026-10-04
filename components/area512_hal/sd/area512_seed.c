@@ -46,8 +46,8 @@ static const char *const s_file_overwrite_directories[] = {
   (sizeof(s_file_overwrite_directories) /                                      \
    sizeof(s_file_overwrite_directories[0]))
 
-static bool
-ensure_directory(const char *path) {
+bool
+area512_ensure_directory(const char *path) {
   return mkdir(path, 0777) == 0 || errno == EEXIST;
 }
 
@@ -116,8 +116,8 @@ find_seed_directory_index(const char *entry_name) {
   return -1;
 }
 
-static bool
-ensure_parent_directories(char *full_path) {
+bool
+area512_ensure_parent_directories(char *full_path) {
   for (char *cursor = full_path + strlen(AREA512_DATA_ROOT) + 1; *cursor;
        cursor++) {
 
@@ -127,7 +127,7 @@ ensure_parent_directories(char *full_path) {
 
     *cursor = '\0';
 
-    bool created = ensure_directory(full_path);
+    bool created = area512_ensure_directory(full_path);
 
     *cursor = '/';
 
@@ -152,7 +152,7 @@ write_seed_file(const char *relative_path, const uint8_t *data, size_t size) {
     relative_path
   );
 
-  if (!ensure_parent_directories(full_path)) {
+  if (!area512_ensure_parent_directories(full_path)) {
     return false;
   }
 
@@ -200,8 +200,8 @@ extract_seed_entry(const TarEntry *entry) {
 
   strip_trailing_slash(directory_path);
 
-  return ensure_parent_directories(directory_path) &&
-         ensure_directory(directory_path);
+  return area512_ensure_parent_directories(directory_path) &&
+         area512_ensure_directory(directory_path);
 }
 
 static const char *
@@ -314,7 +314,7 @@ remove_tree(const char *path) {
 
 int
 area512_seed_restore(void) {
-  if (!ensure_directory(AREA512_DATA_ROOT)) {
+  if (!area512_ensure_directory(AREA512_DATA_ROOT)) {
     return -1;
   }
 

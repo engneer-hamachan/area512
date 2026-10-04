@@ -19,6 +19,7 @@ int area512_sd_mount(const char *base_path);
 int area512_sd_unmount(void);
 void area512_theme_load(void);
 void area512_default_ui_load(void);
+bool area512_usb_receive_owns_rxfifo(void);
 
 #include <stdint.h>
 #include <stdio.h>
@@ -94,7 +95,8 @@ stdin_reader_task(void *argument) {
     area512_console_poll();
 
 #if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
-    if (usb_serial_jtag_ll_rxfifo_data_available()) {
+    if (!area512_usb_receive_owns_rxfifo() &&
+        usb_serial_jtag_ll_rxfifo_data_available()) {
       uint8_t character;
       if (usb_serial_jtag_ll_read_rxfifo(&character, 1) == 1)
         picorb_hal_stdin_push(character);

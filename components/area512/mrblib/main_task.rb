@@ -54,6 +54,10 @@ ACT_EDIT_DOT = 16 unless Object.const_defined?(:ACT_EDIT_DOT)
 ACT_CHANGE_DIR = 17 unless Object.const_defined?(:ACT_CHANGE_DIR)
 ACT_IRB = 18 unless Object.const_defined?(:ACT_IRB)
 ACT_PYTHON_REPL = 19 unless Object.const_defined?(:ACT_PYTHON_REPL)
+ACT_RECEIVE_FILES = 20 unless Object.const_defined?(:ACT_RECEIVE_FILES)
+ACT_INSTALL_APP_IMAGE = 21 unless Object.const_defined?(:ACT_INSTALL_APP_IMAGE)
+ACT_LAUNCH_INSTALLED_APP = 22 unless Object.const_defined?(:ACT_LAUNCH_INSTALLED_APP)
+ACT_UNINSTALL_APP = 23 unless Object.const_defined?(:ACT_UNINSTALL_APP)
 
 def run_sd_error_screen(filer)
   filer.cwd = "/"
@@ -812,6 +816,18 @@ def run_filer(filer, root)
 
     when ACT_REBOOT
       Machine.reboot 0
+
+    when ACT_RECEIVE_FILES
+      filer.receive_files
+
+    when ACT_INSTALL_APP_IMAGE
+      msg = filer.install_app_image(target_path)
+
+    when ACT_LAUNCH_INSTALLED_APP
+      msg = filer.launch_installed_app
+
+    when ACT_UNINSTALL_APP
+      msg = filer.uninstall_app
     end
 
     filer.cwd = cwd

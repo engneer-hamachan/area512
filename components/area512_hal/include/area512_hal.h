@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -104,6 +105,21 @@ int area512_sd_mounted(void);
 int area512_seed_restore(void);
 int area512_seed_update(void);
 const uint8_t *area512_seed_find_file(const char *path, size_t *size);
+bool area512_ensure_directory(const char *path);
+bool area512_ensure_parent_directories(char *full_path);
+
+void area512_usb_receive_files(void);
+bool area512_usb_receive_owns_rxfifo(void);
+
+void area512_restore_factory_boot_partition(void);
+int area512_read_installed_app_name(char *name, size_t name_size);
+int area512_install_app_image(
+  const char *path,
+  char *message,
+  size_t message_size
+);
+int area512_launch_installed_app(char *message, size_t message_size);
+int area512_uninstall_app(char *message, size_t message_size);
 
 void area512_theme_load(void);
 uint32_t area512_theme_background_color(void);

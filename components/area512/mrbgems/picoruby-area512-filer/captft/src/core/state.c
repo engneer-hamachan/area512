@@ -116,6 +116,11 @@ is_dot_image_file_path(const char *file_path) {
 }
 
 int
+is_app_image_file_path(const char *file_path) {
+  return has_path_suffix(file_path, ".bin");
+}
+
+int
 is_source_file_path(const char *file_path) {
   return has_path_suffix(file_path, ".rb") ||
     has_path_suffix(file_path, ".py");
@@ -174,6 +179,14 @@ is_selected_dot_image_file(Filer *filer) {
 
   return entry && entry->type == ENTRY_TYPE_FILE &&
     is_dot_image_file_path(entry->name);
+}
+
+int
+is_selected_app_image_file(Filer *filer) {
+  FileEntry *entry = fetch_selected_entry(filer);
+
+  return entry && entry->type == ENTRY_TYPE_FILE &&
+    is_app_image_file_path(entry->name);
 }
 
 int
