@@ -15,6 +15,8 @@ extern "C" {
 int
 area512_resolve_data_path(const char *path, char *buffer, size_t buffer_size);
 
+uint32_t area512_uptime_milliseconds(void);
+
 void area512_console_poll(void);
 int area512_console_getchar(void);
 int area512_console_getch_block(void);
@@ -63,6 +65,8 @@ int area512_sprite_text_width(void *p, const char *str);
 void area512_sprite_push(void *p, int x, int y);
 void area512_sprite_push_transparent(void *p, int x, int y, uint32_t transp);
 
+#define AREA512_SCREEN_REGION_ROW_COUNT 32
+
 // One sprite draws the whole screen a band of rows at a time, reusing the
 // screen pixel buffer. Drawing between area512_screen_begin_region() and
 // area512_screen_push_region() uses screen coordinates; rows outside the band
@@ -89,6 +93,7 @@ int area512_screen_draw_rgb565(
 // Transfer the previous region, then prepare the next; false after the final transfer.
 int area512_screen_draw(void *p);
 int area512_screen_begin_region(void *p);
+int area512_screen_begin_region_at(void *screen, int first_row, int row_count);
 int area512_screen_region_top(void *p);
 int area512_screen_region_bottom(void *p);
 void area512_screen_push_region(void *p);
@@ -96,8 +101,21 @@ void area512_screen_push_region(void *p);
 int area512_gfx_width(void);
 int area512_gfx_height(void);
 void area512_gfx_fill_screen(uint32_t color);
+void area512_gfx_fill_rect(int x, int y, int w, int h, uint32_t color);
 void area512_gfx_set_brightness(int brightness);
 int area512_gfx_show_header_image(const char *path, int hold_milliseconds);
+int area512_gfx_load_header_image(
+  const char *path,
+  uint8_t *bitmap,
+  size_t bitmap_size
+);
+void area512_gfx_draw_theme_bitmap(
+  int x,
+  int y,
+  const uint8_t *bitmap,
+  int w,
+  int h
+);
 
 int area512_sd_mount(const char *base_path);
 int area512_sd_unmount(void);

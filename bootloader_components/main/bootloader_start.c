@@ -14,15 +14,19 @@
 static const char *TAG = "boot";
 
 static int
-load_partition_table_and_select_boot_index(bootloader_state_t *bootloader_state
+load_partition_table_and_select_boot_index(
+  bootloader_state_t *bootloader_state
 ) {
   if (!bootloader_utility_load_partition_table(bootloader_state)) {
     ESP_LOGE(TAG, "load partition table error!");
     return INVALID_INDEX;
   }
 
-  if (esp_rom_get_reset_reason(0) == RESET_REASON_CHIP_POWER_ON &&
-      bootloader_state->factory.offset != 0) {
+  if (
+      esp_rom_get_reset_reason(0) == RESET_REASON_CHIP_POWER_ON &&
+      bootloader_state->factory.offset != 0
+    ) {
+
     return FACTORY_INDEX;
   }
 

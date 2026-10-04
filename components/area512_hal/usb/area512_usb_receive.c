@@ -89,7 +89,10 @@ draw_progress_row(
     receiving_file->byte_count
   );
 
-  area512_sprite_fill(progress_row_sprite, area512_theme_background_color());
+  area512_sprite_fill(
+    progress_row_sprite,
+    area512_theme_background_color()
+  );
 
   area512_sprite_text(
     progress_row_sprite,
@@ -148,8 +151,10 @@ read_command_line(char *command_line) {
       return LINE_ESCAPE_PRESSED;
     }
 
-    if (command_line_byte_count == 0 && xTaskGetTickCount() - ready_sent_tick >=
-                                          pdMS_TO_TICKS(READY_INTERVAL_MS)) {
+    if (
+      command_line_byte_count == 0 &&
+      xTaskGetTickCount() - ready_sent_tick >= pdMS_TO_TICKS(READY_INTERVAL_MS)
+    ) {
 
       write_reply("READY");
 
@@ -167,12 +172,16 @@ receive_chunk(ReceivingFile *receiving_file, long chunk_byte_count) {
   bool write_failed = false;
 
   while (remaining_byte_count > 0) {
-    uint32_t requested_byte_count = remaining_byte_count < FILE_BUFFER_SIZE
-                                      ? (uint32_t)remaining_byte_count
-                                      : FILE_BUFFER_SIZE;
+    uint32_t requested_byte_count =
+      remaining_byte_count < FILE_BUFFER_SIZE
+        ? (uint32_t)remaining_byte_count
+        : FILE_BUFFER_SIZE;
 
     uint32_t read_byte_count =
-      usb_serial_jtag_ll_read_rxfifo(file_buffer, requested_byte_count);
+      usb_serial_jtag_ll_read_rxfifo(
+        file_buffer,
+        requested_byte_count
+      );
 
     if (read_byte_count == 0) {
       if (read_pending_escape_key_count() > 0) {
@@ -184,9 +193,14 @@ receive_chunk(ReceivingFile *receiving_file, long chunk_byte_count) {
       continue;
     }
 
-    if (!write_failed &&
-        fwrite(file_buffer, 1, read_byte_count, receiving_file->file) !=
-          read_byte_count) {
+    if (
+      !write_failed &&
+      fwrite(
+        file_buffer,
+        1,
+        read_byte_count,
+        receiving_file->file
+     ) != read_byte_count) {
 
       write_failed = true;
     }
@@ -215,11 +229,19 @@ compute_file_crc32(const char *full_path, uint32_t *crc32) {
   size_t read_byte_count;
   uint32_t computed_crc32 = 0;
 
-  while ((read_byte_count = fread(file_buffer, 1, sizeof(file_buffer), file)) >
-         0) {
+  while (
+      (
+        read_byte_count =
+          fread(file_buffer, 1, sizeof(file_buffer), file)
+      ) > 0
+    ) {
 
     computed_crc32 =
-      esp_rom_crc32_le(computed_crc32, file_buffer, read_byte_count);
+      esp_rom_crc32_le(
+        computed_crc32,
+        file_buffer,
+        read_byte_count
+      );
   }
 
   bool read_failed = ferror(file) != 0;
@@ -283,12 +305,14 @@ start_receiving_file(
 
   write_console_line(receiving_file->path);
 
-  if (area512_resolve_data_path(
-        receiving_file->path,
-        receiving_file->full_path,
-        sizeof(receiving_file->full_path)
-      ) != 0 ||
-      strcmp(receiving_file->full_path, AREA512_DATA_ROOT) == 0) {
+  if (
+    area512_resolve_data_path(
+      receiving_file->path,
+      receiving_file->full_path,
+      sizeof(receiving_file->full_path)
+    ) != 0 ||
+    strcmp(receiving_file->full_path, AREA512_DATA_ROOT) == 0
+  ) {
 
     write_console_line("NG bad path");
     write_reply("NG bad path");
@@ -296,7 +320,10 @@ start_receiving_file(
     return;
   }
 
-  if (!area512_ensure_parent_directories(receiving_file->full_path)) {
+  if (
+    !area512_ensure_parent_directories(receiving_file->full_path)
+  ) {
+
     write_console_line("NG mkdir failed");
     write_reply("NG mkdir failed");
 
@@ -312,9 +339,13 @@ start_receiving_file(
     return;
   }
 
-  receiving_file->byte_count = strtol(byte_count_text, NULL, 10);
+  receiving_file->byte_count =
+    strtol(byte_count_text, NULL, 10);
+
   receiving_file->received_byte_count = 0;
-  receiving_file->crc32 = (uint32_t)strtoul(crc32_text, NULL, 16);
+
+  receiving_file->crc32 =
+    (uint32_t)strtoul(crc32_text, NULL, 16);
 
   draw_progress_row(progress_row_sprite, receiving_file);
 
@@ -338,8 +369,13 @@ finish_receiving_file(ReceivingFile *receiving_file) {
     return;
   }
 
-  if (compute_file_crc32(receiving_file->full_path, &computed_crc32) != 0 ||
-      computed_crc32 != receiving_file->crc32) {
+  if (
+    compute_file_crc32(
+      receiving_file->full_path,
+      &computed_crc32
+    ) != 0 ||
+    computed_crc32 != receiving_file->crc32
+  ) {
 
     unlink(receiving_file->full_path);
 
@@ -359,8 +395,14 @@ make_directory(const char *path) {
 
   write_console_line(path);
 
-  if (area512_resolve_data_path(path, full_path, sizeof(full_path)) != 0 ||
-      strcmp(full_path, AREA512_DATA_ROOT) == 0) {
+  if (
+    area512_resolve_data_path(
+      path,
+      full_path,
+      sizeof(full_path)
+    ) != 0 ||
+    strcmp(full_path, AREA512_DATA_ROOT) == 0
+  ) {
 
     write_console_line("NG bad path");
     write_reply("NG bad path");
@@ -368,8 +410,10 @@ make_directory(const char *path) {
     return;
   }
 
-  if (!area512_ensure_parent_directories(full_path) ||
-      !area512_ensure_directory(full_path)) {
+  if (
+    !area512_ensure_parent_directories(full_path) ||
+    !area512_ensure_directory(full_path)
+  ) {
 
     write_console_line("NG mkdir failed");
     write_reply("NG mkdir failed");
@@ -388,12 +432,21 @@ execute_command_line(
   void *progress_row_sprite
 ) {
 
-  if (receiving_file->file != NULL &&
-      strncmp(command_line, DATA_COMMAND_PREFIX, strlen(DATA_COMMAND_PREFIX)) ==
-        0) {
+  if (
+    receiving_file->file != NULL &&
+    strncmp(
+      command_line,
+      DATA_COMMAND_PREFIX,
+      strlen(DATA_COMMAND_PREFIX)
+    ) == 0
+  ) {
 
     long chunk_byte_count =
-      strtol(command_line + strlen(DATA_COMMAND_PREFIX), NULL, 10);
+      strtol(
+        command_line + strlen(DATA_COMMAND_PREFIX),
+        NULL,
+        10
+      );
 
     int chunk_result = receive_chunk(receiving_file, chunk_byte_count);
 
@@ -427,24 +480,30 @@ execute_command_line(
     close_and_delete_receiving_file(receiving_file);
   }
 
-  if (strncmp(
-        command_line,
-        MKDIR_COMMAND_PREFIX,
-        strlen(MKDIR_COMMAND_PREFIX)
-      ) == 0) {
+  if (
+    strncmp(
+      command_line,
+      MKDIR_COMMAND_PREFIX,
+      strlen(MKDIR_COMMAND_PREFIX)
+    ) == 0
+  ) {
 
     make_directory(command_line + strlen(MKDIR_COMMAND_PREFIX));
-  } else if (strncmp(
-               command_line,
-               FILE_COMMAND_PREFIX,
-               strlen(FILE_COMMAND_PREFIX)
-             ) == 0) {
+
+  } else if (
+    strncmp(
+      command_line,
+      FILE_COMMAND_PREFIX,
+      strlen(FILE_COMMAND_PREFIX)
+    ) == 0
+  ) {
 
     start_receiving_file(
       receiving_file,
       command_line + strlen(FILE_COMMAND_PREFIX),
       progress_row_sprite
     );
+
   } else if (strcmp(command_line, DONE_COMMAND) == 0) {
     write_reply("OK");
 
@@ -461,15 +520,19 @@ drain_rxfifo(void) {
   uint8_t discarded_bytes[DRAIN_BUFFER_SIZE];
   TickType_t last_received_tick = xTaskGetTickCount();
 
-  while (xTaskGetTickCount() - last_received_tick <
-         pdMS_TO_TICKS(DRAIN_SILENCE_MS)) {
+  while (
+    xTaskGetTickCount() - last_received_tick < pdMS_TO_TICKS(DRAIN_SILENCE_MS)
+  ) {
 
-    if (usb_serial_jtag_ll_read_rxfifo(
-          discarded_bytes,
-          sizeof(discarded_bytes)
-        ) > 0) {
+    if (
+      usb_serial_jtag_ll_read_rxfifo(
+        discarded_bytes,
+        sizeof(discarded_bytes)
+      ) > 0
+    ) {
 
       last_received_tick = xTaskGetTickCount();
+
     } else {
       vTaskDelay(1);
     }
@@ -487,11 +550,12 @@ area512_usb_receive_files(void) {
 
   area512_console_reset();
 
-  void *progress_row_sprite = area512_sprite_new_with_font_size(
-    area512_gfx_width(),
-    area512_console_row_height(),
-    area512_console_font_size()
-  );
+  void *progress_row_sprite =
+    area512_sprite_new_with_font_size(
+      area512_gfx_width(),
+      area512_console_row_height(),
+      area512_console_font_size()
+    );
 
   write_console_line("Receiving over USB. Esc to exit");
 
@@ -500,11 +564,13 @@ area512_usb_receive_files(void) {
       break;
     }
 
-    if (execute_command_line(
-          &receiving_file,
-          command_line,
-          progress_row_sprite
-        ) != COMMAND_EXECUTED) {
+    if (
+      execute_command_line(
+        &receiving_file,
+        command_line,
+        progress_row_sprite
+      ) != COMMAND_EXECUTED
+    ) {
 
       break;
     }

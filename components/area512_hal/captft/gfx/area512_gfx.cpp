@@ -20,13 +20,13 @@
 #define AREA512_FILER_FONT (&lgfx::v1::fonts::efontJA_12)
 
 static constexpr int SPRITE_PIXEL_BYTE_SIZE = 2;
-static constexpr int SCREEN_REGION_ROW_COUNT = 32;
 static constexpr int ROW_SLOT_WIDTH = 320;
 static constexpr int ROW_SLOT_HEIGHT = 13;
 static constexpr int ROW_SLOT_COUNT = 2;
 
 static constexpr size_t SCREEN_SLOT_BYTE_SIZE =
-  (size_t)ROW_SLOT_WIDTH * SCREEN_REGION_ROW_COUNT * SPRITE_PIXEL_BYTE_SIZE;
+  (size_t)ROW_SLOT_WIDTH * AREA512_SCREEN_REGION_ROW_COUNT *
+  SPRITE_PIXEL_BYTE_SIZE;
 
 static constexpr size_t ROW_SLOT_BYTE_SIZE = (size_t)ROW_SLOT_WIDTH *
   ROW_SLOT_HEIGHT * SPRITE_PIXEL_BYTE_SIZE;
@@ -494,6 +494,35 @@ area512_sprite_fill_rect(void *p, int x, int y, int w, int h, uint32_t color) {
 }
 
 void
+area512_sprite_draw_theme_bitmap(
+  void *p,
+  int x,
+  int y,
+  const uint8_t *bitmap,
+  int w,
+  int h
+) {
+
+  if (p == nullptr || bitmap == nullptr)
+    return;
+
+  uint32_t set_bit_color;
+  uint32_t clear_bit_color;
+
+  area512_theme_pick_bitmap_colors(&set_bit_color, &clear_bit_color);
+
+  static_cast<lgfx::v1::LGFX_Sprite *>(p)->drawBitmap(
+    x,
+    subtract_screen_buffer_origin(p, y),
+    bitmap,
+    w,
+    h,
+    set_bit_color,
+    clear_bit_color
+  );
+}
+
+void
 area512_sprite_blend_rect(
   void *p,
   int x,
@@ -695,7 +724,7 @@ area512_screen_new(int font_size) {
   spr->setBuffer(
     slot->buffer,
     area512_gfx_width(),
-    SCREEN_REGION_ROW_COUNT,
+    AREA512_SCREEN_REGION_ROW_COUNT,
     16
   );
 
@@ -735,7 +764,7 @@ area512_screen_begin_region(void *p) {
     (int)(SCREEN_SLOT_BYTE_SIZE /
     ((size_t)screen_width * SPRITE_PIXEL_BYTE_SIZE));
 
-  int destination_row_count = SCREEN_REGION_ROW_COUNT;
+  int destination_row_count = AREA512_SCREEN_REGION_ROW_COUNT;
 
   if (destination_row_count > screen_height - s_screen_next_row)
     destination_row_count = screen_height - s_screen_next_row;
@@ -762,6 +791,31 @@ area512_screen_begin_region(void *p) {
   s_screen_buffer_row_count = source_row_count;
   s_screen_destination_row_count = destination_row_count;
   s_screen_next_row += destination_row_count;
+
+  return 1;
+}
+
+int
+area512_screen_begin_region_at(void *screen, int first_row, int row_count) {
+  if (
+    screen == nullptr ||
+    screen != s_screen_sprite ||
+    area512_gfx_device() == nullptr ||
+    row_count <= 0 ||
+    row_count > AREA512_SCREEN_REGION_ROW_COUNT
+  )
+    return 0;
+
+  s_screen_sprite->setBuffer(
+    s_sprite_slots[SCREEN_SLOT_INDEX].buffer,
+    area512_gfx_width(),
+    row_count,
+    16
+  );
+
+  s_screen_buffer_first_row = first_row;
+  s_screen_buffer_row_count = row_count;
+  s_screen_destination_row_count = row_count;
 
   return 1;
 }
@@ -958,6 +1012,16 @@ area512_gfx_height(void) {
 }
 
 void
+area512_gfx_fill_rect(int x, int y, int w, int h, uint32_t color) {
+  lgfx::v1::LGFX_Device *dev = area512_gfx_device();
+
+  if (dev == nullptr || w <= 0 || h <= 0)
+    return;
+
+  dev->fillRect(x + s_window_x, y + s_window_y, w, h, color);
+}
+
+void
 area512_gfx_fill_screen(uint32_t color) {
   lgfx::v1::LGFX_Device *dev = area512_gfx_device();
 
@@ -1011,19 +1075,18 @@ area512_gfx_show_bitmap(const void *bitmap, int line_delay_milliseconds) {
 }
 
 int
-area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
-  if (path == nullptr)
+area512_gfx_load_header_image(
+  const char *path,
+  uint8_t *bitmap,
+  size_t bitmap_size
+) {
+
+  if (path == nullptr || bitmap == nullptr)
     return 0;
 
   char full_path[AREA512_PATH_MAX];
 
-  if (
-    area512_resolve_data_path(
-      path,
-      full_path,
-      sizeof full_path
-    ) != 0
-  )
+  if (area512_resolve_data_path(path, full_path, sizeof full_path) != 0)
     return 0;
 
   FILE *file = fopen(full_path, "rb");
@@ -1041,14 +1104,11 @@ area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
     }
   }
 
-  uint8_t *bitmap =
-    array_started ? (uint8_t *)malloc(BITMAP_BYTE_SIZE) : nullptr;
-
   size_t filled_byte_count = 0;
 
-  if (bitmap != nullptr) {
+  if (array_started) {
     while (
-      filled_byte_count < BITMAP_BYTE_SIZE &&
+      filled_byte_count < bitmap_size &&
       read_text_line(file, line, sizeof(line))
     ) {
 
@@ -1056,7 +1116,7 @@ area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
       uint8_t parsed_byte;
 
       while (
-        filled_byte_count < BITMAP_BYTE_SIZE &&
+        filled_byte_count < bitmap_size &&
         parse_hex_byte(&cursor, &parsed_byte)
       )
         bitmap[filled_byte_count++] = parsed_byte;
@@ -1065,9 +1125,51 @@ area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
 
   fclose(file);
 
-  bool complete = filled_byte_count == BITMAP_BYTE_SIZE;
+  return filled_byte_count == bitmap_size ? 1 : 0;
+}
 
-  if (complete) {
+void
+area512_gfx_draw_theme_bitmap(
+  int x,
+  int y,
+  const uint8_t *bitmap,
+  int w,
+  int h
+) {
+
+  lgfx::v1::LGFX_Device *dev = area512_gfx_device();
+
+  if (dev == nullptr || bitmap == nullptr || w <= 0 || h <= 0)
+    return;
+
+  uint32_t set_bit_color;
+  uint32_t clear_bit_color;
+
+  area512_theme_pick_bitmap_colors(&set_bit_color, &clear_bit_color);
+
+  dev->startWrite();
+  dev->drawBitmap(
+    x + s_window_x,
+    y + s_window_y,
+    bitmap,
+    w,
+    h,
+    set_bit_color,
+    clear_bit_color
+  );
+  dev->endWrite();
+}
+
+int
+area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
+  uint8_t *bitmap = (uint8_t *)malloc(BITMAP_BYTE_SIZE);
+
+  if (bitmap == nullptr)
+    return 0;
+
+  int loaded = area512_gfx_load_header_image(path, bitmap, BITMAP_BYTE_SIZE);
+
+  if (loaded) {
     push_bitmap_scaled_to_screen(bitmap, 0);
 
     if (hold_milliseconds > 0)
@@ -1076,7 +1178,7 @@ area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
 
   free(bitmap);
 
-  return complete ? 1 : 0;
+  return loaded;
 }
 
 } // extern "C"

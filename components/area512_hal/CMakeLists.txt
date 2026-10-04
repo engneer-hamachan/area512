@@ -10,6 +10,7 @@ idf_component_register(
     console/getch.cpp
     ${AREA512_DISPLAY_DIR}console/output.c
     console/system_metrics.cpp
+    console/uptime.c
     console/vm_stats.c
     ${AREA512_DISPLAY_DIR}gfx/area512_display.cpp
     ${AREA512_DISPLAY_DIR}gfx/area512_gfx.cpp
@@ -28,6 +29,7 @@ idf_component_register(
     M5Unified
     m5gfx
   PRIV_REQUIRES
+    esp_timer
     esp_driver_gpio
     esp_driver_spi
     esp_driver_sdspi

@@ -40,18 +40,21 @@ write_progress_line(long done_byte_count, long total_byte_count) {
 
 static const esp_partition_t *
 find_ota_partition(char *message, size_t message_size) {
-  if (esp_ota_get_running_partition()->subtype !=
-      ESP_PARTITION_SUBTYPE_APP_FACTORY) {
+  if (
+    esp_ota_get_running_partition()->subtype !=
+    ESP_PARTITION_SUBTYPE_APP_FACTORY
+  ) {
 
     snprintf(message, message_size, "Not running from factory");
     return NULL;
   }
 
-  const esp_partition_t *ota_partition = esp_partition_find_first(
-    ESP_PARTITION_TYPE_APP,
-    ESP_PARTITION_SUBTYPE_APP_OTA_0,
-    NULL
-  );
+  const esp_partition_t *ota_partition =
+    esp_partition_find_first(
+      ESP_PARTITION_TYPE_APP,
+      ESP_PARTITION_SUBTYPE_APP_OTA_0,
+      NULL
+    );
 
   if (ota_partition == NULL) {
     snprintf(message, message_size, "No ota_0 partition");
@@ -70,8 +73,12 @@ read_app_name(
 
   esp_app_desc_t app_description;
 
-  if (esp_ota_get_partition_description(ota_partition, &app_description) !=
-      ESP_OK) {
+  if (
+    esp_ota_get_partition_description(
+      ota_partition,
+      &app_description
+    ) != ESP_OK
+  ) {
 
     return -1;
   }
@@ -100,8 +107,10 @@ static bool
 has_partition_table_at_merged_offset(FILE *file, long image_byte_count) {
   uint16_t magic = 0;
 
-  if (image_byte_count <
-      MERGED_IMAGE_PARTITION_TABLE_OFFSET + (long)sizeof(magic)) {
+  if (
+    image_byte_count < MERGED_IMAGE_PARTITION_TABLE_OFFSET + (long)sizeof(magic)
+  ) {
+
     return false;
   }
 
@@ -136,6 +145,7 @@ check_app_image_file(
       image_byte_count,
       (unsigned long)ota_partition->size
     );
+
     return -1;
   }
 
@@ -173,17 +183,24 @@ copy_file_to_ota_partition(
   }
 
   esp_ota_handle_t ota_handle;
+
   esp_err_t result =
-    esp_ota_begin(ota_partition, OTA_WITH_SEQUENTIAL_WRITES, &ota_handle);
+    esp_ota_begin(
+      ota_partition,
+      OTA_WITH_SEQUENTIAL_WRITES,
+      &ota_handle
+    );
 
   if (result != ESP_OK) {
     free(copy_buffer);
+
     snprintf(
       message,
       message_size,
       "esp_ota_begin: %s",
       esp_err_to_name(result)
     );
+
     return -1;
   }
 
@@ -191,7 +208,8 @@ copy_file_to_ota_partition(
   long next_progress_byte_count = 0;
 
   while (written_byte_count < image_byte_count) {
-    size_t read_byte_count = fread(copy_buffer, 1, COPY_BUFFER_SIZE, file);
+    size_t read_byte_count =
+      fread(copy_buffer, 1, COPY_BUFFER_SIZE, file);
 
     if (read_byte_count == 0) {
       snprintf(message, message_size, "Read failed");
@@ -199,7 +217,12 @@ copy_file_to_ota_partition(
       break;
     }
 
-    result = esp_ota_write(ota_handle, copy_buffer, read_byte_count);
+    result =
+      esp_ota_write(
+        ota_handle,
+        copy_buffer,
+        read_byte_count
+      );
 
     if (result != ESP_OK) {
       snprintf(
@@ -208,13 +231,18 @@ copy_file_to_ota_partition(
         "esp_ota_write: %s",
         esp_err_to_name(result)
       );
+
       break;
     }
 
     written_byte_count += (long)read_byte_count;
 
     if (written_byte_count >= next_progress_byte_count) {
-      write_progress_line(written_byte_count, image_byte_count);
+      write_progress_line(
+        written_byte_count,
+        image_byte_count
+      );
+
       next_progress_byte_count +=
         image_byte_count * PROGRESS_STEP_PERCENT / 100;
     }
@@ -230,7 +258,13 @@ copy_file_to_ota_partition(
   result = esp_ota_end(ota_handle);
 
   if (result != ESP_OK) {
-    snprintf(message, message_size, "esp_ota_end: %s", esp_err_to_name(result));
+    snprintf(
+      message,
+      message_size,
+      "esp_ota_end: %s",
+      esp_err_to_name(result)
+    );
+
     return -1;
   }
 
@@ -254,7 +288,8 @@ area512_restore_factory_boot_partition(void) {
 
 int
 area512_read_installed_app_name(char *name, size_t name_size) {
-  const esp_partition_t *ota_partition = find_ota_partition(NULL, 0);
+  const esp_partition_t *ota_partition =
+    find_ota_partition(NULL, 0);
 
   if (ota_partition == NULL) {
     return -1;
@@ -279,7 +314,14 @@ area512_install_app_image(
 
   char full_path[AREA512_PATH_MAX];
 
-  if (area512_resolve_data_path(path, full_path, sizeof(full_path)) != 0) {
+  if (
+    area512_resolve_data_path(
+      path,
+      full_path,
+      sizeof(full_path)
+    ) != 0
+  ) {
+
     snprintf(message, message_size, "Bad path");
     return -1;
   }
@@ -293,13 +335,15 @@ area512_install_app_image(
 
   long image_byte_count = measure_file_byte_count(file);
 
-  if (check_app_image_file(
-        file,
-        image_byte_count,
-        ota_partition,
-        message,
-        message_size
-      ) != 0) {
+  if (
+    check_app_image_file(
+      file,
+      image_byte_count,
+      ota_partition,
+      message,
+      message_size
+    ) != 0
+  ) {
 
     fclose(file);
     return -1;
@@ -308,18 +352,24 @@ area512_install_app_image(
   area512_console_reset();
   write_console_line("Installing to ota_0");
 
-  int copy_result = copy_file_to_ota_partition(
-    file,
-    image_byte_count,
-    ota_partition,
-    message,
-    message_size
-  );
+  int copy_result =
+    copy_file_to_ota_partition(
+      file,
+      image_byte_count,
+      ota_partition,
+      message,
+      message_size
+    );
 
   fclose(file);
 
   if (copy_result != 0) {
-    esp_partition_erase_range(ota_partition, 0, APP_HEADER_ERASE_SIZE);
+    esp_partition_erase_range(
+      ota_partition,
+      0,
+      APP_HEADER_ERASE_SIZE
+    );
+
     return -1;
   }
 
@@ -377,11 +427,18 @@ area512_uninstall_app(char *message, size_t message_size) {
   long partition_byte_count = (long)ota_partition->size;
   long next_progress_byte_count = 0;
 
-  for (long offset = 0; offset < partition_byte_count;
-       offset += ERASE_CHUNK_SIZE) {
+  for (
+    long offset = 0;
+    offset < partition_byte_count;
+    offset += ERASE_CHUNK_SIZE
+  ) {
 
     esp_err_t result =
-      esp_partition_erase_range(ota_partition, offset, ERASE_CHUNK_SIZE);
+      esp_partition_erase_range(
+        ota_partition,
+        offset,
+        ERASE_CHUNK_SIZE
+      );
 
     if (result != ESP_OK) {
       snprintf(
@@ -396,7 +453,11 @@ area512_uninstall_app(char *message, size_t message_size) {
     long erased_byte_count = offset + ERASE_CHUNK_SIZE;
 
     if (erased_byte_count >= next_progress_byte_count) {
-      write_progress_line(erased_byte_count, partition_byte_count);
+      write_progress_line(
+        erased_byte_count,
+        partition_byte_count
+      );
+
       next_progress_byte_count +=
         partition_byte_count * PROGRESS_STEP_PERCENT / 100;
     }

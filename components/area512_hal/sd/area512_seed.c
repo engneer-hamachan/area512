@@ -118,8 +118,11 @@ find_seed_directory_index(const char *entry_name) {
 
 bool
 area512_ensure_parent_directories(char *full_path) {
-  for (char *cursor = full_path + strlen(AREA512_DATA_ROOT) + 1; *cursor;
-       cursor++) {
+  for (
+    char *cursor = full_path + strlen(AREA512_DATA_ROOT) + 1;
+    *cursor;
+    cursor++
+  ) {
 
     if (*cursor != '/') {
       continue;

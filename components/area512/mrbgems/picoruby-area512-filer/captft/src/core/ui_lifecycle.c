@@ -3,6 +3,7 @@
 #if defined(PICORB_VM_MRUBYC)
 
 #include "area512_hal.h"
+#include "core/draw/window_switch.h"
 #include "core/filer.h"
 
 void
@@ -20,6 +21,9 @@ area512_filer_setup_ui(Filer *filer) {
         FILER_FONT_SIZE
       );
   }
+
+  if (!filer->terminal)
+    ensure_window_closed_with_switch_off(filer);
 }
 
 void
