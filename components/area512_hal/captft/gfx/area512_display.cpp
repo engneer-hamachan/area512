@@ -44,7 +44,7 @@ configure_panel(void) {
 
   // SPI2: Cap TFT only.
   bus_config.spi_mode = 0;
-  bus_config.freq_write = 40000000;
+  bus_config.freq_write = 10000000;
   bus_config.spi_3wire = false;
   bus_config.pin_dc = 6;
 
