@@ -21,12 +21,12 @@
 #define AREA512_FILER_FONT (&lgfx::v1::fonts::efontJA_12)
 
 static constexpr int SPRITE_PIXEL_BYTE_SIZE = 2;
-static constexpr int SCREEN_REGION_ROW_COUNT = 32;
 static constexpr int ROW_SLOT_WIDTH = 240;
 static constexpr int ROW_SLOT_HEIGHT = 13;
 static constexpr int ROW_SLOT_COUNT = 2;
 static constexpr size_t SCREEN_SLOT_BYTE_SIZE =
-  (size_t)ROW_SLOT_WIDTH * SCREEN_REGION_ROW_COUNT * SPRITE_PIXEL_BYTE_SIZE;
+  (size_t)ROW_SLOT_WIDTH * AREA512_SCREEN_REGION_ROW_COUNT *
+  SPRITE_PIXEL_BYTE_SIZE;
 static constexpr size_t ROW_SLOT_BYTE_SIZE = (size_t)ROW_SLOT_WIDTH *
   ROW_SLOT_HEIGHT * SPRITE_PIXEL_BYTE_SIZE;
 static constexpr int SPRITE_SLOT_COUNT = ROW_SLOT_COUNT + 1;
@@ -518,7 +518,7 @@ area512_screen_new(int font_size) {
   spr->setBuffer(
     slot->buffer,
     area512_gfx_width(),
-    SCREEN_REGION_ROW_COUNT,
+    AREA512_SCREEN_REGION_ROW_COUNT,
     16
   );
 
@@ -558,7 +558,7 @@ area512_screen_begin_region(void *p) {
     (int)(SCREEN_SLOT_BYTE_SIZE /
     ((size_t)screen_width * SPRITE_PIXEL_BYTE_SIZE));
 
-  int destination_row_count = SCREEN_REGION_ROW_COUNT;
+  int destination_row_count = AREA512_SCREEN_REGION_ROW_COUNT;
 
   if (destination_row_count > screen_height - s_screen_next_row)
     destination_row_count = screen_height - s_screen_next_row;
@@ -585,6 +585,31 @@ area512_screen_begin_region(void *p) {
   s_screen_buffer_row_count = source_row_count;
   s_screen_destination_row_count = destination_row_count;
   s_screen_next_row += destination_row_count;
+
+  return 1;
+}
+
+int
+area512_screen_begin_region_at(void *screen, int first_row, int row_count) {
+  if (
+    screen == nullptr ||
+    screen != s_screen_sprite ||
+    area512_gfx_device() == nullptr ||
+    row_count <= 0 ||
+    row_count > AREA512_SCREEN_REGION_ROW_COUNT
+  )
+    return 0;
+
+  s_screen_sprite->setBuffer(
+    s_sprite_slots[SCREEN_SLOT_INDEX].buffer,
+    area512_gfx_width(),
+    row_count,
+    16
+  );
+
+  s_screen_buffer_first_row = first_row;
+  s_screen_buffer_row_count = row_count;
+  s_screen_destination_row_count = row_count;
 
   return 1;
 }
@@ -779,83 +804,115 @@ area512_gfx_set_brightness(int brightness) {
 }
 
 int
-area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
-  lgfx::v1::LGFX_Device *dev = area512_gfx_device();
-  if (dev == nullptr || path == nullptr)
+area512_gfx_load_header_image(
+  const char *path,
+  uint8_t *bitmap,
+  size_t bitmap_size
+) {
+
+  if (path == nullptr || bitmap == nullptr)
     return 0;
 
   char full_path[AREA512_PATH_MAX];
+
   if (area512_resolve_data_path(path, full_path, sizeof full_path) != 0)
     return 0;
 
   FILE *file = fopen(full_path, "rb");
+
   if (file == nullptr)
+    return 0;
+
+  char line[192];
+  bool array_started = false;
+
+  while (read_text_line(file, line, sizeof(line))) {
+    if (strchr(line, '{')) {
+      array_started = true;
+      break;
+    }
+  }
+
+  size_t filled_byte_count = 0;
+
+  if (array_started) {
+    while (
+      filled_byte_count < bitmap_size &&
+      read_text_line(file, line, sizeof(line))
+    ) {
+
+      const char *cursor = line;
+      uint8_t parsed_byte;
+
+      while (
+        filled_byte_count < bitmap_size &&
+        parse_hex_byte(&cursor, &parsed_byte)
+      )
+        bitmap[filled_byte_count++] = parsed_byte;
+    }
+  }
+
+  fclose(file);
+
+  return filled_byte_count == bitmap_size ? 1 : 0;
+}
+
+void
+area512_gfx_draw_theme_bitmap(
+  int x,
+  int y,
+  const uint8_t *bitmap,
+  int w,
+  int h
+) {
+
+  lgfx::v1::LGFX_Device *dev = area512_gfx_device();
+
+  if (dev == nullptr || bitmap == nullptr || w <= 0 || h <= 0)
+    return;
+
+  uint32_t set_bit_color;
+  uint32_t clear_bit_color;
+
+  area512_theme_pick_bitmap_colors(&set_bit_color, &clear_bit_color);
+
+  // LGFX converts RGB888 to the panel's color depth itself.
+  const lgfx::v1::rgb888_t color_on(set_bit_color);
+  const lgfx::v1::rgb888_t color_off(clear_bit_color);
+
+  dev->startWrite();
+  dev->drawBitmap(x, y, bitmap, w, h, color_on, color_off);
+  dev->endWrite();
+}
+
+int
+area512_gfx_show_header_image(const char *path, int hold_milliseconds) {
+  lgfx::v1::LGFX_Device *dev = area512_gfx_device();
+
+  if (dev == nullptr)
     return 0;
 
   // Images are authored at the panel's exact size, so use its dimensions.
   const int img_w = dev->width();
   const int img_h = dev->height();
-  bool in_array = false;
-  bool ok = false;
-  char line[192];
+  size_t bitmap_size = (size_t)((img_w + 7) / 8) * img_h;
+  uint8_t *bitmap = (uint8_t *)malloc(bitmap_size);
 
-  while (read_text_line(file, line, sizeof(line))) {
-    if (strchr(line, '{')) {
-      in_array = true;
-      break;
-    }
-  }
+  if (bitmap == nullptr)
+    return 0;
 
-  const int rowbytes = (img_w + 7) / 8;
-  uint8_t *row = nullptr;
+  int loaded = area512_gfx_load_header_image(path, bitmap, bitmap_size);
 
-  if (in_array && rowbytes > 0) {
-    row = (uint8_t *)malloc((size_t)rowbytes);
-  }
+  if (loaded) {
+    area512_gfx_draw_theme_bitmap(0, 0, bitmap, img_w, img_h);
 
-  if (row != nullptr) {
-    uint32_t set_bit_color;
-    uint32_t clear_bit_color;
-
-    area512_theme_pick_bitmap_colors(&set_bit_color, &clear_bit_color);
-
-    // LGFX converts RGB888 to the panel's color depth itself.
-    const lgfx::v1::rgb888_t color_on(set_bit_color);
-    const lgfx::v1::rgb888_t color_off(clear_bit_color);
-    int y = 0;
-    int col = 0;
-
-    while (read_text_line(file, line, sizeof(line)) && y < img_h) {
-      const char *p = line;
-      uint8_t byte;
-
-      while (parse_hex_byte(&p, &byte)) {
-        row[col++] = byte;
-
-        if (col >= rowbytes) {
-          dev->startWrite();
-          dev->drawBitmap(0, y, row, img_w, 1, color_on, color_off);
-          dev->endWrite();
-          ++y;
-          col = 0;
-
-          if (y >= img_h)
-            break;
-        }
-      }
-    }
-
-    ok = (y >= img_h);
-
-    free(row);
-
-    if (ok && hold_milliseconds > 0) {
+    if (hold_milliseconds > 0)
       vTaskDelay(pdMS_TO_TICKS(hold_milliseconds));
-    }
   }
 
-  fclose(file);
-  return ok ? 1 : 0;
+  free(bitmap);
+
+  return loaded;
 }
 
 } // extern "C"

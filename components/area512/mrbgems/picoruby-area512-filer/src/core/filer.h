@@ -40,6 +40,10 @@
 #define ACTION_CHANGE_DIR 17
 #define ACTION_IRB 18
 #define ACTION_PYTHON_REPL 19
+#define ACTION_RECEIVE_FILES 20
+#define ACTION_INSTALL_APP_IMAGE 21
+#define ACTION_LAUNCH_INSTALLED_APP 22
+#define ACTION_UNINSTALL_APP 23
 
 #define TARGET_RESOLVED 0
 #define TARGET_INVALID 1
@@ -60,6 +64,9 @@
 #define KEY_MOVE 1014
 #define KEY_COPY 1015
 #define KEY_TERMINAL 1016
+#define KEY_RECEIVE_FILES 1017
+#define KEY_LAUNCH_INSTALLED_APP 1018
+#define KEY_UNINSTALL_APP 1019
 
 typedef struct {
   char name[NAME_MAX];
@@ -116,6 +123,7 @@ int is_ruby_file_path(const char *file_path);
 int is_python_file_path(const char *file_path);
 int is_markdown_file_path(const char *file_path);
 int is_dot_image_file_path(const char *file_path);
+int is_app_image_file_path(const char *file_path);
 int is_source_file_path(const char *file_path);
 int is_editable_file_path(const char *file_path);
 
@@ -125,6 +133,7 @@ int is_selected_ruby_file(Filer *filer);
 int is_selected_python_file(Filer *filer);
 int is_selected_source_file(Filer *filer);
 int is_selected_dot_image_file(Filer *filer);
+int is_selected_app_image_file(Filer *filer);
 
 void fit_string(
   char *destination,

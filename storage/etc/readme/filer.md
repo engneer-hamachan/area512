@@ -25,6 +25,7 @@ Enter chooses an action from the selected file's extension.
 - `.mpy`: run Python bytecode
 - `.md`: open the Markdown viewer
 - `.a5d`: open the dot image editor
+- `.bin`: after confirmation, install the app image to the `ota_0` partition
 
 For other files, use `e` to open Vim. Vim editing is not available for `.mrb`, `.mpy`, or `.a5d` files.
 
@@ -39,6 +40,16 @@ For other files, use `e` to open Vim. Vim editing is not available for `.mrb`, `
 Filer runs the first one it finds. This action does not compile source files first. Use `c` or `a` to compile sources when needed.
 
 On an external-display setup, Filer shows the app's `README.md` on the internal display when launching the app.
+
+## Installed app
+
+One app image (`.bin`) can be installed in flash. It stays installed until you uninstall it or install another one.
+
+- Enter on a `.bin`: install it, replacing the installed app
+- `L`: start the installed app
+- `U`: erase the installed app
+
+Each asks for confirmation. A `.bin` must be an app image of 1984 KB or less. Images with a bootloader and partition table (merged images) are rejected. Turning the power off and on returns to Area512.
 
 ## Compile
 
@@ -99,6 +110,9 @@ Command arguments are separated by spaces. Quoting and escaping spaces in names 
 ## Terminal run and edit
 
 - `run file`: run a `.rb`, `.mrb`, `.py`, or `.mpy` file
+- `install file`: install a `.bin` app image
+- `launch`: start the installed app
+- `uninstall`: erase the installed app
 - `run dir`: launch a directory app using the same order as `R`
 - `md file`: view a `.md` file
 - `dot file`: edit an `.a5d` image

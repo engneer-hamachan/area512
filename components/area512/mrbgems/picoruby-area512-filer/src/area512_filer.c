@@ -249,6 +249,79 @@ c_filer_run(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
   SET_INT_RETURN(action);
 }
 
+static void
+c_filer_receive_files(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  (void)virtual_machine;
+  (void)v;
+  (void)argument_count;
+
+  area512_usb_receive_files();
+
+  SET_NIL_RETURN();
+}
+
+static void
+c_filer_install_app_image(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  (void)argument_count;
+
+  char path[CURRENT_DIRECTORY_MAX];
+  char message[MESSAGE_MAX];
+
+  copy_string(path, CURRENT_DIRECTORY_MAX, &v[1]);
+
+  area512_install_app_image(path, message, sizeof(message));
+
+  mrbc_value result = mrbc_string_new_cstr(virtual_machine, message);
+
+  SET_RETURN(result);
+}
+
+static void
+c_filer_launch_installed_app(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  (void)argument_count;
+
+  char message[MESSAGE_MAX];
+
+  area512_launch_installed_app(message, sizeof(message));
+
+  mrbc_value result = mrbc_string_new_cstr(virtual_machine, message);
+
+  SET_RETURN(result);
+}
+
+static void
+c_filer_uninstall_app(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  (void)argument_count;
+
+  char message[MESSAGE_MAX];
+
+  area512_uninstall_app(message, sizeof(message));
+
+  mrbc_value result = mrbc_string_new_cstr(virtual_machine, message);
+
+  SET_RETURN(result);
+}
+
 // -----------------------------------------------------------------------------
 // Init
 // -----------------------------------------------------------------------------
@@ -315,6 +388,34 @@ mrbc_area512_filer_init(mrbc_vm *virtual_machine) {
   );
 
   mrbc_define_method(virtual_machine, class_Filer, "run", c_filer_run);
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Filer,
+    "receive_files",
+    c_filer_receive_files
+  );
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Filer,
+    "install_app_image",
+    c_filer_install_app_image
+  );
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Filer,
+    "launch_installed_app",
+    c_filer_launch_installed_app
+  );
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Filer,
+    "uninstall_app",
+    c_filer_uninstall_app
+  );
 }
 
 #elif defined(PICORB_VM_MRUBY)

@@ -44,7 +44,11 @@ configure_panel(void) {
 
   // SPI2: Cap TFT only.
   bus_config.spi_mode = 0;
+#if defined(AREA512_CAPTFT_ILI9341)
+  bus_config.freq_write = 20000000;
+#else
   bus_config.freq_write = 40000000;
+#endif
   bus_config.spi_3wire = false;
   bus_config.pin_dc = 6;
 

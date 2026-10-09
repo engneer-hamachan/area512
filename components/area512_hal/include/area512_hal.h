@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -62,6 +63,8 @@ int area512_sprite_text_width(void *p, const char *str);
 void area512_sprite_push(void *p, int x, int y);
 void area512_sprite_push_transparent(void *p, int x, int y, uint32_t transp);
 
+#define AREA512_SCREEN_REGION_ROW_COUNT 32
+
 // One sprite draws the whole screen a band of rows at a time, reusing the
 // screen pixel buffer. Drawing between area512_screen_begin_region() and
 // area512_screen_push_region() uses screen coordinates; rows outside the band
@@ -88,6 +91,7 @@ int area512_screen_draw_rgb565(
 // Transfer the previous region, then prepare the next; false after the final transfer.
 int area512_screen_draw(void *p);
 int area512_screen_begin_region(void *p);
+int area512_screen_begin_region_at(void *screen, int first_row, int row_count);
 int area512_screen_region_top(void *p);
 int area512_screen_region_bottom(void *p);
 void area512_screen_push_region(void *p);
@@ -97,6 +101,18 @@ int area512_gfx_height(void);
 void area512_gfx_fill_screen(uint32_t color);
 void area512_gfx_set_brightness(int brightness);
 int area512_gfx_show_header_image(const char *path, int hold_milliseconds);
+int area512_gfx_load_header_image(
+  const char *path,
+  uint8_t *bitmap,
+  size_t bitmap_size
+);
+void area512_gfx_draw_theme_bitmap(
+  int x,
+  int y,
+  const uint8_t *bitmap,
+  int w,
+  int h
+);
 
 int area512_sd_mount(const char *base_path);
 int area512_sd_unmount(void);
@@ -104,6 +120,21 @@ int area512_sd_mounted(void);
 int area512_seed_restore(void);
 int area512_seed_update(void);
 const uint8_t *area512_seed_find_file(const char *path, size_t *size);
+bool area512_ensure_directory(const char *path);
+bool area512_ensure_parent_directories(char *full_path);
+
+void area512_usb_receive_files(void);
+bool area512_usb_receive_owns_rxfifo(void);
+
+void area512_restore_factory_boot_partition(void);
+int area512_read_installed_app_name(char *name, size_t name_size);
+int area512_install_app_image(
+  const char *path,
+  char *message,
+  size_t message_size
+);
+int area512_launch_installed_app(char *message, size_t message_size);
+int area512_uninstall_app(char *message, size_t message_size);
 
 void area512_theme_load(void);
 uint32_t area512_theme_background_color(void);

@@ -1,5 +1,6 @@
 // Firmware entry: brings up NVS, the mruby/c VM heap, and the main Ruby
 // task, then runs the VM. Called once from the ESP-IDF app_main.
+#include "area512_hal.h"
 #include "picoruby.h"
 #include "ports/tree_sitter_port.h"
 #include "sdkconfig.h"
@@ -48,6 +49,7 @@ setup(void) {
 void
 area512_main(void) {
   setup();
+  area512_restore_factory_boot_partition();
 
   mrbc_init(s_heap_pool, HEAP_SIZE);
 

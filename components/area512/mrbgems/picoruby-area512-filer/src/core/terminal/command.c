@@ -30,6 +30,10 @@ static const char *const COMMAND_NAME_TABLE[] = {
   "cp",
   "reboot",
   "fullupdate",
+  "recv",
+  "install",
+  "launch",
+  "uninstall",
   "ls",
   "pwd",
   "top",
@@ -188,6 +192,27 @@ read_terminal_yes_no_confirmation(Filer *filer, const char *question) {
 }
 
 static int
+confirm_terminal_installed_app_action(Filer *filer, const char *verb) {
+  char app_name[NAME_MAX];
+  char question_text[MESSAGE_MAX];
+
+  if (area512_read_installed_app_name(app_name, sizeof app_name) != 0) {
+    append_output_text(filer->terminal, "No app installed");
+    return 0;
+  }
+
+  snprintf(
+    question_text,
+    sizeof question_text,
+    "%s %s? (y/n)",
+    verb,
+    app_name
+  );
+
+  return read_terminal_yes_no_confirmation(filer, question_text);
+}
+
+static int
 select_entry_by_name(Filer *filer, const char *entry_name) {
   int entry_index = 0;
 
@@ -297,6 +322,19 @@ prepare_filer_action(Filer *filer, const CommandLine *command_line) {
 
   if (strcmp(command_line->command_name, "reboot") == 0)
     return ACTION_REBOOT;
+
+  if (strcmp(command_line->command_name, "recv") == 0)
+    return ACTION_RECEIVE_FILES;
+
+  if (strcmp(command_line->command_name, "launch") == 0)
+    return confirm_terminal_installed_app_action(filer, "Launch")
+      ? ACTION_LAUNCH_INSTALLED_APP
+      : ACTION_NONE;
+
+  if (strcmp(command_line->command_name, "uninstall") == 0)
+    return confirm_terminal_installed_app_action(filer, "Uninstall")
+      ? ACTION_UNINSTALL_APP
+      : ACTION_NONE;
 
   if (strcmp(command_line->command_name, "fullupdate") == 0) {
     if (
@@ -445,6 +483,7 @@ prepare_filer_action(Filer *filer, const CommandLine *command_line) {
 
   if (
     strcmp(command_line->command_name, "run") == 0 ||
+    strcmp(command_line->command_name, "install") == 0 ||
     strcmp(command_line->command_name, "md") == 0 ||
     strcmp(command_line->command_name, "dot") == 0 ||
     strcmp(command_line->command_name, "vim") == 0 ||
@@ -532,6 +571,12 @@ prepare_filer_action(Filer *filer, const CommandLine *command_line) {
         is_python_file_path(command_line->first_argument)
       )
         return ACTION_RUN_PYTHON;
+
+      if (
+        strcmp(command_line->command_name, "install") == 0 &&
+        is_app_image_file_path(command_line->first_argument)
+      )
+        return ACTION_INSTALL_APP_IMAGE;
 
       if (
         strcmp(command_line->command_name, "md") == 0 &&

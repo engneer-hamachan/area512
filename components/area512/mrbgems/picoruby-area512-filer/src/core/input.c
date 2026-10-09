@@ -19,7 +19,12 @@ area512_filer_read_key(void) {
   int first_byte = area512_console_getch_block();
 
   if (first_byte == 27) {
-    if (area512_console_getch_timeout(40) != '[')
+    int second_byte = area512_console_getch_timeout(40);
+
+    if (second_byte == 'r')
+      return KEY_RECEIVE_FILES;
+
+    if (second_byte != '[')
       return first_byte;
     switch (read_csi_final_byte()) {
     case 'A':
@@ -78,6 +83,10 @@ area512_filer_read_key(void) {
     return KEY_COPY;
   case 't':
     return KEY_TERMINAL;
+  case 'L':
+    return KEY_LAUNCH_INSTALLED_APP;
+  case 'U':
+    return KEY_UNINSTALL_APP;
   default:
     return first_byte;
   }

@@ -82,20 +82,31 @@ draw_all(Filer *filer) {
   int draw_background = 1;
   int background_failed = 0;
 
-  while (area512_screen_begin_region(filer->screen)) {
-    int top = area512_screen_region_top(filer->screen);
-    int bottom = area512_screen_region_bottom(filer->screen);
-    int changed = 0;
+  int changed_first_row = 0;
 
-    for (int row = top; row < bottom; row++) {
-      if (changed_rows[row]) {
-        changed = 1;
-        break;
-      }
+  while (changed_first_row < SCREEN_HEIGHT) {
+    if (!changed_rows[changed_first_row]) {
+      changed_first_row++;
+      continue;
     }
 
-    if (!changed)
-      continue;
+    int changed_row_count = 0;
+
+    while (
+      changed_first_row + changed_row_count < SCREEN_HEIGHT &&
+      changed_rows[changed_first_row + changed_row_count] &&
+      changed_row_count < AREA512_SCREEN_REGION_ROW_COUNT
+    )
+      changed_row_count++;
+
+    if (
+      !area512_screen_begin_region_at(
+        filer->screen,
+        changed_first_row,
+        changed_row_count
+      )
+    )
+      break;
 
     area512_sprite_fill(filer->screen, area512_theme_background_color());
     filer->has_background_image = 0;
@@ -143,6 +154,8 @@ draw_all(Filer *filer) {
       draw_window_frame(filer);
 
     area512_screen_push_region(filer->screen);
+
+    changed_first_row += changed_row_count;
   }
 
   area512_sprite_delete(filer->screen);

@@ -18,6 +18,8 @@ idf_component_register(
     sd/area512_seed.c
     theme/area512_theme.c
     ui/area512_default_ui.c
+    usb/area512_usb_receive.c
+    ota/area512_app_image.c
   INCLUDE_DIRS
     include
     console
@@ -33,6 +35,9 @@ idf_component_register(
     fatfs
     spi_flash
     nvs_flash
+    app_update
+    bootloader_support
+    esp_partition
 )
 
 if(AREA512_EXT_DISPLAY)

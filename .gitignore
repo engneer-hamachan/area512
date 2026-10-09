@@ -9,3 +9,4 @@ dependencies.lock
 .cache
 managed_components/*
 area512-ti-lsp
+__pycache__/
