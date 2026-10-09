@@ -1,5 +1,4 @@
 #include "core/draw/draw.h"
-#include "core/draw/window_switch.h"
 
 #include <string.h>
 
@@ -16,19 +15,6 @@ draw_window_frame(Filer *filer) {
     AREA512_WINDOW_HEIGHT + 2,
     area512_theme_border_color()
   );
-
-  if (filer->window_image_bitmap) {
-    area512_sprite_draw_theme_bitmap(
-      filer->screen,
-      WINDOW_LEFT,
-      WINDOW_TOP,
-      filer->window_image_bitmap,
-      AREA512_WINDOW_WIDTH,
-      AREA512_WINDOW_HEIGHT
-    );
-
-    return;
-  }
 
   area512_sprite_fill_rect(
     filer->screen,
@@ -167,9 +153,6 @@ draw_all(Filer *filer) {
     if (filer->draws_window_frame)
       draw_window_frame(filer);
 
-    if (filer->draws_window_switch_shape)
-      draw_window_switch_shape(filer);
-
     area512_screen_push_region(filer->screen);
 
     changed_first_row += changed_row_count;
@@ -201,16 +184,4 @@ area512_filer_open_window(Filer *filer) {
     AREA512_WINDOW_WIDTH,
     AREA512_WINDOW_HEIGHT
   );
-}
-
-WindowRect
-compute_window_rect(const Filer *filer) {
-  (void)filer;
-
-  return (WindowRect){
-    .left = WINDOW_LEFT,
-    .top = WINDOW_TOP,
-    .width = AREA512_WINDOW_WIDTH,
-    .height = AREA512_WINDOW_HEIGHT,
-  };
 }

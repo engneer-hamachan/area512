@@ -1,6 +1,5 @@
 #if defined(PICORB_VM_MRUBYC)
 
-#include "core/draw/window_switch.h"
 #include "core/filer.h"
 #include "core/terminal/terminal.h"
 
@@ -262,14 +261,8 @@ c_filer_run(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
   case ACTION_INSTALL_APP_IMAGE:
   case ACTION_UNINSTALL_APP:
     area512_filer_setup_ui(filer);
-
-    if (action == ACTION_RUN_DIR)
-      load_window_image_bitmap(filer);
-
-    ensure_window_open_with_switch_on(filer);
     area512_filer_open_window(filer);
     area512_filer_teardown_ui(filer);
-    free_window_image_bitmap(filer);
 
     break;
 

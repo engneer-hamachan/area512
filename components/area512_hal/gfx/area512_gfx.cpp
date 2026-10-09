@@ -780,16 +780,6 @@ area512_gfx_height(void) {
 }
 
 void
-area512_gfx_fill_rect(int x, int y, int w, int h, uint32_t color) {
-  lgfx::v1::LGFX_Device *dev = area512_gfx_device();
-
-  if (dev == nullptr || w <= 0 || h <= 0)
-    return;
-
-  dev->fillRect(x, y, w, h, color);
-}
-
-void
 area512_gfx_fill_screen(uint32_t color) {
   lgfx::v1::LGFX_Device *dev = area512_gfx_device();
 

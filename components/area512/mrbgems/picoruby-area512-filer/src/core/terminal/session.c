@@ -1,6 +1,5 @@
 #if defined(PICORB_VM_MRUBYC)
 
-#include "core/draw/window_switch.h"
 #include "core/terminal/terminal.h"
 
 #include <stdio.h>
@@ -13,8 +12,6 @@ open_terminal_session(Filer *filer) {
 
   if (terminal == NULL)
     return;
-
-  ensure_window_open_with_switch_on(filer);
 
   memset(terminal, 0, sizeof(Terminal));
 
@@ -95,8 +92,6 @@ close_terminal_session(Filer *filer) {
 
   filer->terminal = NULL;
   filer->full_redraw = 1;
-
-  ensure_window_closed_with_switch_off(filer);
 }
 
 #endif

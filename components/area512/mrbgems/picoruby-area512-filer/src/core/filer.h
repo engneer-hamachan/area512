@@ -3,8 +3,6 @@
 // the Ruby side). VM-independent: no mruby/c here.
 #pragma once
 
-#include "core/window_switch_shape.h"
-
 #include <stdint.h>
 
 #define FILER_CHAR_WIDTH 6
@@ -86,8 +84,6 @@ typedef struct {
   FileEntry entries[VISIBLE_ROW_CAPACITY];
   char current_directory[CURRENT_DIRECTORY_MAX];
   char message[MESSAGE_MAX];
-  int draws_window_switch_shape;
-  WindowSwitchShape window_switch_shape;
   int panel_percent[PANEL_MAX_METRICS];
 } FilerDrawState;
 
@@ -101,10 +97,6 @@ typedef struct {
   int panel_top_row;
   int index, top, count, full_redraw;
   int has_background_image;
-  WindowSwitchShape window_switch_shape;
-  int draws_window_switch_shape;
-  int is_window_open;
-  uint8_t *window_image_bitmap;
   FilerDrawState drawn;
   char current_directory[CURRENT_DIRECTORY_MAX];
   char message[MESSAGE_MAX];

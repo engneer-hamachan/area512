@@ -494,35 +494,6 @@ area512_sprite_fill_rect(void *p, int x, int y, int w, int h, uint32_t color) {
 }
 
 void
-area512_sprite_draw_theme_bitmap(
-  void *p,
-  int x,
-  int y,
-  const uint8_t *bitmap,
-  int w,
-  int h
-) {
-
-  if (p == nullptr || bitmap == nullptr)
-    return;
-
-  uint32_t set_bit_color;
-  uint32_t clear_bit_color;
-
-  area512_theme_pick_bitmap_colors(&set_bit_color, &clear_bit_color);
-
-  static_cast<lgfx::v1::LGFX_Sprite *>(p)->drawBitmap(
-    x,
-    subtract_screen_buffer_origin(p, y),
-    bitmap,
-    w,
-    h,
-    set_bit_color,
-    clear_bit_color
-  );
-}
-
-void
 area512_sprite_blend_rect(
   void *p,
   int x,
@@ -1009,16 +980,6 @@ area512_gfx_height(void) {
     return s_window_height;
 
   return (int)dev->height();
-}
-
-void
-area512_gfx_fill_rect(int x, int y, int w, int h, uint32_t color) {
-  lgfx::v1::LGFX_Device *dev = area512_gfx_device();
-
-  if (dev == nullptr || w <= 0 || h <= 0)
-    return;
-
-  dev->fillRect(x + s_window_x, y + s_window_y, w, h, color);
 }
 
 void

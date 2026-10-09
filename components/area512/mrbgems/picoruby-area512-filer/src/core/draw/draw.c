@@ -1,5 +1,4 @@
 #include "core/draw/draw.h"
-#include "core/draw/window_switch.h"
 
 #include <string.h>
 
@@ -111,9 +110,6 @@ draw_all(Filer *filer) {
     draw_frame(filer);
     draw_header(filer);
 
-    if (filer->draws_window_switch_shape)
-      draw_window_switch_shape(filer);
-
     area512_screen_push_region(filer->screen);
 
     changed_first_row += changed_row_count;
@@ -127,14 +123,4 @@ draw_all(Filer *filer) {
   save_draw_state(filer, &panel_info);
 
   filer->drawn.valid = !background_failed;
-}
-
-WindowRect
-compute_window_rect(const Filer *filer) {
-  return (WindowRect){
-    .left = 0,
-    .top = 0,
-    .width = filer->width,
-    .height = filer->height,
-  };
 }

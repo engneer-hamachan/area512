@@ -1,5 +1,4 @@
 #include "core/draw/draw.h"
-#include "core/draw/window_switch.h"
 
 #include <string.h>
 
@@ -10,21 +9,8 @@ find_changed_rows(Filer *filer, const PanelInfo *info, uint8_t *rows) {
   memset(rows, 0, filer->height);
 
   if (
-    filer->draws_window_switch_shape &&
-    drawn->draws_window_switch_shape &&
-    !filer->full_redraw &&
-    drawn->valid
-  ) {
-
-    mark_window_switch_rows_changed(filer, rows);
-    return;
-  }
-
-  if (
     filer->full_redraw ||
     !drawn->valid ||
-    filer->draws_window_switch_shape ||
-    drawn->draws_window_switch_shape ||
     !area512_theme_background_image()[0]
   ) {
 
@@ -88,8 +74,6 @@ save_draw_state(Filer *filer, const PanelInfo *info) {
   drawn->index = filer->index;
   drawn->top = filer->top;
   drawn->count = filer->count;
-  drawn->draws_window_switch_shape = filer->draws_window_switch_shape;
-  drawn->window_switch_shape = filer->window_switch_shape;
 
   memcpy(
     drawn->current_directory,

@@ -18,14 +18,6 @@ void area512_sprite_round_rect(
 // and height restore the whole display.
 void area512_gfx_set_window(int x, int y, int width, int height);
 void area512_gfx_show_bitmap(const void *bitmap, int line_delay_milliseconds);
-void area512_sprite_draw_theme_bitmap(
-  void *p,
-  int x,
-  int y,
-  const uint8_t *bitmap,
-  int w,
-  int h
-);
 
 // Pair each successful begin with end. The panel keeps its contents after end.
 int area512_internal_display_begin(void);

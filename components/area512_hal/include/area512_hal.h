@@ -15,8 +15,6 @@ extern "C" {
 int
 area512_resolve_data_path(const char *path, char *buffer, size_t buffer_size);
 
-uint32_t area512_uptime_milliseconds(void);
-
 void area512_console_poll(void);
 int area512_console_getchar(void);
 int area512_console_getch_block(void);
@@ -101,7 +99,6 @@ void area512_screen_push_region(void *p);
 int area512_gfx_width(void);
 int area512_gfx_height(void);
 void area512_gfx_fill_screen(uint32_t color);
-void area512_gfx_fill_rect(int x, int y, int w, int h, uint32_t color);
 void area512_gfx_set_brightness(int brightness);
 int area512_gfx_show_header_image(const char *path, int hold_milliseconds);
 int area512_gfx_load_header_image(

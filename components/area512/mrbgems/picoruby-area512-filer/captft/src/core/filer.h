@@ -3,8 +3,6 @@
 // the Ruby side). VM-independent: no mruby/c here.
 #pragma once
 
-#include "core/window_switch_shape.h"
-
 #include <stdint.h>
 
 #define SCREEN_WIDTH 320
@@ -108,8 +106,6 @@ typedef struct {
   int valid;
   int index, top, count;
   int draws_window_frame;
-  int draws_window_switch_shape;
-  WindowSwitchShape window_switch_shape;
   FileEntry entries[ROWS_VISIBLE];
   char current_directory[CURRENT_DIRECTORY_MAX];
   char message[MESSAGE_MAX];
@@ -122,10 +118,6 @@ typedef struct {
   int index, top, count, full_redraw;
   int draws_window_frame;
   int has_background_image;
-  WindowSwitchShape window_switch_shape;
-  int draws_window_switch_shape;
-  int is_window_open;
-  uint8_t *window_image_bitmap;
   FilerDrawState drawn;
   char current_directory[CURRENT_DIRECTORY_MAX];
   char message[MESSAGE_MAX];
