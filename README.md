@@ -106,6 +106,30 @@ The device reboots when the update finishes.
 
 [Update details](https://engneer-hamachan.github.io/area512/install.html#updating)
 
+## Sending Files over USB
+
+On the Cardputer, press `Opt+r` / `Alt+r` in the file list, or run `recv` in
+the terminal. Then send a file or directory from the PC:
+
+```sh
+pip install pyserial
+
+# Sends myapp to /home/tool/myapp
+python3 tool/usb_send.py myapp /home/tool
+```
+
+The port is detected automatically; use `--port` to choose one.
+Received files overwrite existing files with the same name.
+
+## Installed App
+
+Select a `.bin` app image in the file list and press Enter to install it to
+flash. Press `L` to start it and `U` to erase it. Turning the power off and on
+returns to AREA512.
+
+> [!WARNING]
+> Do not use the installed app feature together with M5Launcher.
+
 ## Building for Contributors
 
 ### Requirements

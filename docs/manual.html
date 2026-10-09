@@ -80,7 +80,8 @@
                   <td>Enter / Right / /</td>
                   <td>
                     Open an entry. Source files compile and run; Markdown and
-                    dot images open in their viewers.
+                    dot images open in their viewers; .bin app images install
+                    after confirmation.
                   </td>
                 </tr>
                 <tr>
@@ -121,6 +122,16 @@
                   </td>
                 </tr>
                 <tr>
+                  <td>L / U</td>
+                  <td>
+                    Start / erase the installed app after confirmation.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Opt+r / Alt+r</td>
+                  <td>Receive files sent from a PC over USB.</td>
+                </tr>
+                <tr>
                   <td>t</td>
                   <td>Open the terminal.</td>
                 </tr>
@@ -131,6 +142,15 @@
               </tbody>
             </table>
           </div>
+          <p>
+            One .bin app image of 1984 KB or less can be installed. Merged
+            images with a bootloader and partition table are rejected.
+            Turning the power off and on returns to AREA512.
+          </p>
+          <p>
+            <strong>Warning:</strong> Do not use the installed app feature
+            together with M5Launcher.
+          </p>
         </section>
         <section class="section" id="terminal">
           <h2 class="condensed">02 / TERMINAL</h2>
@@ -179,6 +199,16 @@
                     Create a file or directory, move, copy, or delete entries.
                     Deletion asks for y/n confirmation.
                   </td>
+                </tr>
+                <tr>
+                  <td>install &lt;file&gt; / launch / uninstall</td>
+                  <td>
+                    Install a .bin app image / start / erase the installed app.
+                  </td>
+                </tr>
+                <tr>
+                  <td>recv</td>
+                  <td>Receive files sent from a PC over USB.</td>
                 </tr>
                 <tr>
                   <td>irb / python-repl</td>

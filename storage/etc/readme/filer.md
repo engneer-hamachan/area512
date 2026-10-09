@@ -51,6 +51,14 @@ One app image (`.bin`) can be installed in flash. It stays installed until you u
 
 Each asks for confirmation. A `.bin` must be an app image of 1984 KB or less. Images with a bootloader and partition table (merged images) are rejected. Turning the power off and on returns to Area512.
 
+> **Warning:** Do not use the installed app feature together with M5Launcher.
+
+## Receive over USB
+
+- `Opt+r` / `Alt+r`: wait for files sent from a PC over USB
+
+On the PC, send files with `tool/usb_send.py`. Receiving ends when the transfer finishes or when you press Esc. Received files overwrite existing files with the same name.
+
 ## Compile
 
 - `c`: compile the selected `.rb` or `.py` file
@@ -130,6 +138,7 @@ Command arguments are separated by spaces. Quoting and escaping spaces in names 
 - `mv src dst`: move or rename an entry
 - `cp src dst`: copy an entry
 - `rm path`: delete a file or directory after confirmation
+- `recv`: wait for files sent from a PC over USB
 
 `touch` reports an error if the file already exists. `mv` and `cp` use the same destination rules as `m` and `C`. `rm` includes directory contents and uses the same confirmation keys as `x`.
 
