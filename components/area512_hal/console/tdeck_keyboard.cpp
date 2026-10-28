@@ -367,3 +367,16 @@ keyboard_poll(void) {
     s_tdeck_repeat_next_tick = now + pdMS_TO_TICKS(TDECK_REPEAT_INTERVAL_MS);
   }
 }
+
+void
+area512_console_feed_ime(uint8_t byte) {
+  area512_console_stdin_push(byte);
+}
+
+void
+area512_console_flush_ime(void) {
+}
+
+void
+area512_console_toggle_ime(void) {
+}

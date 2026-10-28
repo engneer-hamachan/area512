@@ -30,6 +30,8 @@ extern "C" void
 area512_console_poll(void) {
   if (s_keyboard_ready)
     keyboard_poll();
+
+  area512_bluetooth_poll_keyboard();
 }
 
 extern "C" int

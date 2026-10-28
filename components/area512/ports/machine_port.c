@@ -21,6 +21,8 @@ int area512_sd_mount(const char *base_path);
 int area512_sd_unmount(void);
 void area512_theme_load(void);
 void area512_default_ui_load(void);
+void area512_bluetooth_load_config(void);
+void area512_bluetooth_start_if_enabled(void);
 bool area512_usb_receive_owns_rxfifo(void);
 
 #include <stdint.h>
@@ -145,6 +147,8 @@ area512_start_console(void) {
   if (area512_sd_mount("/sdcard") == 0) {
     area512_theme_load();
     area512_default_ui_load();
+    area512_bluetooth_load_config();
+    area512_bluetooth_start_if_enabled();
     area512_sd_unmount();
   }
 

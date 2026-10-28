@@ -209,6 +209,25 @@ void area512_theme_pick_bitmap_colors(
 void area512_default_ui_load(void);
 int area512_default_ui_is_terminal(void);
 
+#define AREA512_BLUETOOTH_PAIRING_INACTIVE 0
+#define AREA512_BLUETOOTH_PAIRING_RUNNING 1
+#define AREA512_BLUETOOTH_PAIRING_WAITING_FOR_PASSKEY_ENTRY 2
+#define AREA512_BLUETOOTH_PAIRING_SUCCEEDED 3
+#define AREA512_BLUETOOTH_PAIRING_FAILED 4
+
+void area512_bluetooth_load_config(void);
+void area512_bluetooth_start_if_enabled(void);
+bool area512_bluetooth_save_bonds(void);
+bool area512_bluetooth_is_running(void);
+bool area512_bluetooth_is_keyboard_connected(void);
+int area512_bluetooth_scan_keyboards(void);
+const char *area512_bluetooth_found_keyboard_label(int found_keyboard_index);
+void area512_bluetooth_start_pairing(int found_keyboard_index);
+void area512_bluetooth_cancel_pairing(void);
+int area512_bluetooth_pairing_state(void);
+uint32_t area512_bluetooth_pairing_passkey(void);
+const char *area512_bluetooth_pairing_failure_message(void);
+
 #ifdef AREA512_EXT_DISPLAY
 #include "../captft/include/area512_hal.h"
 #endif

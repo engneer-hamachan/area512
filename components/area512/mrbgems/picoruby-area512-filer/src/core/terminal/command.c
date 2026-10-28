@@ -37,6 +37,7 @@ static const char *const COMMAND_NAME_TABLE[] = {
   "ls",
   "pwd",
   "top",
+  "pair",
   "exit",
   "clear",
   "help",
@@ -107,6 +108,7 @@ is_builtin_command(const char *command_name) {
   return strcmp(command_name, "ls") == 0
       || strcmp(command_name, "pwd") == 0
       || strcmp(command_name, "top") == 0
+      || strcmp(command_name, "pair") == 0
       || strcmp(command_name, "clear") == 0
       || strcmp(command_name, "help") == 0
       || strcmp(command_name, "irb") == 0
@@ -160,6 +162,8 @@ execute_builtin_terminal_command(
     append_output_text(filer->terminal, filer->current_directory);
   } else if (strcmp(command_line->command_name, "top") == 0) {
     show_metrics(filer);
+  } else if (strcmp(command_line->command_name, "pair") == 0) {
+    pair_bluetooth_keyboard(filer);
   } else if (strcmp(command_line->command_name, "clear") == 0) {
     clear_output_lines(filer->terminal);
 

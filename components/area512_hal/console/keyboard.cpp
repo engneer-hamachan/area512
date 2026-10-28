@@ -197,8 +197,8 @@ ime_consume(char character) {
   }
 }
 
-static void
-ime_flush(void) {
+void
+area512_console_flush_ime(void) {
   // A lone 'n' has no chance to settle into "ん" on its own, so commit it here;
   // any other pending prefix is an incomplete romaji and is dropped.
   if (s_ime_buffer_length == 1 && s_ime_buffer[0] == 'n') {
@@ -207,6 +207,13 @@ ime_flush(void) {
 
   s_ime_buffer_length = 0;
   s_ime_buffer[0] = '\0';
+}
+
+void
+area512_console_toggle_ime(void) {
+  area512_console_flush_ime();
+
+  s_ime_active = !s_ime_active;
 }
 
 static bool
@@ -549,8 +556,8 @@ cardputer_lookup_fn_sequence(char base, const char **sequence) {
   }
 }
 
-static void
-cardputer_feed_ime(uint8_t byte) {
+void
+area512_console_feed_ime(uint8_t byte) {
   if (byte == ASCII_BACKSPACE || byte == ASCII_DELETE) {
     if (s_ime_active && s_ime_buffer_length > 0) {
       s_ime_buffer[--s_ime_buffer_length] = '\0';
@@ -576,7 +583,7 @@ cardputer_feed_ime(uint8_t byte) {
       return;
     }
 
-    ime_flush();
+    area512_console_flush_ime();
   }
 
   area512_console_stdin_push(byte);
@@ -614,31 +621,29 @@ cardputer_handle_key(uint8_t code, bool pressed) {
 
   switch (key.kind) {
   case CardputerKeyKind::Enter:
-    ime_flush();
+    area512_console_flush_ime();
     area512_console_stdin_push('\r');
 
     return;
 
   case CardputerKeyKind::Tab:
-    cardputer_feed_ime('\t');
+    area512_console_feed_ime('\t');
 
     return;
 
   case CardputerKeyKind::Backspace:
-    cardputer_feed_ime(ASCII_BACKSPACE);
+    area512_console_feed_ime(ASCII_BACKSPACE);
 
     return;
 
   case CardputerKeyKind::Space:
     if (s_cardputer_ctrl) {
-      ime_flush();
-
-      s_ime_active = !s_ime_active;
+      area512_console_toggle_ime();
 
       return;
     }
 
-    cardputer_feed_ime(' ');
+    area512_console_feed_ime(' ');
 
     return;
 
@@ -669,7 +674,7 @@ cardputer_handle_key(uint8_t code, bool pressed) {
     const char *sequence = nullptr;
 
     if (cardputer_lookup_fn_sequence(unshifted_character, &sequence)) {
-      ime_flush();
+      area512_console_flush_ime();
 
       area512_console_stdin_push_bytes(sequence);
 
@@ -681,7 +686,7 @@ cardputer_handle_key(uint8_t code, bool pressed) {
                      ? cardputer_apply_shift(unshifted_character)
                      : unshifted_character;
   if (character == '`') {
-    ime_flush();
+    area512_console_flush_ime();
 
     area512_console_stdin_push(ASCII_ESCAPE);
 
@@ -692,7 +697,7 @@ cardputer_handle_key(uint8_t code, bool pressed) {
     char upper_character = cardputer_to_upper(character);
 
     if (upper_character >= 'A' && upper_character <= 'Z') {
-      ime_flush();
+      area512_console_flush_ime();
       area512_console_stdin_push((uint8_t)(upper_character & 0x1F));
 
       return;
@@ -700,7 +705,7 @@ cardputer_handle_key(uint8_t code, bool pressed) {
   }
 
   if (s_cardputer_opt || s_cardputer_alt) {
-    ime_flush();
+    area512_console_flush_ime();
 
     area512_console_stdin_push(ASCII_ESCAPE);
     area512_console_stdin_push((uint8_t)character);
@@ -708,7 +713,7 @@ cardputer_handle_key(uint8_t code, bool pressed) {
     return;
   }
 
-  cardputer_feed_ime((uint8_t)character);
+  area512_console_feed_ime((uint8_t)character);
 }
 
 static void

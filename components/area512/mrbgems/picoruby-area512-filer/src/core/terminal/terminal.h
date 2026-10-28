@@ -56,6 +56,7 @@ const char *fetch_command_name(int command_index);
 void show_terminal_entries(Filer *filer);
 void show_directory_entries(Filer *filer, const char *input_path);
 void show_metrics(Filer *filer);
+void pair_bluetooth_keyboard(Filer *filer);
 
 void expand_tilde(
   const char *input_path,
