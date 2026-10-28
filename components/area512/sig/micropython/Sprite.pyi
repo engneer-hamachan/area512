@@ -96,6 +96,28 @@ class Display:
         ...
 
     @staticmethod
+    def screen_width() -> int:
+        """
+        Physical display width in pixels, even while the app runs in a window.
+        """
+        ...
+
+    @staticmethod
+    def screen_height() -> int:
+        """
+        Physical display height in pixels, even while the app runs in a window.
+        """
+        ...
+
+    @staticmethod
+    def full_screen() -> None:
+        """
+        Draw on the whole display instead of the window; does nothing when
+        there is no window. width() and height() then report the display.
+        """
+        ...
+
+    @staticmethod
     def fill_screen(color: int) -> None:
         """
         Fill the whole screen with an RGB888 color.

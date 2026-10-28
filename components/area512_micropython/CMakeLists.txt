@@ -56,6 +56,7 @@ idf_component_register(
     modules/area512_micropython_widget.c
     modules/area512_micropython_sleep.c
     modules/area512_micropython_rng.c
+    modules/area512_micropython_area512.c
     ${MICROPYTHON_EMBED_SOURCE_PATHS}
   INCLUDE_DIRS
     .
@@ -106,6 +107,7 @@ add_custom_command(
     ${COMPONENT_DIR}/modules/area512_micropython_widget.c
     ${COMPONENT_DIR}/modules/area512_micropython_sleep.c
     ${COMPONENT_DIR}/modules/area512_micropython_rng.c
+    ${COMPONENT_DIR}/modules/area512_micropython_area512.c
   COMMENT "Generate MicroPython embed sources"
   VERBATIM
 )

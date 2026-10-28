@@ -1036,6 +1036,25 @@ area512_gfx_height(void) {
   return (int)dev->height();
 }
 
+int
+area512_gfx_screen_width(void) {
+  lgfx::v1::LGFX_Device *dev = area512_gfx_device();
+
+  return dev ? (int)dev->width() : 0;
+}
+
+int
+area512_gfx_screen_height(void) {
+  lgfx::v1::LGFX_Device *dev = area512_gfx_device();
+
+  return dev ? (int)dev->height() : 0;
+}
+
+void
+area512_gfx_full_screen(void) {
+  area512_gfx_set_window(0, 0, 0, 0);
+}
+
 void
 area512_gfx_fill_screen(uint32_t color) {
   lgfx::v1::LGFX_Device *dev = area512_gfx_device();

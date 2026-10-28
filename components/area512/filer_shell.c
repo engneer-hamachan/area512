@@ -738,6 +738,7 @@ finish_ruby_app(
       mrbc_printf("Error: %s: %s\n", label, exception_message);
 
     snprintf(message, message_size, "Error: %s", label);
+    area512_cancel_next_app();
     break;
 
   default:
@@ -845,10 +846,12 @@ run_mpy(
 
   record_arena_used_byte_size_of_gc_heap();
 
-  if (run_result != 0)
+  if (run_result != 0) {
     snprintf(message, message_size, "Error: %s", label);
-  else
+    area512_cancel_next_app();
+  } else {
     snprintf(message, message_size, "Returned: %s", label);
+  }
 
   area512_console_wait_key_if_output();
 }
@@ -874,10 +877,12 @@ run_python_manifest(
 
   record_arena_used_byte_size_of_gc_heap();
 
-  if (run_result != 0)
+  if (run_result != 0) {
     snprintf(message, message_size, "Error: %s", label);
-  else
+    area512_cancel_next_app();
+  } else {
     snprintf(message, message_size, "Returned: %s", label);
+  }
 
   area512_console_wait_key_if_output();
 }
@@ -1174,6 +1179,56 @@ edit_dot(const char *path, char *message, int message_size) {
     snprintf(message, message_size, "Returned from dot");
 
   hide_readme();
+}
+
+// The app set with Area512.run_next() (or default=app: in etc/ui), as the
+// action R would give it. ACTION_NONE when there is none or it cannot run.
+static int
+take_next_app_action(Filer *filer) {
+  char resolved_path[AREA512_PATH_MAX];
+
+  if (
+    !area512_take_next_app(
+      filer->action_target_path,
+      CURRENT_DIRECTORY_MAX
+    )
+  )
+    return ACTION_NONE;
+
+  if (
+    resolve_data_path_or_format_error(
+      filer->action_target_path,
+      resolved_path,
+      filer->message,
+      MESSAGE_MAX
+    ) != 0
+  ) {
+
+    filer->action_target_path[0] = '\0';
+    return ACTION_NONE;
+  }
+
+  if (path_is_directory(resolved_path))
+    return ACTION_RUN_DIR;
+
+  if (path_exists(resolved_path)) {
+    if (is_ruby_file_path(filer->action_target_path))
+      return ACTION_RUN_RUBY;
+
+    if (is_python_file_path(filer->action_target_path))
+      return ACTION_RUN_PYTHON;
+  }
+
+  snprintf(
+    filer->message,
+    MESSAGE_MAX,
+    "Cannot run %s",
+    base_name(filer->action_target_path)
+  );
+
+  filer->action_target_path[0] = '\0';
+
+  return ACTION_NONE;
 }
 
 // -----------------------------------------------------------------------------
@@ -1997,12 +2052,19 @@ run_filer_task(void *task_parameter) {
   int is_readme_shown = 0;
 
   for (;;) {
-    if (!is_readme_shown) {
-      show_etc_readme("filer");
-      is_readme_shown = 1;
-    }
+    int action = take_next_app_action(filer);
+    int is_next_app = action != ACTION_NONE;
 
-    int action = read_filer_action(filer);
+    if (is_next_app) {
+      area512_filer_prepare_next_app(filer);
+    } else {
+      if (!is_readme_shown) {
+        show_etc_readme("filer");
+        is_readme_shown = 1;
+      }
+
+      action = read_filer_action(filer);
+    }
 
     if (
       action != ACTION_OPEN_DIR &&
@@ -2031,6 +2093,11 @@ run_filer_task(void *task_parameter) {
         "%s",
         filer->action_target_path
       );
+
+    // The graphical filer never sets a target path itself; clear the next
+    // app's so the following key press acts on the selection again.
+    if (is_next_app)
+      filer->action_target_path[0] = '\0';
 
     filer->message[0] = '\0';
 

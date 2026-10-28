@@ -4,7 +4,8 @@
 #include <string.h>
 
 #define DEFAULT_UI_PATH "etc/ui"
-#define DEFAULT_UI_LINE_CAPACITY 64
+#define DEFAULT_UI_APP_PREFIX "default=app:"
+#define DEFAULT_UI_LINE_CAPACITY (AREA512_PATH_MAX + 16)
 
 static int s_default_ui_is_terminal = 0;
 
@@ -32,6 +33,10 @@ assign_default_ui_from_line(const char *line) {
     s_default_ui_is_terminal = 1;
   else if (strcmp(line, "default=graphical") == 0)
     s_default_ui_is_terminal = 0;
+  else if (
+    strncmp(line, DEFAULT_UI_APP_PREFIX, strlen(DEFAULT_UI_APP_PREFIX)) == 0
+  )
+    area512_set_next_app(line + strlen(DEFAULT_UI_APP_PREFIX));
 }
 
 void

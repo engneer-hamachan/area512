@@ -446,6 +446,35 @@ static MP_DEFINE_CONST_FUN_OBJ_0(
 );
 
 static mp_obj_t
+fetch_display_screen_width(void) {
+  return MP_OBJ_NEW_SMALL_INT(area512_gfx_screen_width());
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(
+  fetch_display_screen_width_callable,
+  fetch_display_screen_width
+);
+
+static mp_obj_t
+fetch_display_screen_height(void) {
+  return MP_OBJ_NEW_SMALL_INT(area512_gfx_screen_height());
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(
+  fetch_display_screen_height_callable,
+  fetch_display_screen_height
+);
+
+static mp_obj_t
+enter_display_full_screen(void) {
+  area512_gfx_full_screen();
+
+  return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(
+  enter_display_full_screen_callable,
+  enter_display_full_screen
+);
+
+static mp_obj_t
 fill_display_screen(mp_obj_t color_object) {
   area512_gfx_fill_screen(fetch_color_or_raise(color_object));
 
@@ -487,6 +516,18 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(
 static const mp_rom_map_elem_t display_locals_table[] = {
   {MP_ROM_QSTR(MP_QSTR_width), MP_ROM_PTR(&fetch_display_width_callable)},
   {MP_ROM_QSTR(MP_QSTR_height), MP_ROM_PTR(&fetch_display_height_callable)},
+  {
+    MP_ROM_QSTR(MP_QSTR_screen_width),
+    MP_ROM_PTR(&fetch_display_screen_width_callable),
+  },
+  {
+    MP_ROM_QSTR(MP_QSTR_screen_height),
+    MP_ROM_PTR(&fetch_display_screen_height_callable),
+  },
+  {
+    MP_ROM_QSTR(MP_QSTR_full_screen),
+    MP_ROM_PTR(&enter_display_full_screen_callable),
+  },
   {MP_ROM_QSTR(MP_QSTR_fill_screen), MP_ROM_PTR(&fill_display_screen_callable)},
   {
     MP_ROM_QSTR(MP_QSTR_set_brightness),

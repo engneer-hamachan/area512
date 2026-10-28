@@ -664,8 +664,42 @@ area512_terminate_sandbox_on_signal(void) {
   mrbc_terminate_task(s_running_sandbox_state->tcb);
 }
 
+// Area512.run_next(path): the filer runs this app as soon as the current one
+// returns. An empty path cancels.
+static void
+c_area512_run_next(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  if (argument_count != 1 || v[1].tt != MRBC_TT_STRING) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(TypeError), "expected String path");
+    return;
+  }
+
+  if (area512_set_next_app((const char *)v[1].string->data) != 0) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(ArgumentError), "path too long");
+    return;
+  }
+
+  SET_NIL_RETURN();
+}
+
 void
 mrbc_area512_sandbox_init(mrbc_vm *virtual_machine) {
+  // Defined here because every Ruby app run requires area512-sandbox, so apps
+  // get Area512.run_next without a require of their own.
+  mrbc_class *class_Area512 =
+    mrbc_define_class(virtual_machine, "Area512", mrbc_class_object);
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Area512,
+    "run_next",
+    c_area512_run_next
+  );
+
   mrbc_class *class_Sandbox = mrbc_get_class_by_name("Sandbox");
 
   if (!class_Sandbox)

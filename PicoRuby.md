@@ -15,9 +15,21 @@ Controls the device display.
 
 - `Display.width`
 - `Display.height`
+- `Display.screen_width`, `Display.screen_height`
+- `Display.full_screen`
 - `Display.fill_screen(color)`
 - `Display.brightness = brightness`
 - `Display.console`
+
+`width` and `height` report the area the app draws on. On the 320x240 display
+builds the filer runs each app in a 240x135 window, so they report 240x135
+there too. `screen_width` and `screen_height` always report the whole display.
+`full_screen` lets the app draw on the whole display until it returns; it does
+nothing when there is no window. Call it before creating screen-sized sprites:
+
+```ruby
+Display.full_screen if Display.screen_width > Display.width
+```
 
 ## Sprite
 
@@ -121,6 +133,22 @@ Provides random values.
 - `RNG.random_int`
 - `RNG.random_string(length)`
 - `RNG.uuid`
+
+## Area512
+
+Hands off to another app. Available without `require`.
+
+- `Area512.run_next(path)`
+
+When the current app returns, the file manager runs `path` right away, as if
+it were selected and run with `R`: an app directory such as `/home/game/bomb`,
+or a `.rb`, `.mrb`, `.py` or `.mpy` file. The last call wins and an empty path
+cancels. The path is used once, and an app that ends with an error does not
+hand off, so a failing app cannot start a loop.
+
+```ruby
+Area512.run_next("/home/game/bomb")
+```
 
 ## Sandbox
 

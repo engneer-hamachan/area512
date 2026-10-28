@@ -419,6 +419,37 @@ c_display_height(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
 }
 
 static void
+c_display_screen_width(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  SET_INT_RETURN(area512_gfx_screen_width());
+}
+
+static void
+c_display_screen_height(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  SET_INT_RETURN(area512_gfx_screen_height());
+}
+
+static void
+c_display_full_screen(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  area512_gfx_full_screen();
+  SET_NIL_RETURN();
+}
+
+static void
 c_display_fill_screen(
   mrbc_vm *virtual_machine,
   mrbc_value *values,
@@ -557,6 +588,27 @@ mrbc_area512_sprite_init(mrbc_vm *virtual_machine) {
     class_Display,
     "height",
     c_display_height
+  );
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Display,
+    "screen_width",
+    c_display_screen_width
+  );
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Display,
+    "screen_height",
+    c_display_screen_height
+  );
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Display,
+    "full_screen",
+    c_display_full_screen
   );
 
   mrbc_define_method(

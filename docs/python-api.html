@@ -64,6 +64,11 @@
           <ul>
             <li><code>Display.width()</code></li>
             <li><code>Display.height()</code></li>
+            <li>
+              <code>Display.screen_width()</code>,
+              <code>Display.screen_height()</code>
+            </li>
+            <li><code>Display.full_screen()</code></li>
             <li><code>Display.fill_screen(color)</code></li>
             <li><code>Display.set_brightness(brightness)</code></li>
             <li>
@@ -72,6 +77,15 @@
               >
             </li>
           </ul>
+          <p>
+            <code>width</code> and <code>height</code> report the area the app
+            draws on. On the 320x240 display builds the filer runs each app in a
+            240x135 window, so they report 240x135 there too.
+            <code>screen_width</code> and <code>screen_height</code> always
+            report the whole display. <code>full_screen</code> lets the app draw
+            on the whole display until it returns; it does nothing when there is
+            no window.
+          </p>
           <h2>Sprite</h2>
           <p>
             Creates an off-screen drawing surface that can be pushed to the
@@ -282,6 +296,21 @@
             <li><code>RNG.random_string(length)</code></li>
             <li><code>RNG.uuid()</code></li>
           </ul>
+          <h2>Area512</h2>
+          <p>Hands off to another app.</p>
+          <ul>
+            <li><code>Area512.run_next(path)</code></li>
+          </ul>
+          <p>
+            When the current app returns, the file manager runs
+            <code>path</code> right away, as if it were selected and run with
+            <code>R</code>: an app directory such as
+            <code>/home/game/bomb</code>, or a <code>.py</code>, <code>.mpy</code>, <code>.rb</code> or
+            <code>.mrb</code> file. The last call wins and
+            an empty path cancels. The path is used once, and an app that ends
+            with an error does not hand off, so a failing app cannot start a
+            loop.
+          </p>
           <h2>Console</h2>
           <p>
             Controls the text console used while a Python file is compiled or

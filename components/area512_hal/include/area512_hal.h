@@ -143,6 +143,12 @@ void area512_screen_push_region(void *p);
 
 int area512_gfx_width(void);
 int area512_gfx_height(void);
+// The physical display, ignoring any window the filer has set for the app.
+int area512_gfx_screen_width(void);
+int area512_gfx_screen_height(void);
+// Let the running app draw on the whole display. The filer sets its window
+// again when the app returns. Does nothing when no window is set.
+void area512_gfx_full_screen(void);
 void area512_gfx_fill_screen(uint32_t color);
 void area512_gfx_set_brightness(int brightness);
 int area512_gfx_show_header_image(const char *path, int hold_milliseconds);
@@ -227,6 +233,15 @@ void area512_bluetooth_cancel_pairing(void);
 int area512_bluetooth_pairing_state(void);
 uint32_t area512_bluetooth_pairing_passkey(void);
 const char *area512_bluetooth_pairing_failure_message(void);
+
+// The app the filer runs as soon as the current one returns, as a path under
+// AREA512_ROOT_PATH (an app directory, or a .rb/.mrb/.py/.mpy file). An empty
+// path cancels. set returns -1 when the path is too long. take hands the path
+// over once and clears it, so a failing app cannot start a loop.
+int area512_set_next_app(const char *path);
+int area512_take_next_app(char *path, size_t path_size);
+void area512_cancel_next_app(void);
+
 
 #ifdef AREA512_EXT_DISPLAY
 #include "../captft/include/area512_hal.h"

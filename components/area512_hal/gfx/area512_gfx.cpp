@@ -849,6 +849,21 @@ area512_gfx_height(void) {
   return dev ? (int)dev->height() : 0;
 }
 
+int
+area512_gfx_screen_width(void) {
+  return area512_gfx_width();
+}
+
+int
+area512_gfx_screen_height(void) {
+  return area512_gfx_height();
+}
+
+// Without the external display there is no window: apps already have the
+// whole screen.
+void
+area512_gfx_full_screen(void) {}
+
 void
 area512_gfx_fill_screen(uint32_t color) {
   lgfx::v1::LGFX_Device *dev = area512_gfx_device();
