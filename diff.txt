@@ -1,9 +1,0 @@
-Rakefile
-components/area512_hal/bluetooth/area512_bluetooth.cpp
-components/area512_hal/console/console_internal.h
-components/area512_hal/console/input.cpp
-components/area512_hal/console/keyboard.cpp
-components/area512_hal/console/tdeck_keyboard.cpp
-components/area512_hal/include/area512_hal.h
-sdkconfig.defaults
-storage/etc/bluetooth

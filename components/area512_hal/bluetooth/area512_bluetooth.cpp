@@ -149,7 +149,7 @@ static TickType_t s_repeat_next_tick = 0;
 // Connection
 // -----------------------------------------------------------------------------
 
-static int dispatch_connection_event(struct ble_gap_event *event, void *);
+static int handle_connection_event(struct ble_gap_event *event, void *);
 
 static bool
 is_pairing_in_progress(void) {
@@ -210,7 +210,7 @@ start_connecting_to_bonded_keyboard(void) {
     NULL,
     BLE_HS_FOREVER,
     NULL,
-    dispatch_connection_event,
+    handle_connection_event,
     NULL
   );
 }
@@ -292,7 +292,7 @@ static void
 discover_next_client_characteristic_configuration_or_mark_pairing_succeeded(void);
 
 static int
-count_subscription_then_move_to_next_input_report_on_reply(
+handle_subscription_write(
   uint16_t,
   const struct ble_gatt_error *error,
   struct ble_gatt_attr *,
@@ -314,7 +314,7 @@ count_subscription_then_move_to_next_input_report_on_reply(
 }
 
 static int
-record_client_characteristic_configuration_then_enable_notification_on_reply(
+handle_client_characteristic_configuration_discovery(
   uint16_t,
   const struct ble_gatt_error *error,
   uint16_t,
@@ -355,7 +355,7 @@ record_client_characteristic_configuration_then_enable_notification_on_reply(
       handles->client_characteristic_configuration_handle,
       NOTIFICATION_ENABLED_VALUE,
       sizeof NOTIFICATION_ENABLED_VALUE,
-      count_subscription_then_move_to_next_input_report_on_reply,
+      handle_subscription_write,
       NULL
     );
 
@@ -396,7 +396,7 @@ discover_next_client_characteristic_configuration_or_mark_pairing_succeeded(void
         s_connection_handle,
         input_report_characteristic->value_handle,
         input_report_characteristic->end_handle,
-        record_client_characteristic_configuration_then_enable_notification_on_reply,
+        handle_client_characteristic_configuration_discovery,
         NULL
       );
 
@@ -462,7 +462,7 @@ record_hid_characteristic(const struct ble_gatt_chr *characteristic) {
 }
 
 static int
-record_hid_characteristic_then_start_subscribing_on_reply(
+handle_hid_characteristic_discovery(
   uint16_t,
   const struct ble_gatt_error *error,
   const struct ble_gatt_chr *characteristic,
@@ -511,7 +511,7 @@ record_hid_characteristic_then_start_subscribing_on_reply(
 }
 
 static int
-record_hid_service_then_discover_characteristics_on_reply(
+handle_hid_service_discovery(
   uint16_t,
   const struct ble_gatt_error *error,
   const struct ble_gatt_svc *service,
@@ -547,7 +547,7 @@ record_hid_service_then_discover_characteristics_on_reply(
       s_connection_handle,
       handles->hid_service_start_handle,
       handles->hid_service_end_handle,
-      record_hid_characteristic_then_start_subscribing_on_reply,
+      handle_hid_characteristic_discovery,
       NULL
     );
 
@@ -568,7 +568,7 @@ discover_hid_services(void) {
     ble_gattc_disc_svc_by_uuid(
       s_connection_handle,
       &hid_service_uuid.u,
-      record_hid_service_then_discover_characteristics_on_reply,
+      handle_hid_service_discovery,
       NULL
     );
 
@@ -577,7 +577,7 @@ discover_hid_services(void) {
 }
 
 static int
-dispatch_connection_event(struct ble_gap_event *event, void *) {
+handle_connection_event(struct ble_gap_event *event, void *) {
   struct ble_gap_conn_desc connection_description;
   int result;
 
@@ -619,7 +619,10 @@ dispatch_connection_event(struct ble_gap_event *event, void *) {
 
   case BLE_GAP_EVENT_ENC_CHANGE:
     if (event->enc_change.status != 0) {
-      abort_keyboard_connection("encryption", event->enc_change.status);
+      abort_keyboard_connection(
+        "encryption",
+        event->enc_change.status
+      );
 
       return 0;
     }
@@ -630,7 +633,9 @@ dispatch_connection_event(struct ble_gap_event *event, void *) {
 
   case BLE_GAP_EVENT_PASSKEY_ACTION:
     if (event->passkey.params.action == BLE_SM_IOACT_DISP)
-      generate_and_inject_pairing_passkey(event->passkey.conn_handle);
+      generate_and_inject_pairing_passkey(
+        event->passkey.conn_handle
+      );
 
     return 0;
 
@@ -695,8 +700,9 @@ parse_advertising_data(const uint8_t *advertising_data, int data_length) {
     case APPEARANCE_AD_TYPE:
       if (
         ad_data_length == 2 &&
-        (read_little_endian_uint16(ad_data) & APPEARANCE_CATEGORY_MASK) ==
-          HID_APPEARANCE_CATEGORY
+        (
+         read_little_endian_uint16(ad_data) & APPEARANCE_CATEGORY_MASK
+        ) == HID_APPEARANCE_CATEGORY
       )
         fields.is_hid_device = true;
 
@@ -732,7 +738,11 @@ find_found_keyboard(const ble_addr_t *address) {
 static void
 record_found_keyboard(const struct ble_gap_disc_desc *discovery) {
   AdvertisingDataFields fields =
-    parse_advertising_data(discovery->data, discovery->length_data);
+    parse_advertising_data(
+      discovery->data,
+      discovery->length_data
+    );
+
   FoundKeyboard *found_keyboard = find_found_keyboard(&discovery->addr);
 
   if (found_keyboard == NULL) {
@@ -769,11 +779,7 @@ record_found_keyboard(const struct ble_gap_disc_desc *discovery) {
 }
 
 static int
-record_found_keyboard_or_give_scan_completed_semaphore_on_scan_event(
-  struct ble_gap_event *event,
-  void *
-) {
-
+handle_scan_event(struct ble_gap_event *event, void *) {
   if (event->type == BLE_GAP_EVENT_DISC)
     record_found_keyboard(&event->disc);
   else if (event->type == BLE_GAP_EVENT_DISC_COMPLETE)
@@ -799,7 +805,7 @@ write_bond_file_records_into_store(void) {
 }
 
 static void
-restore_bonds_and_connect_to_keyboard_on_sync(void) {
+handle_host_sync(void) {
   write_bond_file_records_into_store();
 
   if (ble_hs_id_infer_auto(0, &s_own_address_type) != 0)
@@ -811,7 +817,7 @@ restore_bonds_and_connect_to_keyboard_on_sync(void) {
 }
 
 static void
-mark_host_unsynced_on_reset(int) {
+handle_host_reset(int) {
   s_is_host_synced = false;
 }
 
@@ -851,7 +857,7 @@ read_bond_file(void) {
 }
 
 static int
-copy_bond_record_on_iterate(
+handle_bond_store_iteration(
   int object_type,
   union ble_store_value *store_value,
   void *
@@ -906,6 +912,7 @@ area512_bluetooth_start_if_enabled(void) {
     return;
 
   s_scan_completed_semaphore = xSemaphoreCreateBinary();
+
   s_keyboard_report_queue =
     xQueueCreate(KEYBOARD_REPORT_QUEUE_LENGTH, KEYBOARD_REPORT_BYTE_SIZE);
 
@@ -915,15 +922,17 @@ area512_bluetooth_start_if_enabled(void) {
   if (nimble_port_init() != ESP_OK)
     return;
 
-  ble_hs_cfg.sync_cb = restore_bonds_and_connect_to_keyboard_on_sync;
-  ble_hs_cfg.reset_cb = mark_host_unsynced_on_reset;
+  ble_hs_cfg.sync_cb = handle_host_sync;
+  ble_hs_cfg.reset_cb = handle_host_reset;
   ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
   ble_hs_cfg.sm_io_cap = BLE_SM_IO_CAP_DISP_ONLY;
   ble_hs_cfg.sm_bonding = 1;
   ble_hs_cfg.sm_mitm = 1;
   ble_hs_cfg.sm_sc = 1;
+
   ble_hs_cfg.sm_our_key_dist =
     BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID;
+
   ble_hs_cfg.sm_their_key_dist =
     BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID;
 
@@ -961,12 +970,13 @@ area512_bluetooth_save_bonds(void) {
 
   ble_store_iterate(
     BLE_STORE_OBJ_TYPE_OUR_SEC,
-    copy_bond_record_on_iterate,
+    handle_bond_store_iteration,
     NULL
   );
+
   ble_store_iterate(
     BLE_STORE_OBJ_TYPE_PEER_SEC,
-    copy_bond_record_on_iterate,
+    handle_bond_store_iteration,
     NULL
   );
 
@@ -1011,7 +1021,9 @@ area512_bluetooth_scan_keyboards(void) {
   ble_gap_conn_cancel();
 
   while (ble_gap_conn_active())
-    vTaskDelay(pdMS_TO_TICKS(CONNECT_CANCEL_POLL_INTERVAL_MILLISECONDS));
+    vTaskDelay(
+      pdMS_TO_TICKS(CONNECT_CANCEL_POLL_INTERVAL_MILLISECONDS)
+    );
 
   scan_parameters.filter_duplicates = 1;
 
@@ -1020,7 +1032,7 @@ area512_bluetooth_scan_keyboards(void) {
       s_own_address_type,
       SCAN_DURATION_MILLISECONDS,
       &scan_parameters,
-      record_found_keyboard_or_give_scan_completed_semaphore_on_scan_event,
+      handle_scan_event,
       NULL
     ) != 0
   )
@@ -1049,7 +1061,7 @@ area512_bluetooth_start_pairing(int found_keyboard_index) {
       address,
       PAIRING_CONNECT_TIMEOUT_MILLISECONDS,
       NULL,
-      dispatch_connection_event,
+      handle_connection_event,
       NULL
     );
 
@@ -1231,6 +1243,7 @@ push_newly_pressed_keys_to_console(const uint8_t *keyboard_report) {
     push_key_to_console(usage, s_held_modifier_bits);
 
     s_repeat_usage = usage;
+
     s_repeat_next_tick =
       xTaskGetTickCount() + pdMS_TO_TICKS(REPEAT_DELAY_MILLISECONDS);
   }
@@ -1252,7 +1265,10 @@ repeat_held_key(void) {
   if (s_repeat_usage == 0 || (int32_t)(now - s_repeat_next_tick) < 0)
     return;
 
-  push_key_to_console(s_repeat_usage, s_held_modifier_bits);
+  push_key_to_console(
+    s_repeat_usage,
+    s_held_modifier_bits
+  );
 
   s_repeat_next_tick = now + pdMS_TO_TICKS(REPEAT_INTERVAL_MILLISECONDS);
 }
@@ -1265,7 +1281,11 @@ area512_bluetooth_poll_keyboard(void) {
     return;
 
   while (
-    xQueueReceive(s_keyboard_report_queue, keyboard_report, 0) == pdTRUE
+    xQueueReceive(
+      s_keyboard_report_queue,
+      keyboard_report,
+      0
+    ) == pdTRUE
   )
     push_newly_pressed_keys_to_console(keyboard_report);
 
