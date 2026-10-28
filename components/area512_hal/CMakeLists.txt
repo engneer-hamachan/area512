@@ -24,6 +24,7 @@ idf_component_register(
     sd/area512_seed.c
     theme/area512_theme.c
     ui/area512_default_ui.c
+    ui/area512_next_app.c
     usb/area512_usb_receive.c
     ota/area512_app_image.c
     animation/area512_animation_timer.c

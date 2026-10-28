@@ -173,6 +173,8 @@ int read_text_input(Filer *filer, const char *label);
 int read_yes_no_confirmation(Filer *filer, const char *question);
 int run_filer_interaction(Filer *filer);
 int read_filer_action(Filer *filer);
+// Stand in for read_filer_action when the filer runs the next app directly.
+void area512_filer_prepare_next_app(Filer *filer);
 void draw_all(Filer *filer);
 void draw_current_screen(void *context);
 void draw_window_box(void *sprite, int left, int top, int width, int height);

@@ -39,6 +39,7 @@ extern const struct _mp_obj_type_t area512_micropython_widget_type;
 extern const struct _mp_obj_type_t area512_micropython_widget_list_type;
 extern const struct _mp_obj_type_t area512_micropython_widget_text_view_type;
 extern const struct _mp_obj_type_t area512_micropython_rng_type;
+extern const struct _mp_obj_type_t area512_micropython_area512_type;
 extern const struct _mp_obj_fun_builtin_fixed_t
   area512_micropython_sleep_seconds_callable;
 extern const struct _mp_obj_fun_builtin_fixed_t
@@ -69,6 +70,8 @@ extern const struct _mp_obj_fun_builtin_fixed_t
     {MP_ROM_QSTR(MP_QSTR_WidgetTextView),                                      \
      MP_ROM_PTR(&area512_micropython_widget_text_view_type)},                  \
     {MP_ROM_QSTR(MP_QSTR_RNG), MP_ROM_PTR(&area512_micropython_rng_type)},     \
+    {MP_ROM_QSTR(MP_QSTR_Area512),                                             \
+     MP_ROM_PTR(&area512_micropython_area512_type)},                           \
     {MP_ROM_QSTR(MP_QSTR_sleep),                                               \
      MP_ROM_PTR(&area512_micropython_sleep_seconds_callable)},                 \
     {MP_ROM_QSTR(MP_QSTR_sleep_ms),                                            \

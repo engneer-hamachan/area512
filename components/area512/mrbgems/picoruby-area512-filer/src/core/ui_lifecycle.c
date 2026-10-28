@@ -98,4 +98,10 @@ read_filer_action(Filer *filer) {
   return action;
 }
 
+void
+area512_filer_prepare_next_app(Filer *filer) {
+  // The app gets the screen as it would after R; closing it animates as usual.
+  filer->is_window_open = 1;
+}
+
 #endif

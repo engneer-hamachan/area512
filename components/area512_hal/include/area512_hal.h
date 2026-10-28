@@ -215,6 +215,14 @@ void area512_theme_pick_bitmap_colors(
 void area512_default_ui_load(void);
 int area512_default_ui_is_terminal(void);
 
+// The app the filer runs as soon as the current one returns, as a path under
+// AREA512_ROOT_PATH (an app directory, or a .rb/.mrb/.py/.mpy file). An empty
+// path cancels. set returns -1 when the path is too long. take hands the path
+// over once and clears it, so a failing app cannot start a loop.
+int area512_set_next_app(const char *path);
+int area512_take_next_app(char *path, size_t path_size);
+void area512_cancel_next_app(void);
+
 #ifdef AREA512_EXT_DISPLAY
 #include "../captft/include/area512_hal.h"
 #endif

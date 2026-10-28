@@ -355,8 +355,10 @@ make convert INPUT=background.png</code></pre>
           </p>
           <pre><code>default=terminal
 # To start in the file manager instead:
-# default=graphical</code></pre>
-          <p>Only <code>default=terminal</code> and <code>default=graphical</code> are recognized; other lines are ignored.</p>
+# default=graphical
+# To also run an app once at startup:
+# default=app:/home/game/bomb</code></pre>
+          <p>Only <code>default=terminal</code>, <code>default=graphical</code> and <code>default=app:</code> lines are recognized; other lines are ignored. Quitting the startup app returns to the chosen interface.</p>
         </section>
         <section class="section" id="applications">
           <h2 class="condensed">05 / APPLICATION CONTROLS</h2>

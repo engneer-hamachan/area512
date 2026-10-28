@@ -134,6 +134,22 @@ Provides random values.
 - `RNG.random_string(length)`
 - `RNG.uuid`
 
+## Area512
+
+Hands off to another app. Available without `require`.
+
+- `Area512.run_next(path)`
+
+When the current app returns, the file manager runs `path` right away, as if
+it were selected and run with `R`: an app directory such as `/home/game/bomb`,
+or a `.rb`, `.mrb`, `.py` or `.mpy` file. The last call wins and an empty path
+cancels. The path is used once, and an app that ends with an error does not
+hand off, so a failing app cannot start a loop.
+
+```ruby
+Area512.run_next("/home/game/bomb")
+```
+
 ## Sandbox
 
 Compiles and executes Ruby source or `.mrb` bytecode in a sandbox task.

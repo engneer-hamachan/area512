@@ -99,4 +99,16 @@ read_filer_action(Filer *filer) {
   return action;
 }
 
+void
+area512_filer_prepare_next_app(Filer *filer) {
+  // The previous app may have drawn outside the window (Display.full_screen),
+  // so repaint the filer around the window before the next app starts in it.
+  area512_filer_setup_ui(filer);
+  filer->is_window_open = 1;
+
+  draw_current_screen(filer);
+  area512_filer_set_gfx_window();
+  area512_filer_teardown_ui(filer);
+}
+
 #endif
