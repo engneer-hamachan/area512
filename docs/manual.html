@@ -49,8 +49,9 @@
           <a href="#filer">01 File manager</a><a href="#terminal">02 Terminal</a
           ><a href="#editor">03 Editor</a
           ><a href="#theme">04 Theme &amp; startup</a
-          ><a href="#applications">05 Applications</a
-          ><a href="#references">06 API references</a>
+          ><a href="#bluetooth">05 Bluetooth keyboard</a
+          ><a href="#applications">06 Applications</a
+          ><a href="#references">07 API references</a>
         </nav>
         <section class="section" id="filer">
           <h2 class="condensed">01 / FILE MANAGER</h2>
@@ -360,8 +361,87 @@ make convert INPUT=background.png</code></pre>
 # default=app:/home/game/bomb</code></pre>
           <p>Only <code>default=terminal</code>, <code>default=graphical</code> and <code>default=app:</code> lines are recognized; other lines are ignored. Quitting the startup app returns to the chosen interface.</p>
         </section>
+        <section class="section" id="bluetooth">
+          <h2 class="condensed">05 / BLUETOOTH KEYBOARD</h2>
+          <p>
+            Bluetooth Low Energy keyboards are supported. Bluetooth Classic
+            keyboards cannot be used.
+          </p>
+          <h3>Enabling Bluetooth</h3>
+          <p>
+            Edit <code>/etc/bluetooth</code> and reboot.
+            Bluetooth is off by default.
+          </p>
+          <pre><code>ble=on</code></pre>
+          <h3>Pairing</h3>
+          <p>
+            Put the keyboard in pairing mode and run <code>pair</code> in the
+            terminal. Scanning takes 5 seconds, then up to nine keyboards are
+            listed by name or address.
+          </p>
+          <pre><code>&gt; pair
+Scanning...
+1 My Keyboard
+Select 1-1 (Esc cancels)
+Pairing...
+Type 123456 + Enter on the keyboard
+Paired</code></pre>
+          <p>
+            Press the number of the keyboard to pair. If the keyboard asks for
+            a passkey, type the six digits shown and Enter on the keyboard.
+            Esc cancels at any step.
+          </p>
+          <p>
+            Pairing is saved to
+            <code>/etc/bluetooth_bonds</code>. The paired
+            keyboard reconnects automatically at boot and after a disconnect.
+          </p>
+          <p>
+            <code>/etc/bluetooth_bonds</code> contains the encryption keys for
+            the keyboard connection. Handle it with care and never share it.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Message</th>
+                  <th scope="col">Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Bluetooth is off</td>
+                  <td>Bluetooth is not running. Set <code>ble=on</code> and reboot.</td>
+                </tr>
+                <tr>
+                  <td>Keyboard already connected</td>
+                  <td>A keyboard is connected; pairing does not start.</td>
+                </tr>
+                <tr>
+                  <td>No keyboard found / Scan failed</td>
+                  <td>No keyboard was advertising during the scan / the scan could not start.</td>
+                </tr>
+                <tr>
+                  <td>Pairing failed: &lt;step&gt; 0x&lt;status&gt;</td>
+                  <td>Pairing stopped at the named step with the given status code.</td>
+                </tr>
+                <tr>
+                  <td>Bond save failed</td>
+                  <td>The pairing could not be written to the microSD card.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Keys</h3>
+          <p>
+            Letters, digits, US-layout symbols, Enter, Esc, Backspace, Tab,
+            Space and the arrow keys are supported. Ctrl+letter sends a control
+            character, Alt+key sends Esc followed by the key, and Ctrl+Space
+            toggles the input method.
+          </p>
+        </section>
         <section class="section" id="applications">
-          <h2 class="condensed">05 / APPLICATION CONTROLS</h2>
+          <h2 class="condensed">06 / APPLICATION CONTROLS</h2>
           <details id="app-slide">
             <summary>Slide</summary>
             <div class="reference-text">
@@ -765,7 +845,7 @@ make convert INPUT=background.png</code></pre>
           </details>
         </section>
         <section class="section" id="references">
-          <h2 class="condensed">06 / API REFERENCES</h2>
+          <h2 class="condensed">07 / API REFERENCES</h2>
           <div class="link-row">
             <a class="text-link" href="ruby-api.html">Ruby API reference ↗</a
             ><a class="text-link" href="python-api.html"
