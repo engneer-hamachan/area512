@@ -16,9 +16,10 @@ CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
 # Optimize firmware size to keep the application in the 4M factory partition.
 CONFIG_COMPILER_OPTIMIZATION_SIZE=y
 
-# PicoRuby main task stack. Parsing/loading .rb on device is stack heavy;
-# 8K/16K overflows, so use 32K.
-CONFIG_ESP_MAIN_TASK_STACK_SIZE=32768
+# The main task only runs the boot sequence (area512_main); Ruby/Python apps
+# and the editor run on the static s_shared_stack. Its heap-allocated stack is
+# still held when area512_start_filer mallocs the Filer, so keep it small.
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
 
 # No PSRAM on Cardputer.
 # CONFIG_SPIRAM is not set
@@ -29,14 +30,26 @@ CONFIG_ESP_MAIN_TASK_STACK_SIZE=32768
 CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
 CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
 
-# microSD (FAT over SPI, mounted at /sd). SD uses 512-byte sectors, so FATFS
-# must be built for 512 (default 4096 is flash-wear-levelling only and fails on
-# SD). Enable long file names on the stack with a small 32-char buffer
-# ((32+1)*2 = 66B) to keep RAM cost negligible.
-# CONFIG_FATFS_SECTOR_4096 is not set
-CONFIG_FATFS_SECTOR_512=y
+# microSD (FAT over SPI, mounted at /sd). FatFs sizes its FATFS/FIL buffers by
+# MAX(512, CONFIG_WL_SECTOR_SIZE); wear levelling is unused, so 512 keeps the
+# mount allocation at 6KB instead of 17KB. Enable long file names on the stack
+# with a small 32-char buffer ((32+1)*2 = 66B) to keep RAM cost negligible.
+# CONFIG_WL_SECTOR_SIZE_4096 is not set
+CONFIG_WL_SECTOR_SIZE_512=y
 # CONFIG_FATFS_LFN_NONE is not set
 CONFIG_FATFS_LFN_STACK=y
 CONFIG_FATFS_MAX_LFN=32
 
 CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+
+# Bluetooth LE keyboard host (NimBLE). The controller runs from flash to keep
+# its code out of IRAM; it stalls while flash is erased, so bonds are kept on
+# the SD card instead of NVS.
+CONFIG_BT_ENABLED=y
+CONFIG_BT_NIMBLE_ENABLED=y
+CONFIG_BT_CTRL_RUN_IN_FLASH_ONLY=y
+CONFIG_BT_NIMBLE_MSYS_1_BLOCK_COUNT=4
+CONFIG_BT_NIMBLE_MSYS_2_BLOCK_COUNT=8
+CONFIG_BT_NIMBLE_TRANSPORT_ACL_FROM_LL_COUNT=8
+CONFIG_BT_NIMBLE_TRANSPORT_EVT_COUNT=10
+CONFIG_BT_NIMBLE_MAX_CONNECTIONS=1

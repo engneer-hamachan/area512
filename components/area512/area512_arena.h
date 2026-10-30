@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#define AREA512_ARENA_BYTE_SIZE (120 * 1024)
+#define AREA512_ARENA_BYTE_SIZE (100 * 1024)
 
 extern uint8_t g_area512_arena[AREA512_ARENA_BYTE_SIZE];
 

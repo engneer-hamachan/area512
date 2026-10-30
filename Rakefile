@@ -2,6 +2,7 @@ AREA512_ROOT = File.dirname(File.expand_path(__FILE__))
 MRUBY_ROOT = File.join(AREA512_ROOT, "R2P2-ESP32/components/picoruby-esp32/picoruby")
 IDF_BUILD_DIR = File.join(AREA512_ROOT, "build")
 IDF_SDKCONFIG = File.join(AREA512_ROOT, "sdkconfig")
+IDF_SDKCONFIG_DEFAULTS = File.join(AREA512_ROOT, "sdkconfig.defaults")
 MRUBY_BUILD_CONFIG = File.join(AREA512_ROOT, "components/area512/build_config/area512.rb")
 $LOAD_PATH << File.join(MRUBY_ROOT, "lib")
 
@@ -22,6 +23,15 @@ end
 
 def remove_idf_sdkconfig
   rm_f IDF_SDKCONFIG
+end
+
+# An existing sdkconfig takes precedence over sdkconfig.defaults, so options
+# added to the defaults never reach a build directory configured before them.
+def remove_sdkconfig_older_than_defaults(sdkconfig_path)
+  return unless File.file?(sdkconfig_path)
+  return if File.mtime(sdkconfig_path) >= File.mtime(IDF_SDKCONFIG_DEFAULTS)
+
+  rm_f sdkconfig_path
 end
 
 # load build systems
@@ -61,30 +71,35 @@ end
 
 desc "Build the Cardputer firmware"
 task :build => :gendb do
+  remove_sdkconfig_older_than_defaults(IDF_SDKCONFIG)
   idf_py "build -DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=OFF"
 end
 
 namespace :build do
   desc "Build the Cardputer v1.1 firmware"
   task :"v1.1" => :gendb do
+    remove_sdkconfig_older_than_defaults(File.join(IDF_BUILD_DIR, "v11/sdkconfig"))
     idf_py "-B build/v11 -DSDKCONFIG=build/v11/sdkconfig " \
            "-DAREA512_CARDPUTER_V11=ON -DAREA512_EXT_DISPLAY=OFF build"
   end
 
   desc "Build the 320x240 ST7789 display firmware with windows"
   task :tft7789 => :gendb do
+    remove_sdkconfig_older_than_defaults(File.join(IDF_BUILD_DIR, "tft7789/sdkconfig"))
     idf_py "-B build/tft7789 -DSDKCONFIG=build/tft7789/sdkconfig " \
            "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=ON -DAREA512_CAPTFT_ILI9341=OFF build"
   end
 
   desc "Build the 320x240 ILI9341 display firmware with windows"
   task :tft9341 => :gendb do
+    remove_sdkconfig_older_than_defaults(File.join(IDF_BUILD_DIR, "tft9341/sdkconfig"))
     idf_py "-B build/tft9341 -DSDKCONFIG=build/tft9341/sdkconfig " \
            "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=ON -DAREA512_CAPTFT_ILI9341=ON build"
   end
 
   desc "Build the T-Deck firmware with windows"
   task :tdeck => :gendb do
+    remove_sdkconfig_older_than_defaults(File.join(IDF_BUILD_DIR, "tdeck/sdkconfig"))
     idf_py "-B build/tdeck -DSDKCONFIG=build/tdeck/sdkconfig " \
            "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=ON -DAREA512_CAPTFT_ILI9341=OFF " \
            "-DAREA512_TDECK=ON build"

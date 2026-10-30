@@ -215,6 +215,25 @@ void area512_theme_pick_bitmap_colors(
 void area512_default_ui_load(void);
 int area512_default_ui_is_terminal(void);
 
+#define AREA512_BLUETOOTH_PAIRING_INACTIVE 0
+#define AREA512_BLUETOOTH_PAIRING_RUNNING 1
+#define AREA512_BLUETOOTH_PAIRING_WAITING_FOR_PASSKEY_ENTRY 2
+#define AREA512_BLUETOOTH_PAIRING_SUCCEEDED 3
+#define AREA512_BLUETOOTH_PAIRING_FAILED 4
+
+void area512_bluetooth_load_config(void);
+void area512_bluetooth_start_if_enabled(void);
+bool area512_bluetooth_save_bonds(void);
+bool area512_bluetooth_is_running(void);
+bool area512_bluetooth_is_keyboard_connected(void);
+int area512_bluetooth_scan_keyboards(void);
+const char *area512_bluetooth_found_keyboard_label(int found_keyboard_index);
+void area512_bluetooth_start_pairing(int found_keyboard_index);
+void area512_bluetooth_cancel_pairing(void);
+int area512_bluetooth_pairing_state(void);
+uint32_t area512_bluetooth_pairing_passkey(void);
+const char *area512_bluetooth_pairing_failure_message(void);
+
 // The app the filer runs as soon as the current one returns, as a path under
 // AREA512_ROOT_PATH (an app directory, or a .rb/.mrb/.py/.mpy file). An empty
 // path cancels. set returns -1 when the path is too long. take hands the path
@@ -222,6 +241,7 @@ int area512_default_ui_is_terminal(void);
 int area512_set_next_app(const char *path);
 int area512_take_next_app(char *path, size_t path_size);
 void area512_cancel_next_app(void);
+
 
 #ifdef AREA512_EXT_DISPLAY
 #include "../captft/include/area512_hal.h"

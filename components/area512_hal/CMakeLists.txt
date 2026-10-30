@@ -13,6 +13,7 @@ idf_component_register(
     console/input.cpp
     ${AREA512_KEYBOARD_SOURCE}
     console/getch.cpp
+    bluetooth/area512_bluetooth.cpp
     ${AREA512_DISPLAY_DIR}console/output.c
     console/system_metrics.cpp
     ${AREA512_DISPLAY_DIR}gfx/area512_display.cpp
@@ -52,6 +53,7 @@ idf_component_register(
     bootloader_support
     esp_partition
     esp_timer
+    bt
 )
 
 # area512 requires this component, so its directory is a private include
