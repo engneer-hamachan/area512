@@ -4,35 +4,43 @@ class Writer
   end
 
   def save_doc
+    doc_name = @doc_name.length > 0 ? @doc_name : prompt_doc_name
+    return unless doc_name
     data = ""
     i = 0
     while i < @lines.length
       data += @lines[i] + "\n"
       i += 1
     end
-    SD.write(DOC_FILE, data)
+    SD.write(doc_path(doc_name), data)
+    @doc_name = doc_name
     @dirty = false
-    @msg = "Saved " + DOC_NAME
+    @msg = "Saved " + doc_name
   rescue
     @msg = "Save failed"
   end
 
   def open_doc
-    @lines = []
-    SD.read(DOC_FILE).split("\n").each do |line|
-      @lines.push(line.chomp)
+    return if @dirty && !Widget.confirm(@sp, "Discard changes?")
+    doc_name = pick_doc_name
+    return unless doc_name
+    lines = []
+    SD.read(doc_path(doc_name)).split("\n").each do |line|
+      lines.push(line.chomp)
     end
-    @lines.push("") if @lines.length == 0
+    lines.push("") if lines.length == 0
+    @lines = lines
+    @doc_name = doc_name
     @row = 0
     @col = 0
     @top = 0
+    @top_segment_index = 0
     @dirty = false
-    @msg = "Opened " + DOC_NAME
-  rescue
-    @lines = [""] if @lines.length == 0
-    @msg = "Open failed"
-  ensure
+    @msg = "Opened " + doc_name
+    rebuild_line_segment_counts
     clamp_cursor
+  rescue
+    @msg = "Open failed"
   end
 
   def run
@@ -41,6 +49,7 @@ class Writer
     @sp = BandedSprite.new(12)
     begin
       SD.mount
+      prepare_doc_storage
       while !@quit
         draw
         handle(read_key)

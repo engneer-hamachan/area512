@@ -51,6 +51,8 @@ class Calc
   end
 
   def save_file
+    sheet_name = @sheet_name.length > 0 ? @sheet_name : prompt_sheet_name
+    return unless sheet_name
     data = ""
     r = 0
     while r < ROWS
@@ -62,8 +64,10 @@ class Calc
       end
       r += 1
     end
-    SD.write(SHEET_FILE, data)
-    @msg = "Saved to " + SHEET_FILE
+    SD.write(sheet_path(sheet_name), data)
+    @sheet_name = sheet_name
+    @unsaved = false
+    @msg = "Saved " + sheet_name
   rescue
     @msg = "Save failed"
   end
@@ -82,15 +86,21 @@ class Calc
   end
 
   def open_file
+    return if @unsaved && !Widget.confirm(@sp, "Discard changes?")
+    sheet_name = pick_sheet_name
+    return unless sheet_name
+    sheet_lines = SD.read(sheet_path(sheet_name)).split("\n")
     init_sheet
-    SD.read(SHEET_FILE).split("\n").each do |line|
+    sheet_lines.each do |line|
       parts = line.chomp.split("\t", 2)
       if parts.length == 2 && cell_ref?(parts[0])
         pos = ref_pos(parts[0])
         set_cell(pos[0], pos[1], parts[1])
       end
     end
-    @msg = "Opened " + SHEET_FILE
+    @sheet_name = sheet_name
+    @unsaved = false
+    @msg = "Opened " + sheet_name
   rescue
     @msg = "Open failed"
   end
@@ -101,6 +111,7 @@ class Calc
     @sp = BandedSprite.new(12)
     begin
       SD.mount
+      prepare_sheet_storage
       while !@quit
         draw
         handle(read_char)

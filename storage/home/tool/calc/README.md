@@ -8,8 +8,8 @@ Tiny spreadsheet for Area512/Cardputer. 26x26 cells (`A1`..`Z26`).
 - `e` / Enter: edit the current cell (Enter commits, Esc cancels, Backspace deletes)
 - `c`: clear the current cell
 - `g`: go to a cell by name (e.g. `B12`; Enter confirms, Esc cancels)
-- `s`: save the sheet to `/data/sheet.txt`
-- `o`: load `/data/sheet.txt` (replaces the current sheet)
+- `s`: save the current sheet; a new sheet asks for a file name
+- `o`: choose a sheet in `/data/calc` to open (replaces the current sheet)
 - `q`: quit
 
 ## Formulas
@@ -26,3 +26,6 @@ A cell starting with `=` is a formula. Anything else is plain text.
 ## Notes
 
 - Save and open (`s` / `o`) need a microSD card; it is mounted while the app runs.
+- Sheets are saved as `.txt` files in `/data/calc`.
+- The open list shows the first 128 sheets in name order.
+- An existing `/data/sheet.txt` moves to `/data/calc/sheet.txt` on start.

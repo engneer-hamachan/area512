@@ -29,5 +29,8 @@ class Calc
   C_ERR = COL_EMPHASIS unless const_defined?(:C_ERR)
 
   HELP = "hjkl move e edit c clear g goto s save o open q quit" unless const_defined?(:HELP)
-  SHEET_FILE = "/data/sheet.txt" unless const_defined?(:SHEET_FILE)
+  SHEET_DIRECTORY = "/data/calc" unless const_defined?(:SHEET_DIRECTORY)
+  SHEET_EXTENSION = ".txt" unless const_defined?(:SHEET_EXTENSION)
+  LEGACY_SHEET_FILE = "/data/sheet.txt" unless const_defined?(:LEGACY_SHEET_FILE)
+  LEGACY_SHEET_NAME = "sheet.txt" unless const_defined?(:LEGACY_SHEET_NAME)
 end

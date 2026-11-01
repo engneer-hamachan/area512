@@ -23,7 +23,8 @@ class SlideShow
 
     begin
       SD.mount
-      load_pages
+      create_project_directory
+      open_project
       until @quit
         draw
         handle_key(read_key)

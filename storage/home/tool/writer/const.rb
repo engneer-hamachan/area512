@@ -4,8 +4,10 @@
 # the shared sandbox VM (each run keeps a global const table). Guard with the
 # class-scoped const_defined? to stay quiet on re-runs of this same app.
 class Writer
-  DOC_FILE = "/data/writer.txt" unless const_defined?(:DOC_FILE)
-  DOC_NAME = "writer.txt" unless const_defined?(:DOC_NAME)
+  DOC_DIRECTORY = "/data/writer" unless const_defined?(:DOC_DIRECTORY)
+  DOC_EXTENSION = ".txt" unless const_defined?(:DOC_EXTENSION)
+  LEGACY_DOC_FILE = "/data/writer.txt" unless const_defined?(:LEGACY_DOC_FILE)
+  LEGACY_DOC_NAME = "writer.txt" unless const_defined?(:LEGACY_DOC_NAME)
 
   LINE_H = 14 unless const_defined?(:LINE_H)
   PAGE_PAD = 4 unless const_defined?(:PAGE_PAD)
