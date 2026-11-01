@@ -70,12 +70,15 @@ class Writer
 
   def append_line(pos, text)
     @lines.push("")
+    @line_segment_counts.push(1)
     i = @lines.length - 1
     while i > pos
       @lines[i] = @lines[i - 1]
+      @line_segment_counts[i] = @line_segment_counts[i - 1]
       i -= 1
     end
     @lines[pos] = text
+    @line_segment_counts[pos] = wrap_line(text).length
   end
 
   def backspace
@@ -90,9 +93,10 @@ class Writer
       prev = "" unless prev.is_a?(String)
       line = current_line
       @col = char_count(prev)
-      @lines[@row - 1] = prev + line
       @lines.delete_at(@row)
+      @line_segment_counts.delete_at(@row)
       @row -= 1
+      set_current_line(prev + line)
       changed = true
     end
     @dirty = true if changed
@@ -118,27 +122,5 @@ class Writer
       @col = 0
     end
     clamp_cursor
-  end
-
-  def move_up
-    @row -= 1
-    clamp_cursor
-  end
-
-  def move_down
-    @row += 1
-    clamp_cursor
-  end
-
-  def page_up
-    @row -= visible_rows
-    clamp_cursor
-    @msg = "Scroll"
-  end
-
-  def page_down
-    @row += visible_rows
-    clamp_cursor
-    @msg = "Scroll"
   end
 end

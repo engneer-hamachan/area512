@@ -26,12 +26,14 @@ class Writer
     @row = 0
     @col = 0
     @top = 0
+    @top_segment_index = 0
     @dirty = false
     @msg = "Opened " + DOC_NAME
   rescue
     @lines = [""] if @lines.length == 0
     @msg = "Open failed"
   ensure
+    rebuild_line_segment_counts
     clamp_cursor
   end
 

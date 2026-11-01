@@ -1,9 +1,13 @@
 class Writer
   def init_doc
     @lines = [""]
+    @line_segment_counts = [1]
     @row = 0
     @col = 0
     @top = 0
+    @top_segment_index = 0
+    @cursor_segment_index = 0
+    @cursor_segment_col = 0
     @msg = "Ready"
     @quit = false
     @jp_mode = false
@@ -17,6 +21,7 @@ class Writer
 
   def set_current_line(text)
     @lines[@row] = text
+    @line_segment_counts[@row] = wrap_line(text).length
   end
 
   def char_count(text)
@@ -83,39 +88,19 @@ class Writer
     w
   end
 
-  def clip_px(text, max_w)
-    s = "#{text}"
-    i = 0
-    w = 0
-    while i < s.length
-      cw = glyph_width_at(s, i)
-      break if w + cw > max_w
-      w += cw
-      i += utf8_step(s, i)
-    end
-    part = s[0, i]
-    part.is_a?(String) ? part : ""
-  end
-
   def clamp_cursor
     @row = 0 if @row < 0
     @row = @lines.length - 1 if @row >= @lines.length
     @col = 0 if @col < 0
     len = char_count(current_line)
     @col = len if @col > len
+    locate_cursor
     adjust_scroll
   end
 
   def visible_rows
     n = (Widget.body_height - PAGE_PAD * 2) / LINE_H
     n < 1 ? 1 : n
-  end
-
-  def adjust_scroll
-    rows = visible_rows
-    @top = @row if @row < @top
-    @top = @row - rows + 1 if @row >= @top + rows
-    @top = 0 if @top < 0
   end
 
   def dirty_mark
