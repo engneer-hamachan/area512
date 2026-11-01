@@ -38,7 +38,7 @@ class Writer
 
   def render
     @sp.fill(Widget.theme_background)
-    Widget.header(@sp, "WRITER", DOC_NAME + dirty_mark)
+    Widget.header(@sp, "WRITER", doc_label + dirty_mark)
     draw_page
     draw_status
   end

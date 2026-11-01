@@ -2,6 +2,7 @@ const.mrb
 io.mrb
 document.mrb
 wrap.mrb
+files.mrb
 edit.mrb
 render.mrb
 main.mrb

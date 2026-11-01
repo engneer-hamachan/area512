@@ -1,6 +1,8 @@
 require 'area512-widget'
 
 class SlideShow
+  PROJECT_DIRECTORY = "/data/slide" unless const_defined?(:PROJECT_DIRECTORY)
+
   ROW_HEIGHT = 16 unless const_defined?(:ROW_HEIGHT)
   BODY_TOP = 18 unless const_defined?(:BODY_TOP)
   BODY_BOTTOM = 112 unless const_defined?(:BODY_BOTTOM)

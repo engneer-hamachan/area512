@@ -6,5 +6,6 @@ eval_cache.mrb
 eval_parse.mrb
 eval_sum.mrb
 edit.mrb
+files.mrb
 render.mrb
 main.mrb

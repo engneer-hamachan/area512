@@ -1,5 +1,6 @@
 class Writer
   def init_doc
+    @doc_name = ""
     @lines = [""]
     @line_segment_counts = [1]
     @row = 0

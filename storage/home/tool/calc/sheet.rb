@@ -2,6 +2,8 @@ class Calc
   def init_sheet
     @cells = {}
     init_values
+    @sheet_name = ""
+    @unsaved = false
     @row = 0
     @col = 0
     @top = 0
@@ -35,6 +37,7 @@ class Calc
       @cells[k] = text
     end
     @dirty = true
+    @unsaved = true
   end
 
   def cell_key(c, r)

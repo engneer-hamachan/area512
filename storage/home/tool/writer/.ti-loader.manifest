@@ -2,6 +2,7 @@ const.rb
 io.rb
 document.rb
 wrap.rb
+files.rb
 edit.rb
 render.rb
 main.rb
