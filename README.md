@@ -208,6 +208,30 @@ Both Shift keys behave the same. Sym, Alt, and Shift output nothing on their own
 
 While Alt is held, Shift and Sym change nothing, except that Space then outputs nothing.
 
+### Customizing the Keymap
+
+On the T-Deck Plus, `/etc/keymap` overrides the map above. List only the keys you want to change, then reboot. Delete the file to go back to the defaults.
+
+```
+a=x
+sym.a=1
+sym.shift.a=2
+alt.a=ctrl-a
+alt.sym.a=3
+```
+
+The left side is any of `shift`, `sym`, and `alt` joined with `.` in any order, followed by the key: a letter, `$`, `space`, `mic`, `enter`, or `backspace`.
+
+| Right side | Output |
+| --- | --- |
+| One character | That character. `sym.a==` outputs `=` |
+| Empty | Nothing |
+| `space` `enter` `tab` `esc` `backspace` `delete` | That key |
+| `percent` `ampersand` `backslash` `caret` `backtick` `tilde` | `%` `&` `\` `^` `` ` `` `~`, which the T-Deck cannot type |
+| `ctrl-a`, `ctrl-@`, `ctrl-backslash` | The control character |
+
+Lines that do not match are ignored, so a line starting with `#` works as a comment. Sym, Alt, Shift, and the trackball cannot be remapped.
+
 | Trackball | Output |
 | --- | --- |
 | Roll up / down / left / right | Up / Down / Left / Right arrow |

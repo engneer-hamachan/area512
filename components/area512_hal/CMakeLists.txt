@@ -3,15 +3,15 @@ if(AREA512_EXT_DISPLAY)
   set(AREA512_DISPLAY_DIR "captft/")
 endif()
 
-set(AREA512_KEYBOARD_SOURCE console/keyboard.cpp)
+set(AREA512_KEYBOARD_SOURCES console/keyboard.cpp)
 if(AREA512_TDECK)
-  set(AREA512_KEYBOARD_SOURCE console/tdeck_keyboard.cpp)
+  set(AREA512_KEYBOARD_SOURCES console/tdeck_keyboard.cpp console/tdeck_keymap.cpp)
 endif()
 
 idf_component_register(
   SRCS
     console/input.cpp
-    ${AREA512_KEYBOARD_SOURCE}
+    ${AREA512_KEYBOARD_SOURCES}
     console/getch.cpp
     bluetooth/area512_bluetooth.cpp
     ${AREA512_DISPLAY_DIR}console/output.c

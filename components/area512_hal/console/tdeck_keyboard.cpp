@@ -1,4 +1,5 @@
 #include "console_internal.h"
+#include "tdeck_keymap.h"
 
 #include <utility/I2C_Class.hpp>
 #include <string.h>
@@ -14,13 +15,11 @@ static constexpr uint32_t TDECK_KEYBOARD_FREQ = 200000;
 static constexpr int TDECK_KEYBOARD_SDA = 18;
 static constexpr int TDECK_KEYBOARD_SCL = 8;
 static constexpr uint8_t LILYGO_KB_MODE_RAW_CMD = 0x03;
-static constexpr int TDECK_KEYBOARD_COLUMNS = 5;
-static constexpr int TDECK_KEYBOARD_ROWS = 7;
 static constexpr int TDECK_REPEAT_DELAY_MS = 450;
 static constexpr int TDECK_REPEAT_INTERVAL_MS = 55;
 
 static m5::I2C_Class tdeck_keyboard_i2c;
-static uint8_t s_tdeck_key_down[TDECK_KEYBOARD_COLUMNS] = {};
+static uint8_t s_tdeck_key_down[KEYBOARD_COLUMN_COUNT] = {};
 static int s_tdeck_repeat_column = -1;
 static int s_tdeck_repeat_row = -1;
 static TickType_t s_tdeck_repeat_next_tick = 0;
@@ -107,24 +106,6 @@ tdeck_trackball_poll(void) {
   }
 }
 
-// Column/row positions from LilyGO's Keyboard_ESP32C3 firmware.
-static const uint8_t TDECK_KEYS[TDECK_KEYBOARD_COLUMNS][TDECK_KEYBOARD_ROWS] = {
-  {'q', 'w', 0, 'a', 0, ' ', '='},
-  {'e', 's', 'd', 'p', 'x', 'z', 0},
-  {'r', 'g', 't', 0, 'v', 'c', 'f'},
-  {'u', 'h', 'y', '\r', 'b', 'n', 'j'},
-  {'o', 'l', 'i', '\b', '$', 'm', 'k'},
-};
-
-static const uint8_t TDECK_SYMBOL_KEYS[TDECK_KEYBOARD_COLUMNS]
-                                      [TDECK_KEYBOARD_ROWS] = {
-                                        {'#', '1', 0, '*', 0, 0, '0'},
-                                        {'2', '4', '5', '@', '8', '7', 0},
-                                        {'3', '/', '(', 0, '?', '9', '6'},
-                                        {'_', ':', ')', '\r', '!', ',', ';'},
-                                        {'+', '"', '-', '\b', 0, '.', '\''},
-};
-
 static void
 tdeck_clear_repeat_tracking(void) {
   s_tdeck_repeat_column = -1;
@@ -134,7 +115,7 @@ tdeck_clear_repeat_tracking(void) {
 
 static void
 tdeck_set_repeat_key(int column, int row) {
-  if (TDECK_KEYS[column][row] == 0 && TDECK_SYMBOL_KEYS[column][row] == 0)
+  if (!tdeck_keymap_contains_key(column, row))
     return;
 
   s_tdeck_repeat_column = column;
@@ -180,96 +161,28 @@ keyboard_init(void) {
   return ok && stopped;
 }
 
-static uint8_t
-tdeck_special_key_to_char(uint8_t key_event) {
-  switch (key_event) {
-  case 15:
-    return '[';
-  case 26:
-    return ']';
-  case 31:
-    return '{';
-  case 1:
-    return '}';
-  case 23:
-    return '<';
-  case 24:
-    return '>';
-  case 3:
-    return '=';
-  case 224:
-    return '|';
-  case 0x19:
-    return 0x03; // sym+shift+c -> Ctrl-C
-  case 0x15:
-    return 0x04; // sym+shift+d -> Ctrl-D
-  case 0x0C:
-    return 0x0E; // sym+shift+n -> Ctrl-N
-  default:
-    return key_event;
-  }
-}
-
-static uint8_t
-tdeck_ctrl_letter_to_char(uint8_t letter) {
-  switch (letter) {
-  case 'j':
-    return 0x1B;
-  case 't':
-    return '\t';
-  case 'z':
-    return '<';
-  case 'x':
-    return '>';
-  default:
-    return (uint8_t)(letter - 'a' + 1);
-  }
-}
-
 static void
-tdeck_handle_key(int column, int row, bool ctrl, bool shift, bool symbol) {
-  uint8_t character = TDECK_KEYS[column][row];
+tdeck_handle_key(
+  int column,
+  int row,
+  bool is_alt_pressed,
+  bool is_shift_pressed,
+  bool is_symbol_pressed
+) {
 
-  if (character == 0 && TDECK_SYMBOL_KEYS[column][row] == 0)
-    return;
+  uint8_t output;
 
-  if (character == '\r' || character == '\b') {
-    area512_console_stdin_push(character);
-    return;
-  }
-
-  if (ctrl && character >= 'a' && character <= 'z') {
-    area512_console_stdin_push(
-      tdeck_ctrl_letter_to_char(character)
-    );
-
-    return;
-  }
-
-  if (symbol)
-    character = TDECK_SYMBOL_KEYS[column][row];
-
-  if (character == 0 && !shift)
-    return;
-
-  if (shift)
-    character = (uint8_t)(character - 32);
-
-  if (symbol && shift)
-    character = tdeck_special_key_to_char(character);
-
-  if (ctrl) {
-    if (character >= '@' && character <= '_')
-      character &= 0x1F;
-    else if (character == ' ')
-      character = 0;
-    else if (character == '?')
-      character = 0x7F;
-    else
-      return;
-  }
-
-  area512_console_stdin_push(character);
+  if (
+    tdeck_keymap_lookup_output(
+      column,
+      row,
+      is_alt_pressed,
+      is_shift_pressed,
+      is_symbol_pressed,
+      &output
+    )
+  )
+    area512_console_stdin_push(output);
 }
 
 void
@@ -288,7 +201,7 @@ keyboard_poll(void) {
     return;
   }
 
-  uint8_t keys[TDECK_KEYBOARD_COLUMNS] = {};
+  uint8_t keys[KEYBOARD_COLUMN_COUNT] = {};
 
   bool ok =
     tdeck_keyboard_i2c.read(keys, sizeof(keys), true);
@@ -300,16 +213,17 @@ keyboard_poll(void) {
     return;
   }
 
-  for (int column = 0; column < TDECK_KEYBOARD_COLUMNS; column++) {
+  for (int column = 0; column < KEYBOARD_COLUMN_COUNT; column++) {
     if (keys[column] & 0x80) {
       tdeck_clear_repeat_tracking();
       return;
     }
   }
 
-  bool ctrl = (keys[0] & (1 << 4)) != 0; // Alt
-  bool shift = (keys[1] & (1 << 6)) != 0 || (keys[2] & (1 << 3)) != 0;
-  bool symbol = (keys[0] & (1 << 2)) != 0;
+  bool is_alt_pressed = (keys[0] & (1 << 4)) != 0;
+  bool is_shift_pressed =
+    (keys[1] & (1 << 6)) != 0 || (keys[2] & (1 << 3)) != 0;
+  bool is_symbol_pressed = (keys[0] & (1 << 2)) != 0;
 
   if (
     s_tdeck_repeat_column >= 0 &&
@@ -319,12 +233,19 @@ keyboard_poll(void) {
     tdeck_clear_repeat_tracking();
   }
 
-  for (int row = 0; row < TDECK_KEYBOARD_ROWS; row++) {
-    for (int column = 0; column < TDECK_KEYBOARD_COLUMNS; column++) {
+  for (int row = 0; row < KEYBOARD_ROW_COUNT; row++) {
+    for (int column = 0; column < KEYBOARD_COLUMN_COUNT; column++) {
       uint8_t pressed = keys[column] & (uint8_t)~s_tdeck_key_down[column];
 
       if (pressed & (1 << row)) {
-        tdeck_handle_key(column, row, ctrl, shift, symbol);
+        tdeck_handle_key(
+          column,
+          row,
+          is_alt_pressed,
+          is_shift_pressed,
+          is_symbol_pressed
+        );
+
         tdeck_set_repeat_key(column, row);
       }
     }
@@ -335,12 +256,12 @@ keyboard_poll(void) {
   if (s_tdeck_repeat_column < 0) {
     for (
       int row = 0;
-      row < TDECK_KEYBOARD_ROWS && s_tdeck_repeat_column < 0;
+      row < KEYBOARD_ROW_COUNT && s_tdeck_repeat_column < 0;
       row++
     ) {
       for (
         int column = 0;
-        column < TDECK_KEYBOARD_COLUMNS && s_tdeck_repeat_column < 0;
+        column < KEYBOARD_COLUMN_COUNT && s_tdeck_repeat_column < 0;
         column++
       ) {
         if (keys[column] & (1 << row))
@@ -359,9 +280,9 @@ keyboard_poll(void) {
     tdeck_handle_key(
       s_tdeck_repeat_column,
       s_tdeck_repeat_row,
-      ctrl,
-      shift,
-      symbol
+      is_alt_pressed,
+      is_shift_pressed,
+      is_symbol_pressed
     );
 
     s_tdeck_repeat_next_tick = now + pdMS_TO_TICKS(TDECK_REPEAT_INTERVAL_MS);

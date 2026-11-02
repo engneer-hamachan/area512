@@ -8,6 +8,7 @@ void area512_console_feed_ime(uint8_t byte);
 void area512_console_flush_ime(void);
 void area512_console_toggle_ime(void);
 extern "C" void area512_input_init(void);
+extern "C" void area512_keymap_load(void);
 bool keyboard_init(void);
 void keyboard_poll(void);
 void area512_bluetooth_poll_keyboard(void);
