@@ -1,7 +1,19 @@
 # PicoRuby Features
 
-AREA512 provides the APIs on this page as built-ins. They can be used without
-`require`.
+AREA512 provides the APIs on this page as built-ins. Each app starts with only
+`SD`, `File`, `Dir`, `Area512`, and `Sandbox` loaded; `require` the others
+before use.
+
+| API | `require` |
+| --- | --- |
+| `Display`, `Sprite` | `require 'area512-sprite'` |
+| `Dot` | `require 'area512-dot'` |
+| `Widget`, `WidgetList`, `WidgetTextView` | `require 'area512-widget'` |
+| `GPIO` | `require 'gpio'` |
+| `I2C` | `require 'i2c'` |
+| `IO` | `require 'io/console'` |
+| `RNG` | `require 'rng'` |
+| `SD`, `File`, `Dir`, `Area512`, `Sandbox` | Not needed |
 
 ## Reference Implementation
 

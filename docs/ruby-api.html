@@ -45,9 +45,61 @@
         <p><a class="text-link" href="manual.html#references">← Manual</a></p>
         <article class="reference-text section">
           <p>
-            AREA512 provides the APIs on this page as built-ins. They can be
-            used without <code>require</code>.
+            AREA512 provides the APIs on this page as built-ins. Each app starts
+            with only <code>SD</code>, <code>File</code>, <code>Dir</code>,
+            <code>Area512</code>, and <code>Sandbox</code> loaded;
+            <code>require</code> the others before use.
           </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">API</th>
+                  <th scope="col"><code>require</code></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>Display</code>, <code>Sprite</code></td>
+                  <td><code>require 'area512-sprite'</code></td>
+                </tr>
+                <tr>
+                  <td><code>Dot</code></td>
+                  <td><code>require 'area512-dot'</code></td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>Widget</code>, <code>WidgetList</code>,
+                    <code>WidgetTextView</code>
+                  </td>
+                  <td><code>require 'area512-widget'</code></td>
+                </tr>
+                <tr>
+                  <td><code>GPIO</code></td>
+                  <td><code>require 'gpio'</code></td>
+                </tr>
+                <tr>
+                  <td><code>I2C</code></td>
+                  <td><code>require 'i2c'</code></td>
+                </tr>
+                <tr>
+                  <td><code>IO</code></td>
+                  <td><code>require 'io/console'</code></td>
+                </tr>
+                <tr>
+                  <td><code>RNG</code></td>
+                  <td><code>require 'rng'</code></td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>SD</code>, <code>File</code>, <code>Dir</code>,
+                    <code>Area512</code>, <code>Sandbox</code>
+                  </td>
+                  <td>Not needed</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <h2>Reference Implementation</h2>
           <p>
             The preinstalled
