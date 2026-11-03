@@ -216,6 +216,10 @@ area512_console_toggle_ime(void) {
   s_ime_active = !s_ime_active;
 }
 
+void
+area512_keymap_load(void) {
+}
+
 static bool
 tca8418_write_register(uint8_t register_address, uint8_t value) {
   if (!M5.In_I2C.start(TCA8418_ADDR, false, TCA8418_FREQ)) {
