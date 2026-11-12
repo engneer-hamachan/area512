@@ -11,6 +11,7 @@
 
 #include "area512_display.h"
 #include "area512_crt.h"
+#include "area512_quaternary_crt.h"
 #include "area512_hal.h"
 #include "sdkconfig.h"
 
@@ -122,6 +123,39 @@ subtract_screen_buffer_origin(const void *p, int y) {
   return y;
 }
 
+static void
+set_sprite_text_style(
+  lgfx::v1::LGFX_Sprite *sprite,
+  const lgfx::v1::IFont *font
+) {
+
+  sprite->setFont(font);
+  sprite->setTextSize(1);
+  sprite->setTextDatum(lgfx::v1::textdatum_t::top_left);
+}
+
+static bool
+assign_sprite_buffer(
+  lgfx::v1::LGFX_Sprite *sprite,
+  int width,
+  int height,
+  size_t required_byte_size
+) {
+
+  SpriteSlot *slot = find_free_sprite_slot(required_byte_size);
+
+  if (slot != nullptr) {
+    sprite->setBuffer(slot->buffer, width, height);
+    slot->occupying_sprite = sprite;
+
+    return true;
+  }
+
+  sprite->setPsram(false);
+
+  return sprite->createSprite(width, height) != nullptr;
+}
+
 static void *
 area512_sprite_new_with_font(int w, int h, const lgfx::v1::IFont *font) {
   lgfx::v1::LGFX_Device *dev = area512_gfx_device();
@@ -139,27 +173,87 @@ area512_sprite_new_with_font(int w, int h, const lgfx::v1::IFont *font) {
   spr->setColorDepth(16);
 
   size_t required_byte_size = (size_t)w * (size_t)h * SPRITE_PIXEL_BYTE_SIZE;
-  SpriteSlot *slot = find_free_sprite_slot(required_byte_size);
 
-  if (slot != nullptr) {
-    spr->setBuffer(slot->buffer, w, h, 16);
-    slot->occupying_sprite = spr;
-
-  } else {
-    spr->setPsram(false);
-
-    if (spr->createSprite(w, h) == nullptr) {
-      delete spr;
-      return nullptr;
-    }
+  if (!assign_sprite_buffer(spr, w, h, required_byte_size)) {
+    delete spr;
+    return nullptr;
   }
 
-  spr->setFont(font);
-  spr->setTextSize(1);
-  spr->setTextDatum(lgfx::v1::textdatum_t::top_left);
+  set_sprite_text_style(spr, font);
   spr->fillScreen((uint32_t)0x000000);
 
   return spr;
+}
+
+static void *
+create_quaternary_sprite_with_font(
+  int width,
+  int height,
+  const lgfx::v1::IFont *font
+) {
+
+  lgfx::v1::LGFX_Device *device = area512_gfx_device();
+
+  if (device == nullptr || width <= 0 || height <= 0)
+    return nullptr;
+
+  lgfx::v1::LGFX_Sprite *sprite =
+    new (std::nothrow) lgfx::v1::LGFX_Sprite(device);
+
+  if (sprite == nullptr)
+    return nullptr;
+
+  sprite->setColorDepth(lgfx::v1::palette_4bit);
+
+  size_t required_byte_size = ((size_t)width + 1) / 2 * (size_t)height;
+
+  if (!assign_sprite_buffer(sprite, width, height, required_byte_size)) {
+    delete sprite;
+    return nullptr;
+  }
+
+  if (!sprite->createPalette()) {
+    area512_sprite_delete(sprite);
+    return nullptr;
+  }
+
+  sprite->setPaletteColor(
+    AREA512_QUATERNARY_SPRITE_BACKGROUND_COLOR_INDEX,
+    area512_theme_background_color()
+  );
+
+  sprite->setPaletteColor(
+    AREA512_QUATERNARY_SPRITE_TEXT_COLOR_INDEX,
+    area512_theme_text_color()
+  );
+
+  sprite->setPaletteColor(
+    AREA512_QUATERNARY_SPRITE_EMPHASIS_COLOR_INDEX,
+    area512_theme_emphasis_color()
+  );
+
+  sprite->setPaletteColor(
+    AREA512_QUATERNARY_SPRITE_BORDER_COLOR_INDEX,
+    area512_theme_border_color()
+  );
+
+  sprite->setPaletteColor(
+    AREA512_QUATERNARY_SPRITE_SELECTED_COLOR_INDEX,
+    area512_theme_selected_color()
+  );
+
+  sprite->setPaletteColor(
+    AREA512_QUATERNARY_SPRITE_BOX_COLOR_INDEX,
+    area512_theme_box_color()
+  );
+
+  set_sprite_text_style(sprite, font);
+
+  sprite->fillScreen(
+    (uint32_t)AREA512_QUATERNARY_SPRITE_BACKGROUND_COLOR_INDEX
+  );
+
+  return sprite;
 }
 
 static const lgfx::v1::IFont *
@@ -355,6 +449,26 @@ area512_sprite_new_with_font_size(int w, int h, int font_size) {
   return area512_sprite_new_with_font(w, h, font);
 }
 
+void *
+area512_quaternary_sprite_new(int width, int height) {
+  return create_quaternary_sprite_with_font(width, height, AREA512_SPRITE_FONT);
+}
+
+void *
+area512_quaternary_sprite_new_with_font_size(
+  int width,
+  int height,
+  int font_size
+) {
+
+  const lgfx::v1::IFont *font = area512_sprite_font_for_size(font_size);
+
+  if (font == nullptr)
+    return nullptr;
+
+  return create_quaternary_sprite_with_font(width, height, font);
+}
+
 void
 area512_sprite_set_font_size(void *p, int font_size) {
   if (p == nullptr)
@@ -365,12 +479,7 @@ area512_sprite_set_font_size(void *p, int font_size) {
   if (font == nullptr)
     return;
 
-  lgfx::v1::LGFX_Sprite *spr =
-    static_cast<lgfx::v1::LGFX_Sprite *>(p);
-
-  spr->setFont(font);
-  spr->setTextSize(1);
-  spr->setTextDatum(lgfx::v1::textdatum_t::top_left);
+  set_sprite_text_style(static_cast<lgfx::v1::LGFX_Sprite *>(p), font);
 }
 
 int
@@ -660,7 +769,21 @@ push_sprite(
   x += s_window_x;
   y += s_window_y;
 
-  if (area512_theme_is_crt_enabled())
+  if (
+    area512_theme_is_crt_enabled() &&
+    spr->getColorDepth() == lgfx::v1::palette_4bit
+  )
+    area512_quaternary_crt_push(
+      dev,
+      spr,
+      x,
+      y,
+      CORE_SHIFTS_GREEN_AND_NARROWS_BLUE,
+      has_transparent_color,
+      transparent_color
+    );
+
+  else if (area512_theme_is_crt_enabled())
     area512_crt_push(
       dev,
       spr,
@@ -721,9 +844,7 @@ area512_screen_new(int font_size) {
     16
   );
 
-  spr->setFont(font);
-  spr->setTextSize(1);
-  spr->setTextDatum(lgfx::v1::textdatum_t::top_left);
+  set_sprite_text_style(spr, font);
 
   slot->occupying_sprite = spr;
   s_screen_sprite = spr;

@@ -86,6 +86,7 @@ MRuby::CrossBuild.new(build_name) do |conf|
 
   # Flicker-free text drawing (Sprite) for the launcher and small apps.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-sprite', __dir__)
+  conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-quaternary-sprite', __dir__)
 
   # Themed UI widgets shared by storage applications.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-widget', __dir__)
