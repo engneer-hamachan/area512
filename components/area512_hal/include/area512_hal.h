@@ -108,6 +108,24 @@ int area512_sprite_text_width(void *p, const char *str);
 void area512_sprite_push(void *p, int x, int y);
 void area512_sprite_push_transparent(void *p, int x, int y, uint32_t transp);
 
+// A quaternary sprite stores 4-bit palette indices and its palette holds the
+// theme colors at these indices. The area512_sprite_ functions draw on it and
+// push it with one of these indices in place of a 0xRRGGBB color.
+#define AREA512_QUATERNARY_SPRITE_BACKGROUND_COLOR_INDEX 0
+#define AREA512_QUATERNARY_SPRITE_TEXT_COLOR_INDEX 1
+#define AREA512_QUATERNARY_SPRITE_EMPHASIS_COLOR_INDEX 2
+#define AREA512_QUATERNARY_SPRITE_BORDER_COLOR_INDEX 3
+#define AREA512_QUATERNARY_SPRITE_SELECTED_COLOR_INDEX 4
+#define AREA512_QUATERNARY_SPRITE_BOX_COLOR_INDEX 5
+#define AREA512_QUATERNARY_SPRITE_COLOR_COUNT 6
+
+void *area512_quaternary_sprite_new(int width, int height);
+void *area512_quaternary_sprite_new_with_font_size(
+  int width,
+  int height,
+  int font_size
+);
+
 #define AREA512_SCREEN_REGION_ROW_COUNT 32
 
 // One sprite draws the whole screen a band of rows at a time, reusing the

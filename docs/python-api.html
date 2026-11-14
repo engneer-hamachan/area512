@@ -128,6 +128,40 @@
               <code>region_bottom()</code>
             </li>
           </ul>
+          <h2>QuaternarySprite</h2>
+          <p>
+            An off-screen drawing surface that stores 4 bits per pixel, a
+            quarter of a <code>Sprite</code>. Its colors are the theme colors,
+            and drawing takes one of the <code>*_COLOR_INDEX</code> constants
+            in place of a color.
+          </p>
+          <ul>
+            <li>
+              <code>QuaternarySprite(width, height, font_size=None)</code>
+            </li>
+            <li>
+              <code>BACKGROUND_COLOR_INDEX</code>,
+              <code>TEXT_COLOR_INDEX</code>,
+              <code>EMPHASIS_COLOR_INDEX</code>,
+              <code>BORDER_COLOR_INDEX</code>,
+              <code>SELECTED_COLOR_INDEX</code>,
+              <code>BOX_COLOR_INDEX</code>
+            </li>
+            <li>
+              <code>width()</code>, <code>height()</code>, <code>delete()</code>
+            </li>
+            <li>
+              <code>fill(color_index)</code>,
+              <code>pixel(x, y, color_index)</code>
+            </li>
+            <li><code>line(x0, y0, x1, y1, color_index)</code></li>
+            <li><code>rect(x, y, width, height, color_index)</code></li>
+            <li><code>fill_rect(x, y, width, height, color_index)</code></li>
+            <li><code>circle(x, y, radius, color_index)</code></li>
+            <li><code>fill_circle(x, y, radius, color_index)</code></li>
+            <li><code>text(x, y, string, color_index)</code></li>
+            <li><code>push(x, y, transparent_color_index=None)</code></li>
+          </ul>
           <h2>Dot</h2>
           <p>Loads and edits <code>.a5d</code> dot images.</p>
           <ul>

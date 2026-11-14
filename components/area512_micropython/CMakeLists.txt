@@ -47,6 +47,7 @@ idf_component_register(
     area512_micropython_repl.c
     mphalport.c
     modules/area512_micropython_sprite.c
+    modules/area512_micropython_quaternary_sprite.c
     modules/area512_micropython_dot.c
     modules/area512_micropython_console.c
     modules/area512_micropython_io.c
@@ -98,6 +99,7 @@ add_custom_command(
     ${COMPONENT_DIR}/micropython_embed.mk
     ${COMPONENT_DIR}/mpconfigport.h
     ${COMPONENT_DIR}/modules/area512_micropython_sprite.c
+    ${COMPONENT_DIR}/modules/area512_micropython_quaternary_sprite.c
     ${COMPONENT_DIR}/modules/area512_micropython_dot.c
     ${COMPONENT_DIR}/modules/area512_micropython_console.c
     ${COMPONENT_DIR}/modules/area512_micropython_io.c

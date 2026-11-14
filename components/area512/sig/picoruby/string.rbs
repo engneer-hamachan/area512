@@ -118,6 +118,9 @@ class String
   # Remove trailing whitespace destructively
   def rstrip!: () -> (String | nil)
 
+  # Set byte value at specified position
+  def setbyte: (Integer index, Integer byte) -> Integer
+
   # Get character or substring at specified position
   def slice: (untyped index_or_range) -> (String | nil)
 
