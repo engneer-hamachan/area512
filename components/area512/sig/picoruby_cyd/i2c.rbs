@@ -1,0 +1,50 @@
+# @sidebar io_peripheral
+class I2C
+  type outputs_t = Integer|String|Array[Integer]
+
+  DEFAULT_FREQUENCY: Integer
+  DEFAULT_TIMEOUT: Integer
+
+  @unit_num: Integer
+  @timeout: Integer
+
+  def initialize: (
+    unit: Symbol|nil,
+    ?frequency: Integer,
+    ?sda_pin: Integer,
+    ?scl_pin: Integer,
+    ?timeout: Integer
+  ) -> void
+  private def _init: (
+    String unit,
+    Integer frequency,
+    Integer sda_pin,
+    Integer scl_pin
+  ) -> Integer
+  def write: (
+    Integer i2c_adrs_7,
+    *outputs_t outputs,
+    ?timeout: Integer,
+    ?nostop: bool,
+  ) -> Integer
+  def read: (
+    Integer i2c_adrs_7,
+    Integer len,
+    *outputs_t outputs,
+    ?timeout: Integer,
+  ) -> String
+  def scan: (?timeout: Integer) -> nil
+end
+
+# Area512 built-in type declaration.
+
+class I2C
+  def write: (Integer i2c_adrs_7, *(Integer | String | Array[Integer]) outputs, ?timeout: Integer, ?nostop: bool) -> Integer
+
+  def read: (Integer i2c_adrs_7, Integer len, *(Integer | String | Array[Integer]) outputs, ?timeout: Integer) -> String
+
+  def scan: (?timeout: Integer) -> nil
+
+  def self.new: (unit: (Symbol | nil), ?frequency: Integer, ?sda_pin: Integer, ?scl_pin: Integer, ?timeout: Integer) -> I2C
+
+end

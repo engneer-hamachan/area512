@@ -76,6 +76,23 @@
                 >Display.show_header_image(path, hold_milliseconds=1000)</code
               >
             </li>
+            <li>
+              <code>Display.subwindow(x, y, width, height)</code> places a
+              subwindow outside the window, in window coordinates, and
+              <code>Display.push_subwindow(sprite)</code> draws a
+              <code>Sprite</code> or <code>QuaternarySprite</code> there. Taps
+              on it come from <code>Touch.read()</code> with window coordinates
+              outside the window. Available only in the ES3C28P firmware.
+            </li>
+            <li>
+              <code>Display.move_window(left, top)</code> moves the window to
+              (<code>left</code>, <code>top</code>) in screen pixels,
+              <code>top</code> being its position while the software keyboard
+              is closed. The window's border is drawn there, and the app
+              draws its inside again.
+              <code>Display.read_window_top_without_soft_keyboard()</code>
+              returns that <code>top</code>. Available only in the ES3C28P firmware.
+            </li>
           </ul>
           <p>
             <code>width</code> and <code>height</code> report the area the app
@@ -353,6 +370,31 @@
           <ul>
             <li><code>Console.reset()</code></li>
             <li><code>Console.wait_key_if_output()</code></li>
+          </ul>
+          <h2>Touch</h2>
+          <p>
+            Reads the touch panel and shows the software keyboard. Available
+            only in the ES3C28P firmware.
+          </p>
+          <ul>
+            <li>
+              <code>Touch.read()</code> returns <code>None</code> or
+              <code>(kind, x, y)</code>. <code>kind</code> is
+              <code>"TAP"</code>, <code>"DRAG"</code> or
+              <code>"RELEASE"</code>, and <code>x</code>, <code>y</code> are
+              window coordinates. A finger lifted without moving gives one
+              <code>"TAP"</code> at the point it touched; a moving finger gives
+              <code>"DRAG"</code> events and then one <code>"RELEASE"</code>
+              where it was lifted.
+            </li>
+            <li>
+              <code>Touch.open_keyboard()</code>,
+              <code>Touch.close_keyboard()</code> show and hide the software
+              keyboard under the window. The window moves up while the
+              keyboard is shown, so redraw the screen after each call. Keys
+              typed on it arrive through <code>IO</code> like keyboard keys.
+            </li>
+            <li><code>Touch.bluetooth_keyboard_connected()</code></li>
           </ul>
           <h2>Sleep</h2>
           <p>Pauses execution for a specified duration.</p>

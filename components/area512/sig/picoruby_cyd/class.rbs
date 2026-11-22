@@ -1,0 +1,7 @@
+# Area512 built-in type declaration.
+
+class Class
+  # Return class name as string
+  def name: () -> String
+
+end

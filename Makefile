@@ -6,8 +6,10 @@ PICORB_ESP := $(ROOT)/components/area512
 PICORBC    := $(PICORB)/bin/picorbc
 MPY_CROSS  := $(ROOT)/components/micropython/mpy-cross/build/mpy-cross
 HOME_DIR   := $(ROOT)/storage/home
+CYD_HOME_DIR := $(ROOT)/storage_cyd/home
 TI_GENERATED := $(ROOT)/components/area512/mrbgems/picoruby-ti/src/generated
 MICROPYTHON_TI := $(ROOT)/components/area512/mrbgems/micropython-ti
+CYD_TI_GENERATED := $(ROOT)/build/cyd/ti_generated
 
 FIRMWARE   := $(ROOT)/firmware
 DOCS_FIRMWARE := $(ROOT)/docs/firmware
@@ -27,7 +29,7 @@ FMT_FILES := $(shell find $(ROOT)/main $(ROOT)/components \
 	-not -path '*/M5Unified/*' \
 	-not -path '*/managed_components/*')
 
-.PHONY: build flash monitor clean light-clean light-clean-tft fullclean compile-home-mrb compile-home-mpy flash-firmware save-firmware gendb format format-check run-emulator convert help
+.PHONY: build flash monitor clean light-clean light-clean-tft fullclean compile-home-mrb compile-home-mpy flash-firmware save-firmware gendb gendb-cyd format format-check run-emulator convert help
 
 help:
 	@echo "Targets:"
@@ -37,12 +39,13 @@ help:
 	@echo "  make clean      - idf.py clean (light)"
 	@echo "  make light-clean     - remove esp32-femtoruby libmruby.a (Cardputer)"
 	@echo "  make light-clean-tft - remove esp32-femtoruby-captft libmruby.a (Cap TFT)"
-	@echo "  make compile-home-mrb - recursively compile storage/home/**/*.rb to .mrb"
+	@echo "  make compile-home-mrb - recursively compile storage/home/**/*.rb and storage_cyd/home/**/*.rb to .mrb"
 	@echo "  make compile-home-mpy - recursively compile storage/home/**/*.py to .mpy"
 	@echo "                    (storage/ is the seed copied to the SD card's Area512_data/ on first boot)"
 	@echo "  make flash-firmware   - flash committed firmware/ binaries (no rebuild)"
-	@echo "  make save-firmware    - copy build/, build/v11/, build/tft7789/, build/tft9341/, build/tdeck/ artifacts into firmware/ and docs/firmware/"
+	@echo "  make save-firmware    - copy build/, build/v11/, build/tft7789/, build/tft9341/, build/tdeck/, build/es3c28p/ artifacts into firmware/ and docs/firmware/"
 	@echo "  make gendb            - regenerate the built-in TI database"
+	@echo "  make gendb-cyd        - generate the CYD TI database (with Touch) into build/cyd/ti_generated"
 	@echo "  make fullclean  - nuke everything: build/, picoruby/build/ (esp32-*, host, repos),"
 	@echo "                    generated mrb/*.c. Use after editing build_config/*.rb."
 	@echo "  make format     - clang-format -i over our own C/C++ (skips vendored trees)"
@@ -81,9 +84,10 @@ save-firmware:
 	$(call merge_firmware,$(ROOT)/build/tft7789,Area512TFT7789.bin)
 	$(call merge_firmware,$(ROOT)/build/tft9341,Area512TFT9341.bin)
 	$(call merge_firmware,$(ROOT)/build/tdeck,Area512TDeck.bin)
+	$(call merge_firmware,$(ROOT)/build/es3c28p,Area512ES3C28P.bin)
 	cp $(FIRMWARE)/Area512Adv.bin $(FIRMWARE)/Area512V11.bin \
 	  $(FIRMWARE)/Area512TFT7789.bin $(FIRMWARE)/Area512TFT9341.bin \
-	  $(FIRMWARE)/Area512TDeck.bin $(DOCS_FIRMWARE)/
+	  $(FIRMWARE)/Area512TDeck.bin $(FIRMWARE)/Area512ES3C28P.bin $(DOCS_FIRMWARE)/
 	@echo "firmware/ and docs/firmware/ refreshed from build/"
 
 monitor:
@@ -105,7 +109,7 @@ light-clean-tft:
 
 compile-home-mrb:
 	test -x $(PICORBC)
-	find $(HOME_DIR) -type f -name '*.rb' -exec $(PICORBC) {} \;
+	find $(HOME_DIR) $(CYD_HOME_DIR) -type f -name '*.rb' -exec $(PICORBC) {} \;
 
 compile-home-mpy:
 	$(MAKE) -C $(ROOT)/components/micropython/mpy-cross
@@ -117,6 +121,16 @@ gendb:
 	  --sig-dir ./components/area512/sig/picoruby \
 	  --out $(TI_GENERATED)
 	$(MAKE) -C $(MICROPYTHON_TI) gendb
+
+gendb-cyd:
+	ruby ./components/area512/mrbgems/picoruby-ti/tidbgen/main.rb \
+	  --sig-dir ./components/area512/sig/picoruby_cyd \
+	  --out $(CYD_TI_GENERATED)/picoruby
+	python3 $(MICROPYTHON_TI)/tidbgen/main.py \
+	  --sig-dir ./components/area512/sig/micropython_cyd \
+	  --out $(CYD_TI_GENERATED)/micropython
+	$(CLANG_FORMAT) -i $(CYD_TI_GENERATED)/micropython/micropython_ti_builtin_database.c \
+	  $(CYD_TI_GENERATED)/micropython/micropython_ti_builtin_database.h
 
 fullclean:
 	rm -rf $(ROOT)/build

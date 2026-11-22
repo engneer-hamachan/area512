@@ -6,7 +6,7 @@
 #include "area512_hal.h"
 #include <mrubyc.h>
 
-#define SUPPORTED_FONT_SIZE_MESSAGE "font size must be 10, 12, 14, 16, or 24"
+#define SUPPORTED_FONT_SIZE_MESSAGE "font size must be 8, 10, 12, 14, 16, or 24"
 
 static void *
 fetch_sprite_handle(mrbc_value *v) {
@@ -75,8 +75,8 @@ fetch_color_index_or_raise(
 
 static bool
 is_supported_font_size(int font_size) {
-  return font_size == 10 || font_size == 12 || font_size == 14 ||
-         font_size == 16 || font_size == 24;
+  return font_size == 8 || font_size == 10 || font_size == 12 ||
+         font_size == 14 || font_size == 16 || font_size == 24;
 }
 
 static void

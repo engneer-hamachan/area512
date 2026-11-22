@@ -1,0 +1,7 @@
+# Area512 built-in type declaration.
+
+class Area512
+  # Run this app (an app directory or a .rb/.mrb/.py/.mpy file) as soon as the current one returns; "" cancels
+  def self.run_next: (String path) -> nil
+
+end

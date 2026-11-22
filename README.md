@@ -164,6 +164,13 @@ rake build:tdeck
 idf.py -B build/tdeck flash
 ```
 
+For the ES3C28P:
+
+```sh
+rake build:es3c28p
+idf.py -B build/es3c28p flash
+```
+
 ## T-Deck Plus Keymap
 
 > [!NOTE]

@@ -1,4 +1,5 @@
 #include "area512_hal.h"
+#include "area512_micropython_sprite.h"
 
 #include "py/runtime.h"
 
@@ -31,6 +32,14 @@ fetch_sprite_handle_or_raise(mp_obj_t sprite_object) {
     );
 
   return sprite_instance->sprite_handle;
+}
+
+void *
+area512_micropython_fetch_quaternary_sprite_handle_or_raise(
+  mp_obj_t sprite_object
+) {
+
+  return fetch_sprite_handle_or_raise(sprite_object);
 }
 
 static uint32_t

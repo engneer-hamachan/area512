@@ -1,0 +1,16 @@
+# Area512 built-in type declaration.
+
+class Touch
+  # Next touch event as ["TAP" | "DRAG" | "RELEASE", x, y] in window coordinates, or nil
+  def self.read: () -> (Array[untyped] | nil)
+
+  # Raise the window and show the software keyboard below it; redraw afterwards
+  def self.open_keyboard: () -> nil
+
+  # Hide the software keyboard and put the window back; redraw afterwards
+  def self.close_keyboard: () -> nil
+
+  # Whether a Bluetooth keyboard is connected
+  def self.bluetooth_keyboard_connected?: () -> bool
+
+end

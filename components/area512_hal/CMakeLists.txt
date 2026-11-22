@@ -1,11 +1,28 @@
 set(AREA512_DISPLAY_DIR "")
-if(AREA512_EXT_DISPLAY)
+if(AREA512_CYD)
+  set(AREA512_DISPLAY_DIR "cyd/")
+elseif(AREA512_EXT_DISPLAY)
   set(AREA512_DISPLAY_DIR "captft/")
 endif()
 
 set(AREA512_KEYBOARD_SOURCES console/keyboard.cpp)
 if(AREA512_TDECK)
   set(AREA512_KEYBOARD_SOURCES console/tdeck_keyboard.cpp console/tdeck_keymap.cpp)
+elseif(AREA512_CYD)
+  set(
+    AREA512_KEYBOARD_SOURCES
+    cyd/console/touch.cpp
+    cyd/console/soft_keyboard.cpp
+    cyd/touch/area512_median.c
+    cyd/touch/area512_touch_setting.c
+    cyd/touch/area512_touch_setting_screen.c
+    cyd/touch/touch_calibration.c
+  )
+endif()
+
+set(AREA512_SD_SOURCE sd/area512_sd.c)
+if(AREA512_CYD)
+  set(AREA512_SD_SOURCE cyd/sd/area512_sd.c)
 endif()
 
 idf_component_register(
@@ -22,7 +39,7 @@ idf_component_register(
     gfx/area512_quaternary_crt.cpp
     sd/area512_data_path.c
     sd/area512_manifest.c
-    sd/area512_sd.c
+    ${AREA512_SD_SOURCE}
     sd/area512_seed.c
     theme/area512_theme.c
     ui/area512_default_ui.c
@@ -47,6 +64,7 @@ idf_component_register(
     esp_driver_spi
     esp_driver_sdspi
     sdmmc
+    esp_driver_sdmmc
     fatfs
     spi_flash
     nvs_flash
@@ -83,6 +101,20 @@ if(AREA512_TDECK)
   target_compile_definitions(${COMPONENT_LIB} PRIVATE AREA512_TDECK)
 endif()
 
+if(AREA512_CYD)
+  target_compile_definitions(${COMPONENT_LIB} PUBLIC AREA512_CYD)
+
+  if(AREA512_CYD_ES3C28P)
+    set_source_files_properties(
+      cyd/gfx/area512_display.cpp
+      cyd/sd/area512_sd.c
+      console/system_metrics.cpp
+      sd/area512_seed.c
+      PROPERTIES COMPILE_DEFINITIONS "AREA512_CYD_ES3C28P"
+    )
+  endif()
+endif()
+
 if(AREA512_CARDPUTER_V11)
   set_source_files_properties(
     console/keyboard.cpp
@@ -97,12 +129,24 @@ set(AREA512_SEED_TAR ${CMAKE_BINARY_DIR}/area512_seed.tar)
 file(GLOB AREA512_SEED_TOP_ENTRIES RELATIVE ${AREA512_SEED_DIR} ${AREA512_SEED_DIR}/*)
 file(GLOB_RECURSE AREA512_SEED_FILES ${AREA512_SEED_DIR}/*)
 
-if(AREA512_EXT_DISPLAY)
+if(AREA512_EXT_DISPLAY OR AREA512_CYD)
   set(AREA512_THEME_DEFAULT_BACKGROUND_IMAGE /share/backgrounds/emblem_tft.rgb565)
   set(AREA512_THEME_BLUE_BACKGROUND_IMAGE /share/backgrounds/space_tft.rgb565)
 else()
   set(AREA512_THEME_DEFAULT_BACKGROUND_IMAGE /share/backgrounds/emblem.rgb565)
   set(AREA512_THEME_BLUE_BACKGROUND_IMAGE /share/backgrounds/space.rgb565)
+endif()
+
+set(AREA512_SEED_HOME_REPLACEMENT_COMMANDS "")
+
+if(AREA512_CYD)
+  set(AREA512_CYD_SEED_HOME_DIR ${COMPONENT_DIR}/../../storage_cyd/home)
+  file(GLOB_RECURSE AREA512_CYD_SEED_HOME_FILES CONFIGURE_DEPENDS ${AREA512_CYD_SEED_HOME_DIR}/*)
+  list(APPEND AREA512_SEED_FILES ${AREA512_CYD_SEED_HOME_FILES})
+  set(AREA512_SEED_HOME_REPLACEMENT_COMMANDS
+    COMMAND ${CMAKE_COMMAND} -E rm -rf ${AREA512_SEED_STAGING_DIR}/home
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${AREA512_CYD_SEED_HOME_DIR} ${AREA512_SEED_STAGING_DIR}/home
+  )
 endif()
 
 set(AREA512_SEED_GENERATED_FILES "")
@@ -121,6 +165,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E rm -rf ${AREA512_SEED_STAGING_DIR}
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${AREA512_SEED_DIR} ${AREA512_SEED_STAGING_DIR}
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${AREA512_SEED_GENERATED_DIR} ${AREA512_SEED_STAGING_DIR}
+  ${AREA512_SEED_HOME_REPLACEMENT_COMMANDS}
   COMMAND ${CMAKE_COMMAND} -E chdir ${AREA512_SEED_STAGING_DIR}
     ${CMAKE_COMMAND} -E tar cf ${AREA512_SEED_TAR} --format=gnutar -- ${AREA512_SEED_TOP_ENTRIES}
   DEPENDS ${AREA512_SEED_FILES} ${AREA512_SEED_GENERATED_FILES}

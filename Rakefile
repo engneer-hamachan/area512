@@ -69,6 +69,11 @@ task :gendb do
   sh "make gendb"
 end
 
+desc "Generate the built-in TI database for the CYD boards"
+task :gendb_cyd do
+  sh "make gendb-cyd"
+end
+
 desc "Build the Cardputer firmware"
 task :build => :gendb do
   remove_sdkconfig_older_than_defaults(IDF_SDKCONFIG)
@@ -103,6 +108,14 @@ namespace :build do
     idf_py "-B build/tdeck -DSDKCONFIG=build/tdeck/sdkconfig " \
            "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=ON -DAREA512_CAPTFT_ILI9341=OFF " \
            "-DAREA512_TDECK=ON build"
+  end
+
+  desc "Build the ES3C28P (CYD) firmware with windows and a touch keyboard"
+  task :es3c28p => :gendb_cyd do
+    remove_sdkconfig_older_than_defaults(File.join(IDF_BUILD_DIR, "es3c28p/sdkconfig"))
+    idf_py "-B build/es3c28p -DSDKCONFIG=build/es3c28p/sdkconfig " \
+           "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=OFF -DAREA512_CAPTFT_ILI9341=OFF " \
+           "-DAREA512_TDECK=OFF -DAREA512_CYD=ON -DAREA512_CYD_ES3C28P=ON build"
   end
 end
 

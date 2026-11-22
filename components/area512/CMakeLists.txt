@@ -7,6 +7,8 @@ set(MRUBY_CONFIG_STRING "${COMPONENT_DIR}/build_config/area512.rb")
 set(LIBMRUBY_PATH "esp32-femtoruby")
 if(AREA512_TDECK)
   set(LIBMRUBY_PATH "esp32-femtoruby-tdeck")
+elseif(AREA512_CYD)
+  set(LIBMRUBY_PATH "esp32-femtoruby-cyd")
 elseif(AREA512_EXT_DISPLAY)
   set(LIBMRUBY_PATH "esp32-femtoruby-captft")
 endif()
@@ -24,7 +26,13 @@ set(ADDITIONAL_DEFINITIONS
 )
 
 set(AREA512_FILER_INCLUDE_DIRS ${COMPONENT_DIR}/mrbgems/picoruby-area512-filer/src)
-if(AREA512_EXT_DISPLAY)
+if(AREA512_CYD)
+  list(
+    PREPEND
+    AREA512_FILER_INCLUDE_DIRS
+    ${COMPONENT_DIR}/mrbgems/picoruby-area512-filer/cyd/src
+  )
+elseif(AREA512_EXT_DISPLAY)
   list(
     PREPEND
     AREA512_FILER_INCLUDE_DIRS
@@ -109,6 +117,7 @@ set(MRUBY_ENV
   CONFIG_IDF_TARGET=${CONFIG_IDF_TARGET}
   AREA512_EXT_DISPLAY=${AREA512_EXT_DISPLAY}
   AREA512_TDECK=${AREA512_TDECK}
+  AREA512_CYD=${AREA512_CYD}
 )
 
 # Build PicoRuby
@@ -118,6 +127,16 @@ file(GLOB_RECURSE MRUBY_SOURCE_FILES CONFIGURE_DEPENDS
   ${COMPONENT_DIR}/mrbgems/*.rb
   ${COMPONENT_DIR}/mrbgems/*.rake
 )
+
+if(AREA512_CYD)
+  set(AREA512_CYD_TI_GENERATED_DIR ${CMAKE_SOURCE_DIR}/build/cyd/ti_generated)
+  list(APPEND MRUBY_ENV AREA512_CYD_TI_GENERATED_DIR=${AREA512_CYD_TI_GENERATED_DIR})
+  file(GLOB_RECURSE AREA512_CYD_TI_GENERATED_FILES CONFIGURE_DEPENDS
+    ${AREA512_CYD_TI_GENERATED_DIR}/*.c
+    ${AREA512_CYD_TI_GENERATED_DIR}/*.h
+  )
+  list(APPEND MRUBY_SOURCE_FILES ${AREA512_CYD_TI_GENERATED_FILES})
+endif()
 add_custom_command(
   OUTPUT ${LIBMRUBY_FILE}
   COMMAND ${CMAKE_COMMAND} -E echo ${MRUBY_ENV} rake
@@ -127,6 +146,7 @@ add_custom_command(
     ${MRUBY_SOURCE_FILES}
     ${COMPONENT_DIR}/../area512_hal/include/area512_hal.h
     ${COMPONENT_DIR}/../area512_hal/captft/include/area512_hal.h
+    ${COMPONENT_DIR}/../area512_hal/cyd/include/area512_hal.h
   COMMENT "PicoRuby build"
   VERBATIM
 )

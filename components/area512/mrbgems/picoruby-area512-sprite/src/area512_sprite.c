@@ -507,6 +507,120 @@ c_display_show_header_image(
   SET_BOOL_RETURN(shown);
 }
 
+#if defined(AREA512_CYD)
+static void
+c_display_read_window_top_without_soft_keyboard(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  SET_INT_RETURN(area512_gfx_read_window_top_without_soft_keyboard());
+}
+
+static void
+c_display_move_window(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  if (!ensure_argument_count_or_raise(virtual_machine, argument_count, 2)) {
+    return;
+  }
+
+  area512_gfx_move_window(
+    fetch_integer_or_raise(virtual_machine, v, 1),
+    fetch_integer_or_raise(virtual_machine, v, 2)
+  );
+  area512_gfx_draw_app_screen();
+  SET_NIL_RETURN();
+}
+
+static void
+c_display_subwindow(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  if (argument_count != 4) {
+    mrbc_raise(
+      virtual_machine,
+      MRBC_CLASS(ArgumentError),
+      "wrong number of arguments (expected 4)"
+    );
+
+    return;
+  }
+
+  for (int i = 1; i <= 4; i++) {
+    if (v[i].tt != MRBC_TT_INTEGER) {
+      mrbc_raise(
+        virtual_machine,
+        MRBC_CLASS(TypeError),
+        "subwindow position and size must be Integer"
+      );
+
+      return;
+    }
+  }
+
+  area512_gfx_set_subwindow(
+    v[1].i,
+    v[2].i,
+    v[3].i,
+    v[4].i
+  );
+
+  SET_NIL_RETURN();
+}
+
+static bool
+is_instance_of_class_named(mrbc_value *value, const char *class_name) {
+  mrbc_class *named_class = mrbc_get_class_by_name(class_name);
+
+  return named_class != NULL && mrbc_obj_is_kind_of(value, named_class);
+}
+
+static void
+c_display_push_subwindow(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  if (
+    argument_count != 1 ||
+    v[1].tt != MRBC_TT_OBJECT ||
+    !(
+      is_instance_of_class_named(&v[1], "Sprite") ||
+      is_instance_of_class_named(&v[1], "QuaternarySprite")
+    )
+  ) {
+    mrbc_raise(
+      virtual_machine,
+      MRBC_CLASS(TypeError),
+      "expected Sprite or QuaternarySprite"
+    );
+
+    return;
+  }
+
+  void *sprite_handle = fetch_sprite_handle(&v[1]);
+
+  if (sprite_handle == NULL) {
+    mrbc_raise(virtual_machine, MRBC_CLASS(ArgumentError), "deleted sprite");
+
+    return;
+  }
+
+  area512_gfx_push_subwindow(sprite_handle);
+
+  SET_NIL_RETURN();
+}
+#endif
+
 static void
 register_sprite_drawing_methods(
   mrbc_vm *virtual_machine,
@@ -631,6 +745,36 @@ mrbc_area512_sprite_init(mrbc_vm *virtual_machine) {
     "show_header_image",
     c_display_show_header_image
   );
+
+#if defined(AREA512_CYD)
+  mrbc_define_method(
+    virtual_machine,
+    class_Display,
+    "read_window_top_without_soft_keyboard",
+    c_display_read_window_top_without_soft_keyboard
+  );
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Display,
+    "move_window",
+    c_display_move_window
+  );
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Display,
+    "subwindow",
+    c_display_subwindow
+  );
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Display,
+    "push_subwindow",
+    c_display_push_subwindow
+  );
+#endif
 }
 
 #elif defined(PICORB_VM_MRUBY)

@@ -1,0 +1,27 @@
+module Kernel
+  private def getc: () -> String?
+end
+
+# Area512 built-in type declaration.
+
+module Kernel
+  # Inspect and output object
+  def p: (*untyped objects) -> self
+
+  # Output object
+  def print: (*untyped objects) -> nil
+
+  # Output object with newline
+  def puts: (*untyped objects) -> nil
+
+  def yield: (*untyped arguments) -> self
+
+  # Create Proc object
+  def proc: () { (untyped argument) -> untyped } -> Proc
+
+  # Create lambda expression
+  def lambda: () { (untyped argument) -> untyped } -> Proc
+
+  def `->`: (untyped argument) { (untyped block_argument) -> untyped } -> Proc
+
+end

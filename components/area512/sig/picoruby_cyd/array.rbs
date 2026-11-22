@@ -1,0 +1,112 @@
+# Area512 built-in type declaration.
+
+class Array
+  include Enumerable
+  # Set element at specified position
+  def []=: (Integer index, untyped value) -> untyped
+           | (Integer start, Integer length, untyped value) -> untyped
+
+  # Get element at specified position
+  def []: (Integer index) -> untyped
+
+  def &: (Array other) -> self
+
+  # Concatenate arrays
+  def +: (Array other) -> Array
+
+  # Return new array excluding specified elements
+  def -: (Array other) -> self
+
+  # Append element to end
+  def push: (untyped object) -> Array
+
+  def all?: (*untyped patterns) -> bool
+            | (*untyped patterns) { (untyped element) -> untyped } -> bool
+
+  # Get element at specified position
+  def at: (Integer index) -> untyped
+
+  # Remove all elements from array
+  def clear: () -> Array
+
+  # Execute block for each element and destructively replace
+  def collect!: () { (untyped element) -> untyped } -> Array[untyped]
+
+  def count: () -> Integer
+
+  # Delete element at specified position
+  def delete_at: (Integer index) -> untyped
+
+  # Delete elements for which block returns true
+  def delete_if: () { (untyped element) -> untyped } -> self
+
+  # Execute block for each element
+  def each: () { (untyped element) -> untyped } -> self
+
+  # Execute block for each index
+  def each_index: () { (Integer index) -> untyped } -> self
+
+  # Check if array is empty
+  def empty?: () -> bool
+
+  # Get first element
+  def first: () -> untyped
+
+  # Check if element is included
+  def include?: (untyped object) -> bool
+
+  # Return string representation for debugging
+  def inspect: () -> String
+
+  # Join elements and return string
+  def join: (?String separator) -> String
+
+  # Get last element
+  def last: () -> untyped
+
+  # Return number of elements in array
+  def length: () -> Integer
+
+  def max: () -> untyped
+           | () { (untyped left, untyped right) -> untyped } -> untyped
+
+  def min: () -> untyped
+           | () { (untyped left, untyped right) -> untyped } -> untyped
+
+  # Remove and return last element
+  def pop: (?Integer count) -> (untyped | self)
+
+  # Return array excluding elements for which block returns true
+  def reject: () { (untyped element) -> untyped } -> self
+
+  # Destructively delete elements for which block returns true
+  def reject!: () { (untyped element) -> untyped } -> self
+
+  # Remove and return first element
+  def shift: (?Integer count) -> (untyped | self)
+
+  # Return sorted array
+  def sort: () -> self
+            | () { (untyped left, untyped right) -> untyped } -> self
+
+  # Sort destructively
+  def sort!: () -> self
+             | () { (untyped left, untyped right) -> untyped } -> self
+
+  # Get subarray
+  def slice: (untyped index_or_range) -> untyped
+
+  # Return array with duplicates removed
+  def uniq: () -> self
+
+  # Remove duplicates destructively
+  def uniq!: () -> self
+
+  # Prepend element to beginning
+  def unshift: (untyped object) -> Array
+
+  def |: (Array other) -> Array
+
+  def self.new: (?Integer size, ?untyped object) -> Array
+
+end

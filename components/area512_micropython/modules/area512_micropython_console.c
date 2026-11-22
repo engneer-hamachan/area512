@@ -12,8 +12,7 @@ static MP_DEFINE_CONST_FUN_OBJ_0(reset_console_callable, reset_console);
 
 static mp_obj_t
 wait_console_key_if_output(void) {
-  if (area512_console_had_output())
-    area512_console_getch_block();
+  area512_console_wait_key_if_output();
 
   return mp_const_none;
 }

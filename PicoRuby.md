@@ -9,6 +9,7 @@ before use.
 | `Display`, `Sprite` | `require 'area512-sprite'` |
 | `Dot` | `require 'area512-dot'` |
 | `Widget`, `WidgetList`, `WidgetTextView` | `require 'area512-widget'` |
+| `Touch` (ES3C28P only) | `require 'area512-touch'` |
 | `GPIO` | `require 'gpio'` |
 | `I2C` | `require 'i2c'` |
 | `IO` | `require 'io/console'` |
@@ -32,6 +33,16 @@ Controls the device display.
 - `Display.fill_screen(color)`
 - `Display.brightness = brightness`
 - `Display.console`
+- `Display.subwindow(x, y, width, height)` places a subwindow outside the
+  window, in window coordinates, and `Display.push_subwindow(sprite)` draws a
+  `Sprite` or `QuaternarySprite` there. Taps on it come from `Touch.read` with
+  window coordinates outside the window. Available only in the ES3C28P
+  firmware.
+- `Display.move_window(left, top)` moves the window to (`left`, `top`) in
+  screen pixels, `top` being its position while the software keyboard is
+  closed. The window's border is drawn there, and the app draws its inside
+  again. `Display.read_window_top_without_soft_keyboard` returns that
+  `top`. Available only in the ES3C28P firmware.
 
 `width` and `height` report the area the app draws on. On the 320x240 display
 builds the filer runs each app in a 240x135 window, so they report 240x135
@@ -100,6 +111,31 @@ Manages and draws scrollable text.
 
 - `WidgetTextView.new`
 - `area`, `text=`, `scroll`, `scroll=`, `handle`, `draw`
+
+## Touch
+
+Reads the touch panel and shows the software keyboard. Available only in the
+ES3C28P firmware.
+
+- `Touch.read` returns `nil` or `[kind, x, y]`. `kind` is `"TAP"`, `"DRAG"` or
+  `"RELEASE"`, and `x`, `y` are window coordinates. A finger lifted without
+  moving gives one `"TAP"` at the point it touched; a moving finger gives
+  `"DRAG"` events and then one `"RELEASE"` where it was lifted.
+- `Touch.open_keyboard`, `Touch.close_keyboard` show and hide the software
+  keyboard under the window. The window moves up while the keyboard is shown,
+  so redraw the screen after each call. Keys typed on it arrive through `STDIN`
+  like keyboard keys.
+- `Touch.bluetooth_keyboard_connected?`
+
+```ruby
+require 'area512-touch'
+
+while true
+  key = STDIN.read_nonblock(1)
+  event = Touch.read
+  sleep_ms 10 if key.nil? && event.nil?
+end
+```
 
 ## GPIO
 

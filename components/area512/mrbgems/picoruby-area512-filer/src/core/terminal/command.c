@@ -31,6 +31,9 @@ static const char *const COMMAND_NAME_TABLE[] = {
   "reboot",
   "fullupdate",
   "recv",
+#if defined(AREA512_CYD)
+  "touch-setting",
+#endif
   "install",
   "launch",
   "uninstall",
@@ -329,6 +332,11 @@ prepare_filer_action(Filer *filer, const CommandLine *command_line) {
 
   if (strcmp(command_line->command_name, "recv") == 0)
     return ACTION_RECEIVE_FILES;
+
+#if defined(AREA512_CYD)
+  if (strcmp(command_line->command_name, "touch-setting") == 0)
+    return ACTION_TOUCH_SETTING;
+#endif
 
   if (strcmp(command_line->command_name, "launch") == 0)
     return confirm_terminal_installed_app_action(filer, "Launch")

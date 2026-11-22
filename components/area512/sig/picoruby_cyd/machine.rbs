@@ -1,0 +1,55 @@
+# Area512 built-in type declaration.
+
+module Machine
+  # Sleep the current task for ms milliseconds and return ms
+  def self.delay_ms: (Integer ms) -> Integer
+
+  # Busy-wait for ms milliseconds without yielding and return ms
+  def self.busy_wait_ms: (Integer ms) -> Integer
+
+  # Enter light sleep for sec seconds (2 to 86399) and return sec
+  def self.sleep: (Integer sec) -> Integer
+
+  # MAC address as a 12-digit hex string
+  def self.unique_id: () -> (String | nil)
+
+  # Copy size bytes starting at address into a String
+  def self.read_memory: (Integer address, Integer size) -> String
+
+  # Set the real-time clock to tv_sec (Unix time)
+  def self.set_hwclock: (Integer tv_sec) -> bool
+
+  # Real-time clock as [tv_sec, tv_nsec]
+  def self.get_hwclock: () -> [Integer, Integer]
+
+  # Microseconds since boot
+  def self.uptime_us: () -> Integer
+
+  # Milliseconds since boot
+  def self.board_millis: () -> Integer
+
+  # Time since boot formatted like "1d 02:03:04.05"
+  def self.uptime_formatted: () -> String
+
+  # Reboot after wait_ms milliseconds
+  def self.reboot: (?Integer wait_ms) -> nil
+
+  # Raise Interrupt on a pending Ctrl-C, or SignalException on a pending Ctrl-Z
+  def self.check_signal: () -> nil
+
+  # Write each argument and a newline to stderr
+  def self.debug_puts: (*untyped objects) -> nil
+
+  # Let the next Sandbox loop handle signals itself
+  def self.signal_self_manage: () -> bool
+
+  # Return the flag set by signal_self_manage and clear it
+  def self.pop_signal_self_manage: () -> bool
+
+  # true when RUBY_PLATFORM is not RP2040, RP2350 or ESP32
+  def self.posix?: () -> bool
+
+  # true when Network::WiFi is defined
+  def self.wifi_available?: () -> bool
+
+end

@@ -1,0 +1,82 @@
+MRUBY_VERSION: String
+MRUBYC_VERSION: String
+
+class Object < BasicObject
+  def self?.sleep_ms: (Integer) -> Integer
+
+  def self?.sleep: (Integer | Float) -> Integer
+
+  def exit: (?Integer) -> void
+
+  def loop: () { () -> void } -> void
+
+  # mrbc
+  def relinquish: -> bool
+end
+
+# Area512 built-in type declaration.
+
+class Object
+  include Kernel
+  # Comparison operator
+  def <=>: (untyped other) -> Integer
+
+  # Perform inequality comparison
+  def !=: (untyped other) -> bool
+
+  # Perform equality comparison
+  def ==: (untyped other) -> bool
+
+  # Judge case equality
+  def ===: (untyped other) -> bool
+
+  def attr_accessor: (*Symbol names) -> nil
+
+  def attr_reader: (*Symbol names) -> nil
+
+  def block_given?: () -> bool
+
+  # Return object class
+  def class: () -> Class
+
+  # Duplicate object
+  def dup: () -> self
+
+  def exit: (?Integer status) -> nil
+
+  def include: (*untyped modules) -> nil
+
+  def extend: (*untyped modules) -> nil
+
+  # Return string representation for debugging
+  def inspect: () -> String
+
+  # Check if instance of specified class or module
+  def is_a?: (untyped class_or_module) -> bool
+
+  def loop: () { (nil value) -> untyped } -> nil
+
+  # Check if nil
+  def nil?: () -> bool
+
+  def private: (*Symbol names) -> nil
+
+  def public: (*Symbol names) -> nil
+
+  def raise: (?untyped exception, ?String message) -> bot
+
+  def relinquish: () -> bool
+
+  def sleep: ((Integer | Float) duration) -> Integer
+
+  def sleep_ms: (Integer milliseconds) -> Integer
+
+  def sprintf: (String format, *untyped arguments) -> String
+
+  # Return string representation
+  def to_s: () -> String
+
+  # get object method list
+  def self.methods: () -> Array[Symbol]
+
+end

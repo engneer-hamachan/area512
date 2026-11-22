@@ -1,5 +1,9 @@
 #include "area512_hal.h"
 
+#if defined(AREA512_CYD_ES3C28P)
+#include "esp_heap_caps.h"
+#endif
+
 #include <dirent.h>
 #include <errno.h>
 #include <stdbool.h>
@@ -16,6 +20,10 @@
 #define TAR_SIZE_OFFSET 124
 #define TAR_SIZE_SIZE 12
 #define TAR_TYPE_OFFSET 156
+
+#if defined(AREA512_CYD_ES3C28P)
+#define SEED_FILE_CHUNK_BYTE_SIZE 512
+#endif
 
 // Symbols come from target_add_binary_data(area512_seed.tar) in
 // components/area512_hal/CMakeLists.txt.
@@ -165,7 +173,36 @@ write_seed_file(const char *relative_path, const uint8_t *data, size_t size) {
     return false;
   }
 
+#if defined(AREA512_CYD_ES3C28P)
+  // The SDMMC driver DMAs straight from any aligned buffer, and DMA cannot
+  // read the flash-mapped seed tar, so each chunk goes through internal RAM.
+  uint8_t *chunk_buffer =
+    heap_caps_malloc(SEED_FILE_CHUNK_BYTE_SIZE, MALLOC_CAP_DMA);
+
+  size_t written = 0;
+
+  if (chunk_buffer != NULL) {
+    while (written < size) {
+      size_t chunk_byte_count = size - written;
+
+      if (chunk_byte_count > SEED_FILE_CHUNK_BYTE_SIZE) {
+        chunk_byte_count = SEED_FILE_CHUNK_BYTE_SIZE;
+      }
+
+      memcpy(chunk_buffer, data + written, chunk_byte_count);
+
+      if (fwrite(chunk_buffer, 1, chunk_byte_count, file) != chunk_byte_count) {
+        break;
+      }
+
+      written += chunk_byte_count;
+    }
+
+    heap_caps_free(chunk_buffer);
+  }
+#else
   size_t written = size > 0 ? fwrite(data, 1, size, file) : 0;
+#endif
 
   bool closed = fclose(file) == 0;
 

@@ -34,6 +34,12 @@ list(
   ${MICROPYTHON_EMBED_DIRECTORY}/port/embed_util.c
 )
 
+set(AREA512_MICROPYTHON_TOUCH_SOURCE "")
+
+if(AREA512_CYD)
+  set(AREA512_MICROPYTHON_TOUCH_SOURCE modules/area512_micropython_touch.c)
+endif()
+
 file(
   MAKE_DIRECTORY
   ${MICROPYTHON_EMBED_DIRECTORY}
@@ -58,6 +64,7 @@ idf_component_register(
     modules/area512_micropython_sleep.c
     modules/area512_micropython_rng.c
     modules/area512_micropython_area512.c
+    ${AREA512_MICROPYTHON_TOUCH_SOURCE}
     ${MICROPYTHON_EMBED_SOURCE_PATHS}
   INCLUDE_DIRS
     .
@@ -110,6 +117,7 @@ add_custom_command(
     ${COMPONENT_DIR}/modules/area512_micropython_sleep.c
     ${COMPONENT_DIR}/modules/area512_micropython_rng.c
     ${COMPONENT_DIR}/modules/area512_micropython_area512.c
+    ${COMPONENT_DIR}/modules/area512_micropython_touch.c
   COMMENT "Generate MicroPython embed sources"
   VERBATIM
 )

@@ -21,6 +21,9 @@ int area512_sd_mount(const char *base_path);
 int area512_sd_unmount(void);
 void area512_theme_load(void);
 void area512_keymap_load(void);
+#if defined(AREA512_CYD)
+void area512_load_and_apply_touch_setting(void);
+#endif
 void area512_default_ui_load(void);
 void area512_bluetooth_load_config(void);
 void area512_bluetooth_start_if_enabled(void);
@@ -148,6 +151,9 @@ area512_start_console(void) {
   if (area512_sd_mount("/sdcard") == 0) {
     area512_theme_load();
     area512_keymap_load();
+#if defined(AREA512_CYD)
+    area512_load_and_apply_touch_setting();
+#endif
     area512_default_ui_load();
     area512_bluetooth_load_config();
     area512_bluetooth_start_if_enabled();
