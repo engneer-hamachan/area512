@@ -224,6 +224,24 @@ area512_read_touch_event(
 }
 
 extern "C" bool
+area512_read_current_touch_point(int *touch_screen_x, int *touch_screen_y) {
+  if (!s_is_touching || s_is_touch_started_on_soft_keyboard)
+    return false;
+
+  if (s_is_dragging) {
+    *touch_screen_x = s_last_drag_screen_x;
+    *touch_screen_y = s_last_drag_screen_y;
+
+    return true;
+  }
+
+  *touch_screen_x = s_touch_start_screen_x;
+  *touch_screen_y = s_touch_start_screen_y;
+
+  return true;
+}
+
+extern "C" bool
 area512_read_touch_start_point(int *touch_screen_x, int *touch_screen_y) {
   if (
     !s_is_touching || s_is_touch_started_on_soft_keyboard || s_is_dragging

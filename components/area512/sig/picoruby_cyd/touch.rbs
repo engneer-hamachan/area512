@@ -4,6 +4,9 @@ class Touch
   # Next touch event as ["TAP" | "DRAG" | "RELEASE", x, y] in window coordinates, or nil
   def self.read: () -> (Array[untyped] | nil)
 
+  # The point being touched now as [x, y] in window coordinates, or nil when nothing is touched
+  def self.read_current_point: () -> (Array[Integer] | nil)
+
   # Raise the window and show the software keyboard below it; redraw afterwards
   def self.open_keyboard: () -> nil
 

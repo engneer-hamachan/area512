@@ -40,7 +40,7 @@ help:
 	@echo "  make light-clean     - remove esp32-femtoruby libmruby.a (Cardputer)"
 	@echo "  make light-clean-tft - remove esp32-femtoruby-captft libmruby.a (Cap TFT)"
 	@echo "  make compile-home-mrb - recursively compile storage/home/**/*.rb and storage_cyd/home/**/*.rb to .mrb"
-	@echo "  make compile-home-mpy - recursively compile storage/home/**/*.py to .mpy"
+	@echo "  make compile-home-mpy - recursively compile storage/home/**/*.py and storage_cyd/home/**/*.py to .mpy"
 	@echo "                    (storage/ is the seed copied to the SD card's Area512_data/ on first boot)"
 	@echo "  make flash-firmware   - flash committed firmware/ binaries (no rebuild)"
 	@echo "  make save-firmware    - copy build/, build/v11/, build/tft7789/, build/tft9341/, build/tdeck/, build/es3c28p/ artifacts into firmware/ and docs/firmware/"
@@ -114,7 +114,7 @@ compile-home-mrb:
 compile-home-mpy:
 	$(MAKE) -C $(ROOT)/components/micropython/mpy-cross
 	test -x $(MPY_CROSS)
-	find $(HOME_DIR) -type f -name '*.py' -exec $(MPY_CROSS) {} \;
+	find $(HOME_DIR) $(CYD_HOME_DIR) -type f -name '*.py' -exec $(MPY_CROSS) {} \;
 
 gendb:
 	ruby ./components/area512/mrbgems/picoruby-ti/tidbgen/main.rb \

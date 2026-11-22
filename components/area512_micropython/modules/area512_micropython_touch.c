@@ -37,6 +37,27 @@ read_touch_event(void) {
 static MP_DEFINE_CONST_FUN_OBJ_0(read_touch_event_callable, read_touch_event);
 
 static mp_obj_t
+read_current_touch_point(void) {
+  int touch_screen_x;
+  int touch_screen_y;
+
+  if (!area512_read_current_touch_point(&touch_screen_x, &touch_screen_y))
+    return mp_const_none;
+
+  mp_obj_t point_items[] = {
+    mp_obj_new_int(touch_screen_x - area512_gfx_window_left()),
+    mp_obj_new_int(touch_screen_y - area512_gfx_window_top()),
+  };
+
+  return mp_obj_new_tuple(2, point_items);
+}
+
+static MP_DEFINE_CONST_FUN_OBJ_0(
+  read_current_touch_point_callable,
+  read_current_touch_point
+);
+
+static mp_obj_t
 open_touch_keyboard(void) {
   area512_open_soft_keyboard();
 
@@ -72,6 +93,10 @@ static MP_DEFINE_CONST_FUN_OBJ_0(
 
 static const mp_rom_map_elem_t touch_locals_table[] = {
   {MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&read_touch_event_callable)},
+  {
+    MP_ROM_QSTR(MP_QSTR_read_current_point),
+    MP_ROM_PTR(&read_current_touch_point_callable),
+  },
   {
     MP_ROM_QSTR(MP_QSTR_open_keyboard),
     MP_ROM_PTR(&open_touch_keyboard_callable),

@@ -60,6 +60,37 @@ c_touch_read(mrbc_vm *virtual_machine, mrbc_value *v, int argument_count) {
 }
 
 static void
+c_touch_read_current_point(
+  mrbc_vm *virtual_machine,
+  mrbc_value *v,
+  int argument_count
+) {
+
+  (void)argument_count;
+
+  int touch_screen_x;
+  int touch_screen_y;
+
+  if (!area512_read_current_touch_point(&touch_screen_x, &touch_screen_y)) {
+    SET_NIL_RETURN();
+
+    return;
+  }
+
+  mrbc_value point = mrbc_array_new(virtual_machine, 2);
+
+  mrbc_value window_x =
+    mrbc_integer_value(touch_screen_x - area512_gfx_window_left());
+  mrbc_value window_y =
+    mrbc_integer_value(touch_screen_y - area512_gfx_window_top());
+
+  mrbc_array_push(&point, &window_x);
+  mrbc_array_push(&point, &window_y);
+
+  SET_RETURN(point);
+}
+
+static void
 c_touch_open_keyboard(
   mrbc_vm *virtual_machine,
   mrbc_value *v,
@@ -108,6 +139,13 @@ mrbc_area512_touch_init(mrbc_vm *virtual_machine) {
     mrbc_define_class(virtual_machine, "Touch", mrbc_class_object);
 
   mrbc_define_method(virtual_machine, class_Touch, "read", c_touch_read);
+
+  mrbc_define_method(
+    virtual_machine,
+    class_Touch,
+    "read_current_point",
+    c_touch_read_current_point
+  );
 
   mrbc_define_method(
     virtual_machine,

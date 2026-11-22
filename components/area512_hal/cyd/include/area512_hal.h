@@ -63,6 +63,7 @@ bool area512_read_touch_event(
   int *touch_screen_y,
   int64_t *event_uptime_ms
 );
+bool area512_read_current_touch_point(int *touch_screen_x, int *touch_screen_y);
 bool area512_read_touch_start_point(int *touch_screen_x, int *touch_screen_y);
 
 // One missed read during a press must not split it into two touches.

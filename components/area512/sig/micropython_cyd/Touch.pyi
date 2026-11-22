@@ -8,6 +8,13 @@ class Touch:
         ...
 
     @staticmethod
+    def read_current_point() -> tuple[int, int] | None:
+        """
+        The point being touched now as (x, y) in window coordinates, or None when nothing is touched.
+        """
+        ...
+
+    @staticmethod
     def open_keyboard() -> None:
         """
         Raise the window and show the software keyboard below it; redraw afterwards.

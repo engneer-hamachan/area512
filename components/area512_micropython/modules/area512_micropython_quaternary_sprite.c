@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define SUPPORTED_FONT_SIZE_MESSAGE "font size must be 10, 12, 14, 16, or 24"
+#define SUPPORTED_FONT_SIZE_MESSAGE "font size must be 8, 10, 12, 14, 16, or 24"
 
 typedef struct {
   mp_obj_base_t base;
@@ -57,8 +57,8 @@ fetch_color_index_or_raise(mp_obj_t color_index_object) {
 
 static bool
 is_supported_font_size(int font_size) {
-  return font_size == 10 || font_size == 12 || font_size == 14 ||
-         font_size == 16 || font_size == 24;
+  return font_size == 8 || font_size == 10 || font_size == 12 ||
+         font_size == 14 || font_size == 16 || font_size == 24;
 }
 
 static mp_obj_t
