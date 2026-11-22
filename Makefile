@@ -85,9 +85,16 @@ save-firmware:
 	$(call merge_firmware,$(ROOT)/build/tft9341,Area512TFT9341.bin)
 	$(call merge_firmware,$(ROOT)/build/tdeck,Area512TDeck.bin)
 	$(call merge_firmware,$(ROOT)/build/es3c28p,Area512ES3C28P.bin)
+	esptool.py --chip esp32 merge_bin \
+	  --output $(FIRMWARE)/Area5122432S028.bin \
+	  --flash_mode dio --flash_size 4MB --flash_freq 40m \
+	  0x1000 $(ROOT)/build/2432s028/bootloader/bootloader.bin \
+	  0x8000 $(ROOT)/build/2432s028/partition_table/partition-table.bin \
+	  0x10000 $(ROOT)/build/2432s028/Area512.bin
 	cp $(FIRMWARE)/Area512Adv.bin $(FIRMWARE)/Area512V11.bin \
 	  $(FIRMWARE)/Area512TFT7789.bin $(FIRMWARE)/Area512TFT9341.bin \
-	  $(FIRMWARE)/Area512TDeck.bin $(FIRMWARE)/Area512ES3C28P.bin $(DOCS_FIRMWARE)/
+	  $(FIRMWARE)/Area512TDeck.bin $(FIRMWARE)/Area512ES3C28P.bin \
+	  $(FIRMWARE)/Area5122432S028.bin $(DOCS_FIRMWARE)/
 	@echo "firmware/ and docs/firmware/ refreshed from build/"
 
 monitor:

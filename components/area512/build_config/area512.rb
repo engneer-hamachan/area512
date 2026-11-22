@@ -7,6 +7,8 @@ cyd_ti_generated_directory = ENV['AREA512_CYD_TI_GENERATED_DIR']
 build_name =
   if ENV['AREA512_TDECK'] == 'ON'
     "esp32-femtoruby-tdeck"
+  elsif ENV['AREA512_CYD_2432S028'] == 'ON'
+    "esp32-femtoruby-cyd-2432s028"
   elsif ENV['AREA512_CYD'] == 'ON'
     "esp32-femtoruby-cyd"
   elsif ENV['AREA512_EXT_DISPLAY'] == 'ON'
@@ -40,6 +42,7 @@ MRuby::CrossBuild.new(build_name) do |conf|
   conf.cc.defines << "AREA512_EXT_DISPLAY" if ENV['AREA512_EXT_DISPLAY'] == 'ON'
   conf.cc.defines << "AREA512_INTERNAL_DISPLAY" if ENV['AREA512_EXT_DISPLAY'] == 'ON' && ENV['AREA512_TDECK'] != 'ON'
   conf.cc.defines << "AREA512_CYD" if ENV['AREA512_CYD'] == 'ON'
+  conf.cc.defines << "AREA512_CYD_2432S028" if ENV['AREA512_CYD_2432S028'] == 'ON'
   conf.femtoruby(alloc_libc: false)
 
   # Pristine gems from ./R2P2-ESP32; the build root stays the Area512 tree.

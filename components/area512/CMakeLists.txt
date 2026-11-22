@@ -7,6 +7,8 @@ set(MRUBY_CONFIG_STRING "${COMPONENT_DIR}/build_config/area512.rb")
 set(LIBMRUBY_PATH "esp32-femtoruby")
 if(AREA512_TDECK)
   set(LIBMRUBY_PATH "esp32-femtoruby-tdeck")
+elseif(AREA512_CYD_2432S028)
+  set(LIBMRUBY_PATH "esp32-femtoruby-cyd-2432s028")
 elseif(AREA512_CYD)
   set(LIBMRUBY_PATH "esp32-femtoruby-cyd")
 elseif(AREA512_EXT_DISPLAY)
@@ -87,6 +89,7 @@ idf_component_register(
     spi_flash
     nvs_flash
     esp_driver_usb_serial_jtag
+    esp_driver_uart
     area512_hal
     area512_micropython
     area512_tree_sitter
@@ -98,6 +101,15 @@ set_source_files_properties(
   ${COMPONENT_DIR}/filer_shell.c
   PROPERTIES COMPILE_OPTIONS "-Wno-format-truncation"
 )
+
+if(AREA512_CYD_2432S028)
+  set_source_files_properties(
+    ${COMPONENT_DIR}/area512.c
+    ${COMPONENT_DIR}/area512_arena.c
+    ${COMPONENT_DIR}/filer_shell.c
+    PROPERTIES COMPILE_DEFINITIONS "AREA512_CYD_2432S028"
+  )
+endif()
 
 add_definitions(
   ${ADDITIONAL_DEFINITIONS}
@@ -118,6 +130,7 @@ set(MRUBY_ENV
   AREA512_EXT_DISPLAY=${AREA512_EXT_DISPLAY}
   AREA512_TDECK=${AREA512_TDECK}
   AREA512_CYD=${AREA512_CYD}
+  AREA512_CYD_2432S028=${AREA512_CYD_2432S028}
 )
 
 # Build PicoRuby

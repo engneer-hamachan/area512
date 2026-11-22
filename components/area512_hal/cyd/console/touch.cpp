@@ -14,6 +14,8 @@ static constexpr int TOUCH_EVENT_QUEUE_LENGTH = 16;
 static constexpr int DEFAULT_DRAG_START_DISTANCE = 6;
 static constexpr int DEFAULT_DRAG_AXIS_DECISION_DISTANCE = 8;
 static constexpr int DEFAULT_SWIPE_DISTANCE = 24;
+static constexpr int CONSECUTIVE_MISSED_POLL_COUNT_TO_END_TOUCH = 3;
+static constexpr int CONSECUTIVE_MISSED_POLL_COUNT_TO_END_DRAG = 6;
 
 namespace {
 struct TouchEvent {
@@ -34,6 +36,7 @@ static int s_touch_start_screen_y = 0;
 static int64_t s_touch_start_uptime_ms = 0;
 static int s_last_drag_screen_x = 0;
 static int s_last_drag_screen_y = 0;
+static int s_consecutive_missed_poll_count = 0;
 static int s_drag_start_distance = DEFAULT_DRAG_START_DISTANCE;
 static int s_drag_axis_decision_distance = DEFAULT_DRAG_AXIS_DECISION_DISTANCE;
 static int s_swipe_distance = DEFAULT_SWIPE_DISTANCE;
@@ -107,6 +110,13 @@ handle_touch_move(int touch_screen_x, int touch_screen_y) {
       return;
 
     s_is_dragging = true;
+
+    queue_touch_event(
+      AREA512_TOUCH_DRAG,
+      s_touch_start_screen_x,
+      s_touch_start_screen_y,
+      area512_read_uptime_ms()
+    );
 
   } else if (
     touch_screen_x == s_last_drag_screen_x &&
@@ -183,11 +193,28 @@ keyboard_poll(void) {
   xSemaphoreGive(s_touch_panel_mutex);
 
   if (!has_touch_point) {
-    if (s_is_touching)
+    if (!s_is_touching)
+      return;
+
+    s_consecutive_missed_poll_count++;
+
+    int consecutive_missed_poll_count_to_end =
+      s_is_dragging && !s_is_touch_started_on_soft_keyboard
+        ? CONSECUTIVE_MISSED_POLL_COUNT_TO_END_DRAG
+        : CONSECUTIVE_MISSED_POLL_COUNT_TO_END_TOUCH;
+
+    if (
+      s_consecutive_missed_poll_count >= consecutive_missed_poll_count_to_end
+    ) {
+
+      s_consecutive_missed_poll_count = 0;
       handle_touch_end();
+    }
 
     return;
   }
+
+  s_consecutive_missed_poll_count = 0;
 
   if (s_is_touching)
     handle_touch_move(touch_screen_x, touch_screen_y);

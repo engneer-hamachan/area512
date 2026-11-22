@@ -19,8 +19,21 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
+#if defined(AREA512_CYD_2432S028)
+#include "area512_ascii_efont.hpp"
+
+#define AREA512_SPRITE_FONT (&area512_ascii_efont_10)
+#define AREA512_FILER_FONT (&area512_ascii_efont_12)
+#define AREA512_SIZE_14_FONT (&area512_ascii_efont_14)
+#define AREA512_SIZE_16_FONT (&area512_ascii_efont_16)
+#define AREA512_SIZE_24_FONT (&area512_ascii_efont_24)
+#else
 #define AREA512_SPRITE_FONT (&lgfx::v1::fonts::efontJA_10)
 #define AREA512_FILER_FONT (&lgfx::v1::fonts::efontJA_12)
+#define AREA512_SIZE_14_FONT (&lgfx::v1::fonts::efontJA_14)
+#define AREA512_SIZE_16_FONT (&lgfx::v1::fonts::efontJA_16)
+#define AREA512_SIZE_24_FONT (&lgfx::v1::fonts::efontJA_24)
+#endif
 
 static constexpr int SPRITE_PIXEL_BYTE_SIZE = 2;
 
@@ -287,11 +300,11 @@ area512_sprite_font_for_size(int font_size) {
   case 12:
     return AREA512_FILER_FONT;
   case 14:
-    return &lgfx::v1::fonts::efontJA_14;
+    return AREA512_SIZE_14_FONT;
   case 16:
-    return &lgfx::v1::fonts::efontJA_16;
+    return AREA512_SIZE_16_FONT;
   case 24:
-    return &lgfx::v1::fonts::efontJA_24;
+    return AREA512_SIZE_24_FONT;
   default:
     return nullptr;
   }

@@ -7,6 +7,7 @@ option(AREA512_CAPTFT_ILI9341 "Build the Cap TFT firmware for the ILI9341 panel 
 option(AREA512_TDECK "Build for the T-Deck display, keyboard and SD card" OFF)
 option(AREA512_CYD "Build for the CYD boards' 320x240 touch display and SD card" OFF)
 option(AREA512_CYD_ES3C28P "Build the CYD firmware for the ES3C28P pins and touch panel" OFF)
+option(AREA512_CYD_2432S028 "Build the CYD firmware for the ESP32-2432S028 pins and touch panel" OFF)
 
 if(NOT DEFINED SDKCONFIG_DEFAULTS)
   set(SDKCONFIG_DEFAULTS "sdkconfig.defaults")

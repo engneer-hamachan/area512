@@ -20,6 +20,11 @@ elseif(AREA512_CYD)
   )
 endif()
 
+set(AREA512_BLUETOOTH_SOURCE bluetooth/area512_bluetooth.cpp)
+if(NOT CONFIG_BT_ENABLED)
+  set(AREA512_BLUETOOTH_SOURCE bluetooth/area512_bluetooth_disabled.cpp)
+endif()
+
 set(AREA512_SD_SOURCE sd/area512_sd.c)
 if(AREA512_CYD)
   set(AREA512_SD_SOURCE cyd/sd/area512_sd.c)
@@ -30,7 +35,7 @@ idf_component_register(
     console/input.cpp
     ${AREA512_KEYBOARD_SOURCES}
     console/getch.cpp
-    bluetooth/area512_bluetooth.cpp
+    ${AREA512_BLUETOOTH_SOURCE}
     ${AREA512_DISPLAY_DIR}console/output.c
     console/system_metrics.cpp
     ${AREA512_DISPLAY_DIR}gfx/area512_display.cpp
@@ -63,6 +68,7 @@ idf_component_register(
     esp_driver_gpio
     esp_driver_spi
     esp_driver_sdspi
+    esp_driver_uart
     sdmmc
     esp_driver_sdmmc
     fatfs
@@ -111,6 +117,15 @@ if(AREA512_CYD)
       console/system_metrics.cpp
       sd/area512_seed.c
       PROPERTIES COMPILE_DEFINITIONS "AREA512_CYD_ES3C28P"
+    )
+  elseif(AREA512_CYD_2432S028)
+    target_sources(${COMPONENT_LIB} PRIVATE cyd/gfx/area512_ascii_efont.cpp)
+    set_source_files_properties(
+      cyd/gfx/area512_display.cpp
+      cyd/gfx/area512_gfx.cpp
+      cyd/sd/area512_sd.c
+      console/system_metrics.cpp
+      PROPERTIES COMPILE_DEFINITIONS "AREA512_CYD_2432S028"
     )
   endif()
 endif()

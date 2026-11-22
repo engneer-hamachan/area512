@@ -2,7 +2,8 @@
 
 #include "area512_task_replacement.h"
 
-#if !defined(AREA512_TDECK) && !defined(AREA512_CYD_ES3C28P)
+#if !defined(AREA512_TDECK) && !defined(AREA512_CYD_ES3C28P) &&                \
+  !defined(AREA512_CYD_2432S028)
 #include <M5Unified.hpp>
 #endif
 
@@ -101,6 +102,8 @@ area512_metrics_battery_mv(void) {
     return -1;
 
   return (int)((raw * 6600 + 4095 / 2) / 4095);
+#elif defined(AREA512_CYD_2432S028)
+  return -1;
 #else
   int mv = (int)M5.Power.getBatteryVoltage();
   return mv > 0 ? mv : -1;

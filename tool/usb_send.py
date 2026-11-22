@@ -11,6 +11,8 @@ from serial.tools import list_ports
 
 
 ESPRESSIF_VENDOR_ID = 0x303A
+CH340_VENDOR_ID = 0x1A86
+CONSOLE_UART_BAUD_RATE = 115200
 REPLY_PREFIX = "AREA512 "
 READY_REPLY_LINE = REPLY_PREFIX + "READY"
 CHUNK_BYTE_COUNT = 4096
@@ -23,17 +25,35 @@ class TransferError(Exception):
 
 def find_port():
     for port_info in list_ports.comports():
-        if port_info.vid == ESPRESSIF_VENDOR_ID:
+        if port_info.vid in (ESPRESSIF_VENDOR_ID, CH340_VENDOR_ID):
             return port_info.device
 
-    raise TransferError("no Espressif USB port found")
+    raise TransferError("no Espressif or CH340 USB port found")
+
+
+def find_vendor_id(port_path):
+    for port_info in list_ports.comports():
+        if port_info.device == port_path:
+            return port_info.vid
+
+    return None
 
 
 def open_port(port_path):
     serial_port = serial.Serial()
     serial_port.port = port_path
     serial_port.timeout = REPLY_TIMEOUT_SECONDS
+
+    is_ch340_port = find_vendor_id(port_path) == CH340_VENDOR_ID
+
+    if is_ch340_port:
+        serial_port.baudrate = CONSOLE_UART_BAUD_RATE
+
     serial_port.open()
+
+    if is_ch340_port:
+        serial_port.rts = False
+        serial_port.dtr = False
 
     return serial_port
 
