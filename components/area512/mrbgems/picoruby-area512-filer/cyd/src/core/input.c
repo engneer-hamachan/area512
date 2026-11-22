@@ -1,0 +1,162 @@
+#if defined(PICORB_VM_MRUBYC)
+
+#include "area512_hal.h"
+#include "core/filer.h"
+
+static int
+read_csi_final_byte(void) {
+  int byte;
+
+  do {
+    byte = area512_console_getch_timeout(40);
+  } while (byte >= ' ' && byte < '@');
+
+  return byte;
+}
+
+static int
+read_filer_key_from_first_byte(int first_byte) {
+  if (first_byte == 27) {
+    int second_byte = area512_console_getch_timeout(40);
+
+    if (second_byte == 'r')
+      return KEY_RECEIVE_FILES;
+
+    if (second_byte != '[')
+      return first_byte;
+    switch (read_csi_final_byte()) {
+    case 'A':
+      return KEY_UP;
+    case 'B':
+      return KEY_DOWN;
+    case 'C':
+      return KEY_RIGHT;
+    case 'D':
+      return KEY_LEFT;
+    default:
+      return first_byte;
+    }
+  }
+
+  switch (first_byte) {
+  // keypad arrows arrive as bare ASCII ; . / ,
+  case ';':
+    return KEY_UP;
+  case '.':
+    return KEY_DOWN;
+  case '/':
+    return KEY_RIGHT;
+  case ',':
+    return KEY_LEFT;
+  case 'k':
+    return KEY_UP;
+  case 'j':
+    return KEY_DOWN;
+  case 'u':
+  case '\b':
+  case 127:
+    return KEY_LEFT;
+  case '\r':
+  case '\n':
+    return KEY_RIGHT;
+  case 'c':
+    return KEY_COMPILE;
+  case 'a':
+    return KEY_COMPILE_ALL;
+  case 'e':
+    return KEY_EDIT;
+  case 'R':
+    return KEY_RUN_DIR;
+  case 'x':
+    return KEY_DELETE;
+  case 'N':
+    return KEY_NEW_FILE;
+  case 'K':
+    return KEY_NEW_DIR;
+  case 'r':
+    return KEY_REBOOT;
+  case 'm':
+    return KEY_MOVE;
+  case 'C':
+    return KEY_COPY;
+  case 't':
+    return KEY_TERMINAL;
+  case 'L':
+    return KEY_LAUNCH_INSTALLED_APP;
+  case 'U':
+    return KEY_UNINSTALL_APP;
+  case 'P':
+    return KEY_PAIR;
+  default:
+    return first_byte;
+  }
+}
+
+int
+area512_filer_read_key(void) {
+  return read_filer_key_from_first_byte(area512_console_getch_block());
+}
+
+int
+read_filer_key_with_timeout(int timeout_ms) {
+  int first_byte = area512_console_getch_timeout(timeout_ms);
+
+  if (first_byte < 0)
+    return KEY_NONE;
+
+  return read_filer_key_from_first_byte(first_byte);
+}
+
+static int
+read_terminal_key_from_first_byte(int first_byte) {
+  if (first_byte != 27)
+    return first_byte;
+
+  if (area512_console_getch_timeout(40) != '[')
+    return 27;
+
+  switch (read_csi_final_byte()) {
+  case 'A':
+    return KEY_UP;
+  case 'B':
+    return KEY_DOWN;
+  case 'C':
+    return KEY_RIGHT;
+  case 'D':
+    return KEY_LEFT;
+  default:
+    return 0;
+  }
+}
+
+int
+read_terminal_key(void) {
+  return read_terminal_key_from_first_byte(area512_console_getch_block());
+}
+
+int
+read_terminal_key_with_timeout(int timeout_ms) {
+  int first_byte = area512_console_getch_timeout(timeout_ms);
+
+  if (first_byte < 0)
+    return KEY_NONE;
+
+  return read_terminal_key_from_first_byte(first_byte);
+}
+
+int
+read_raw_text_key(void) {
+  for (;;) {
+    int first_byte = area512_console_getch_block();
+
+    if (first_byte != 27)
+      return first_byte;
+
+    if (area512_console_getch_timeout(40) != '[')
+      return 27;
+
+    read_csi_final_byte();
+  }
+}
+
+#endif

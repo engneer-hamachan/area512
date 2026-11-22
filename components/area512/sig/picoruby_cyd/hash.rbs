@@ -1,0 +1,57 @@
+# Area512 built-in type declaration.
+
+class Hash
+  include Enumerable
+  # Perform equality comparison
+  def ==: (untyped other) -> bool
+
+  # Get value for specified key
+  def []: (untyped key) -> untyped
+
+  # Set value for specified key
+  def []=: (untyped key, untyped value) -> self
+
+  # Remove all elements from hash
+  def clear: () -> Hash
+
+  # Delete specified key
+  def delete: (untyped key) -> (untyped | nil)
+
+  # Execute block for each key and value
+  def each: () { (untyped key, untyped value) -> untyped } -> self
+
+  # Check if hash is empty
+  def empty?: () -> bool
+
+  # Check if specified key exists
+  def has_key?: (untyped key) -> bool
+
+  # Check if specified value exists
+  def has_value?: (untyped value) -> bool
+
+  # Return string representation for debugging
+  def inspect: () -> String
+
+  def key: (untyped value) -> (untyped | nil)
+
+  # Return all keys as array
+  def keys: () -> Array[untyped]
+
+  # Return number of elements in hash
+  def length: () -> Integer
+
+  # Return new hash merged with another hash
+  def merge: (Hash other) -> self
+
+  # Merge hash destructively
+  def merge!: (Hash other) -> self
+
+  # Return self as hash
+  def to_h: () -> self
+
+  # Return all values as array
+  def values: () -> Array[untyped]
+
+  def self.new: () -> Hash
+
+end

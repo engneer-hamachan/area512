@@ -1,0 +1,10 @@
+# Area512 built-in type declaration.
+
+module Enumerable
+  # Execute block for each element and return results as array
+  def collect: () { (untyped element) -> untyped } -> Array[untyped]
+
+  # Execute block for each element and index
+  def each_with_index: () { (untyped element, Integer index) -> untyped } -> self
+
+end

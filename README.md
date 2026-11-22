@@ -83,6 +83,9 @@ esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --
 
 # T-Deck Plus
 esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512TDeck.bin
+
+# ES3C28P
+esptool.py -c esp32s3 -b 460800 write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 firmware/Area512ES3C28P.bin
 ```
 
 - Insert a FAT32-formatted microSD card into the Cardputer (it is used to store app data).
@@ -162,6 +165,13 @@ For the T-Deck Plus:
 ```sh
 rake build:tdeck
 idf.py -B build/tdeck flash
+```
+
+For the ES3C28P:
+
+```sh
+rake build:es3c28p
+idf.py -B build/es3c28p flash
 ```
 
 ## T-Deck Plus Keymap

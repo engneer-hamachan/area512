@@ -20,6 +20,16 @@ Controls the device display.
 - `Display.fill_screen(color)`
 - `Display.set_brightness(brightness)`
 - `Display.show_header_image(path, hold_milliseconds=1000)`
+- `Display.subwindow(x, y, width, height)` places a subwindow outside the
+  window, in window coordinates, and `Display.push_subwindow(sprite)` draws a
+  `Sprite` or `QuaternarySprite` there. Taps on it come from `Touch.read()`
+  with window coordinates outside the window. Available only in the ES3C28P
+  firmware.
+- `Display.move_window(left, top)` moves the window to (`left`, `top`) in
+  screen pixels, `top` being its position while the software keyboard is
+  closed. The window's border is drawn there, and the app draws its inside
+  again. `Display.read_window_top_without_soft_keyboard()` returns that
+  `top`. Available only in the ES3C28P firmware.
 
 `width()` and `height()` report the area the app draws on. On the 320x240
 display builds the filer runs each app in a 240x135 window, so they report
@@ -162,6 +172,29 @@ Controls the text console used while a Python file is compiled or executed.
 
 - `Console.reset()`
 - `Console.wait_key_if_output()`
+
+## Touch
+
+Reads the touch panel and shows the software keyboard. Available only in the
+ES3C28P firmware.
+
+- `Touch.read()` returns `None` or `(kind, x, y)`. `kind` is `"TAP"`, `"DRAG"`
+  or `"RELEASE"`, and `x`, `y` are window coordinates. A finger lifted without
+  moving gives one `"TAP"` at the point it touched; a moving finger gives
+  `"DRAG"` events and then one `"RELEASE"` where it was lifted.
+- `Touch.open_keyboard()`, `Touch.close_keyboard()` show and hide the software
+  keyboard under the window. The window moves up while the keyboard is shown,
+  so redraw the screen after each call. Keys typed on it arrive through `IO`
+  like keyboard keys.
+- `Touch.bluetooth_keyboard_connected()`
+
+```python
+while True:
+    key = IO().read_nonblock(1)
+    event = Touch.read()
+    if key is None and event is None:
+        sleep_ms(10)
+```
 
 ## Sleep
 

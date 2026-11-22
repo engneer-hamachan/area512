@@ -1,0 +1,72 @@
+# @sidebar io_peripheral
+class SPI
+  MSB_FIRST: 1
+  LSB_FIRST: 0
+  DATA_BITS: 8
+
+  type spi_first_bit_t = 0|1#MSB_FIRST|LSB_FIRST
+  type spi_mode_t = 0|1|2|3
+  type spi_output_t = Integer|String|Array[Integer]
+
+  DEFAULT_FREQUENCY: 100_000
+
+  attr_accessor cs: GPIO
+  attr_accessor unit: String
+
+  def sck_pin: () -> Integer
+  def cipo_pin: () -> Integer
+  def copi_pin: () -> Integer
+  def cs_pin: () -> Integer
+
+  def self.new: (
+    unit: Symbol | String,
+    ?frequency: Integer,
+    ?sck_pin: Integer,
+    ?cipo_pin: Integer,
+    ?copi_pin: Integer,
+    ?cs_pin: Integer,
+    ?mode: spi_mode_t,
+    ?first_bit: spi_first_bit_t
+  ) -> SPI
+  private def self.init: (
+    String unit,
+    Integer frequency,
+    Integer sck_pin,
+    Integer cipo_pin,
+    Integer copo_pin,
+    Integer cs_pin,
+    Integer mode,
+    Integer first_bit,
+    Integer data_bits
+  ) -> SPI
+  def select: () ?{ (SPI) -> untyped } -> untyped
+  def deselect: () -> void
+  def write: (*spi_output_t outputs) -> Integer
+  def read: (Integer len, ?Integer repeated_tx_data) -> String
+  def transfer: (*spi_output_t outputs, ?additional_read_bytes: Integer) -> String
+end
+
+# Area512 built-in type declaration.
+
+class SPI
+  def write: (*(Integer | String | Array[Integer]) outputs) -> Integer
+
+  def read: (Integer len, ?Integer repeated_tx_data) -> String
+
+  def transfer: (*(Integer | String | Array[Integer]) outputs, ?additional_read_bytes: Integer) -> String
+
+  def select: () ?{ (SPI) -> untyped } -> untyped
+
+  def deselect: () -> nil
+
+  def sck_pin: () -> Integer
+
+  def cipo_pin: () -> Integer
+
+  def copi_pin: () -> Integer
+
+  def cs_pin: () -> Integer
+
+  def self.new: (unit: (Symbol | String), ?frequency: Integer, ?sck_pin: Integer, ?cipo_pin: Integer, ?copi_pin: Integer, ?cs_pin: Integer, ?mode: (0 | 1 | 2 | 3), ?first_bit: (0 | 1)) -> SPI
+
+end

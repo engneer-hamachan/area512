@@ -1,8 +1,16 @@
 # Area512 build config: Cardputer (ESP32-S3, no PSRAM), femtoruby (mrubyc) VM only.
+require_relative 'cyd_ti_database'
+
+cyd_ti_generated_directory = ENV['AREA512_CYD_TI_GENERATED_DIR']
+
 # Build names match LIBMRUBY_PATH in CMakeLists.txt.
 build_name =
   if ENV['AREA512_TDECK'] == 'ON'
     "esp32-femtoruby-tdeck"
+  elsif ENV['AREA512_CYD_2432S028'] == 'ON'
+    "esp32-femtoruby-cyd-2432s028"
+  elsif ENV['AREA512_CYD'] == 'ON'
+    "esp32-femtoruby-cyd"
   elsif ENV['AREA512_EXT_DISPLAY'] == 'ON'
     "esp32-femtoruby-captft"
   else
@@ -33,6 +41,8 @@ MRuby::CrossBuild.new(build_name) do |conf|
   conf.cc.defines << "TI_ARENA_SIZE=24576"
   conf.cc.defines << "AREA512_EXT_DISPLAY" if ENV['AREA512_EXT_DISPLAY'] == 'ON'
   conf.cc.defines << "AREA512_INTERNAL_DISPLAY" if ENV['AREA512_EXT_DISPLAY'] == 'ON' && ENV['AREA512_TDECK'] != 'ON'
+  conf.cc.defines << "AREA512_CYD" if ENV['AREA512_CYD'] == 'ON'
+  conf.cc.defines << "AREA512_CYD_2432S028" if ENV['AREA512_CYD_2432S028'] == 'ON'
   conf.femtoruby(alloc_libc: false)
 
   # Pristine gems from ./R2P2-ESP32; the build root stays the Area512 tree.
@@ -72,8 +82,18 @@ MRuby::CrossBuild.new(build_name) do |conf|
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-micropython', __dir__)
 
   # Native C editor replacing upstream vim/editor; still required as "vim".
-  conf.gem gemdir: File.expand_path('../mrbgems/picoruby-ti', __dir__)
-  conf.gem gemdir: File.expand_path('../mrbgems/micropython-ti', __dir__)
+  conf.gem gemdir: File.expand_path('../mrbgems/picoruby-ti', __dir__) do |spec|
+    if cyd_ti_generated_directory
+      use_cyd_ti_database(spec, "#{cyd_ti_generated_directory}/picoruby")
+    end
+  end
+
+  conf.gem gemdir: File.expand_path('../mrbgems/micropython-ti', __dir__) do |spec|
+    if cyd_ti_generated_directory
+      use_cyd_ti_database(spec, "#{cyd_ti_generated_directory}/micropython")
+    end
+  end
+
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-edit', __dir__)
 
   # Console/HAL C helpers: Cardputer keyboard (I2C) and battery ADC status.
@@ -90,6 +110,10 @@ MRuby::CrossBuild.new(build_name) do |conf|
 
   # Themed UI widgets shared by storage applications.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-widget', __dir__)
+
+  if ENV['AREA512_CYD'] == 'ON'
+    conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-touch', __dir__)
+  end
 
   # Dot image format (.a5d) and its native (C) editor, launched from the filer.
   conf.gem gemdir: File.expand_path('../mrbgems/picoruby-area512-dot', __dir__)

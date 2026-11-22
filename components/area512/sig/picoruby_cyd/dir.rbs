@@ -1,0 +1,19 @@
+# Area512 built-in type declaration.
+
+class Dir
+  def close: () -> nil
+
+  def read: () -> (String | nil)
+
+  def self.rmdir: (String path) -> Integer
+
+  def self.exist?: (String path) -> bool
+
+  def self.mkdir: (String path) -> Integer
+
+  def self.new: (String path) -> Dir
+
+  def self.open: (String path) -> Dir
+                | (String path) { (Dir directory) -> untyped } -> untyped
+
+end

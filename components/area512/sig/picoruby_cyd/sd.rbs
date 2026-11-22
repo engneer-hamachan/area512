@@ -1,0 +1,19 @@
+# Area512 built-in type declaration.
+
+module SD
+  # Mount the microSD card; raises RuntimeError when no card is found
+  def self.mount: () -> bool
+
+  # Unmount the microSD card
+  def self.unmount: () -> nil
+
+  # Check whether a file exists on the card
+  def self.exist?: (String path) -> bool
+
+  # Read a whole file from the card; raises RuntimeError on failure
+  def self.read: (String path) -> String
+
+  # Write content to a file on the card and return bytes written
+  def self.write: (String path, String content) -> Integer
+
+end

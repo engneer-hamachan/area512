@@ -1,0 +1,42 @@
+# Area512 built-in type declaration.
+
+class Display
+  # Screen width in pixels
+  def self.width: () -> Integer
+
+  # Screen height in pixels
+  def self.height: () -> Integer
+
+  # Physical display width in pixels, even while the app runs in a window
+  def self.screen_width: () -> Integer
+
+  # Physical display height in pixels, even while the app runs in a window
+  def self.screen_height: () -> Integer
+
+  # Draw on the whole display instead of the window (no-op without a window)
+  def self.full_screen: () -> nil
+
+  # Fill the whole screen with an RGB888 color
+  def self.fill_screen: (Integer color) -> untyped
+
+  # Set backlight brightness (0..255)
+  def self.brightness=: (Integer brightness) -> untyped
+
+  # Show/hide the text console
+  def self.console: () -> untyped
+
+  # The window's top edge in screen pixels while the soft keyboard is closed
+  def self.read_window_top_without_soft_keyboard: () -> Integer
+
+  # Move the window to (left, top) in screen pixels, top meaning while the soft
+  # keyboard is closed; the window's border is drawn there and the app draws its
+  # inside again
+  def self.move_window: (Integer left, Integer top) -> nil
+
+  # Place the subwindow outside the window, in window coordinates
+  def self.subwindow: (Integer x, Integer y, Integer width, Integer height) -> nil
+
+  # Draw a Sprite or QuaternarySprite at the subwindow position
+  def self.push_subwindow: (untyped sprite) -> nil
+
+end

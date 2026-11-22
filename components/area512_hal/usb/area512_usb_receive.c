@@ -3,7 +3,12 @@
 #include "esp_rom_crc.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "sdkconfig.h"
+#if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
 #include "hal/usb_serial_jtag_ll.h"
+#else
+#include "driver/uart.h"
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -19,6 +24,11 @@
 #define FILE_BUFFER_SIZE 512
 #define PROGRESS_TEXT_SIZE 48
 #define ASCII_ESCAPE 0x1B
+
+#if !CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
+#define CONSOLE_UART_NUMBER CONFIG_ESP_CONSOLE_UART_NUM
+#define UART_RECEIVE_BUFFER_SIZE 8192
+#endif
 
 #define MKDIR_COMMAND_PREFIX "MKDIR "
 #define FILE_COMMAND_PREFIX "FILE "
@@ -46,11 +56,25 @@ typedef struct {
   uint32_t crc32;
 } ReceivingFile;
 
+#if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
 static volatile bool s_owns_rxfifo = false;
 
 bool
 area512_usb_receive_owns_rxfifo(void) {
   return s_owns_rxfifo;
+}
+#endif
+
+static uint32_t
+read_received_bytes(uint8_t *bytes, uint32_t requested_byte_count) {
+#if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
+  return usb_serial_jtag_ll_read_rxfifo(bytes, requested_byte_count);
+#else
+  int read_byte_count =
+    uart_read_bytes(CONSOLE_UART_NUMBER, bytes, requested_byte_count, 0);
+
+  return read_byte_count > 0 ? (uint32_t)read_byte_count : 0;
+#endif
 }
 
 static void
@@ -60,7 +84,9 @@ write_reply(const char *reply_text) {
   fputc('\n', stdout);
   fflush(stdout);
 
+#if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
   usb_serial_jtag_ll_txfifo_flush();
+#endif
 }
 
 static void
@@ -132,7 +158,7 @@ read_command_line(char *command_line) {
     xTaskGetTickCount() - pdMS_TO_TICKS(READY_INTERVAL_MS);
 
   for (;;) {
-    if (usb_serial_jtag_ll_read_rxfifo(&received_byte, 1) == 1) {
+    if (read_received_bytes(&received_byte, 1) == 1) {
       if (received_byte == '\n') {
         command_line[command_line_byte_count] = '\0';
 
@@ -178,10 +204,7 @@ receive_chunk(ReceivingFile *receiving_file, long chunk_byte_count) {
         : FILE_BUFFER_SIZE;
 
     uint32_t read_byte_count =
-      usb_serial_jtag_ll_read_rxfifo(
-        file_buffer,
-        requested_byte_count
-      );
+      read_received_bytes(file_buffer, requested_byte_count);
 
     if (read_byte_count == 0) {
       if (read_pending_escape_key_count() > 0) {
@@ -524,12 +547,7 @@ drain_rxfifo(void) {
     xTaskGetTickCount() - last_received_tick < pdMS_TO_TICKS(DRAIN_SILENCE_MS)
   ) {
 
-    if (
-      usb_serial_jtag_ll_read_rxfifo(
-        discarded_bytes,
-        sizeof(discarded_bytes)
-      ) > 0
-    ) {
+    if (read_received_bytes(discarded_bytes, sizeof(discarded_bytes)) > 0) {
 
       last_received_tick = xTaskGetTickCount();
 
@@ -546,7 +564,24 @@ area512_usb_receive_files(void) {
 
   memset(&receiving_file, 0, sizeof(receiving_file));
 
+#if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
   s_owns_rxfifo = true;
+#else
+  if (
+    uart_driver_install(
+      CONSOLE_UART_NUMBER,
+      UART_RECEIVE_BUFFER_SIZE,
+      0,
+      0,
+      NULL,
+      0
+    ) != ESP_OK
+  ) {
+
+    write_console_line("UART driver install failed");
+    return;
+  }
+#endif
 
   area512_console_reset();
 
@@ -584,5 +619,9 @@ area512_usb_receive_files(void) {
 
   area512_sprite_delete(progress_row_sprite);
 
+#if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
   s_owns_rxfifo = false;
+#else
+  uart_driver_delete(CONSOLE_UART_NUMBER);
+#endif
 }

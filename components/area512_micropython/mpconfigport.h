@@ -44,6 +44,13 @@ extern const struct _mp_obj_type_t area512_micropython_widget_list_type;
 extern const struct _mp_obj_type_t area512_micropython_widget_text_view_type;
 extern const struct _mp_obj_type_t area512_micropython_rng_type;
 extern const struct _mp_obj_type_t area512_micropython_area512_type;
+#if defined(AREA512_CYD)
+extern const struct _mp_obj_type_t area512_micropython_touch_type;
+#define AREA512_MICROPYTHON_TOUCH_BUILTIN                                      \
+  {MP_ROM_QSTR(MP_QSTR_Touch), MP_ROM_PTR(&area512_micropython_touch_type)},
+#else
+#define AREA512_MICROPYTHON_TOUCH_BUILTIN
+#endif
 extern const struct _mp_obj_fun_builtin_fixed_t
   area512_micropython_sleep_seconds_callable;
 extern const struct _mp_obj_fun_builtin_fixed_t
@@ -81,4 +88,5 @@ extern const struct _mp_obj_fun_builtin_fixed_t
     {MP_ROM_QSTR(MP_QSTR_sleep),                                               \
      MP_ROM_PTR(&area512_micropython_sleep_seconds_callable)},                 \
     {MP_ROM_QSTR(MP_QSTR_sleep_ms),                                            \
-     MP_ROM_PTR(&area512_micropython_sleep_milliseconds_callable)},
+     MP_ROM_PTR(&area512_micropython_sleep_milliseconds_callable)},            \
+    AREA512_MICROPYTHON_TOUCH_BUILTIN

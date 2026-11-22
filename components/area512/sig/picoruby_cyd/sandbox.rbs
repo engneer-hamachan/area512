@@ -1,0 +1,97 @@
+class Sandbox
+
+  TIMEOUT: Integer
+
+  @result: Object | nil
+  @script: String
+
+  attr_accessor error: Exception?
+
+  def self.new: (?String name) -> Sandbox
+  def compile: (String script, ?remove_lv: bool, ?filename: String?) -> bool
+  def compile_from_memory: (Integer address, Integer size, ?remove_lv: bool) -> bool
+  def resume: () -> bool
+  def suspend: () -> bool
+  def terminate: () -> bool
+  def stop: () -> bool
+  def free_parser: () -> nil
+  def state: () -> Symbol
+  def result: () -> untyped
+  def wait: (?timeout: (Integer|nil)) -> bool
+  def execute: () -> bool
+  def exec_mrb: (String mrb) -> bool
+  def exec_mrb_from_memory: (Integer address) -> bool
+  def load_file: (String path, ?join: bool) -> void
+  private def loop: (Integer | nil timeout, boolish signal_self_management) -> bool
+end
+
+# Area512 built-in type declaration.
+
+class Sandbox
+  # Compile a Ruby script string; true on success
+  def compile: (String script, ?remove_lv: bool, ?filename: (String | nil)) -> bool
+
+  # Compile a script from a memory address and size
+  def compile_from_memory: (Integer address, Integer size, ?remove_lv: bool) -> bool
+
+  # Start executing the compiled code as a task
+  def execute: () -> bool
+
+  # Execute precompiled mrb bytecode
+  def exec_mrb: (String mrb) -> bool
+
+  # Execute mrb bytecode located at a memory address
+  def exec_mrb_from_memory: (Integer address) -> bool
+
+  # Compile or exec a .rb/.mrb file; join: waits for completion
+  def load_file: (String path, ?join: bool) -> untyped
+
+  # Wait until the task finishes; timeout in ms, nil waits forever
+  def wait: (?timeout: (Integer | nil)) -> bool
+
+  # Task state such as :DORMANT or :SUSPENDED
+  def state: () -> Symbol
+
+  # Value of the last executed expression
+  def result: () -> untyped
+
+  # Exception raised by the task, or nil
+  def error: () -> untyped
+
+  # Resume the suspended task
+  def resume: () -> bool
+
+  # Suspend the running task
+  def suspend: () -> bool
+
+  # Stop the running task
+  def stop: () -> bool
+
+  # Terminate the task
+  def terminate: () -> bool
+
+  # Release compiler resources
+  def free_parser: () -> nil
+
+  # Execute each .mrb listed in a manifest file, keeping loaded code resident
+  def load_manifest: (String directory, String manifest_path, ?join: bool) -> (bool | nil)
+
+  # Terminate the task and release kept code and compiler resources
+  def cleanup: () -> nil
+
+  # Prepare the task to run an .mrb file, keeping its bytecode resident until release
+  def area512_prepare_task_for_run: (String path) -> bool
+
+  # Release all bytecode kept by area512_prepare_task_for_run
+  def area512_release_kept_code: () -> nil
+
+  # Release the mrc_irep produced by the last compile
+  def area512_release_mrc_irep: () -> nil
+
+  # Message of the exception raised by the task, or nil
+  def area512_exception_message: () -> (String | nil)
+
+  # Create a sandbox task; optional name
+  def self.new: () -> Sandbox
+
+end

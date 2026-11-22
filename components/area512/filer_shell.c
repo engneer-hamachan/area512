@@ -2031,6 +2031,9 @@ mount_sd_and_restore_seed(Filer *filer) {
   }
 
   area512_theme_load();
+#if defined(AREA512_CYD)
+  area512_load_and_apply_touch_setting();
+#endif
 
   return 0;
 }
@@ -2284,6 +2287,12 @@ run_filer_task(void *task_parameter) {
       );
 
       break;
+
+#if defined(AREA512_CYD)
+    case ACTION_TOUCH_SETTING:
+      area512_run_touch_setting();
+      break;
+#endif
     }
 
     build_entries(filer);

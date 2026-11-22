@@ -148,6 +148,7 @@ Command arguments are separated by spaces. Quoting and escaping spaces in names 
 - `irb`: start the Ruby REPL
 - `python-repl`: start the Python REPL
 - `top`: show battery, arena, RAM, and stack percentages
+- `touch-setting`: calibrate the touch panel and set the drag and swipe distances (ES3C28P firmware only)
 - `reboot`: restart the device
 
 ## Other

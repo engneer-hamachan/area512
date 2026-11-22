@@ -2,7 +2,8 @@
 
 #include "area512_task_replacement.h"
 
-#if !defined(AREA512_TDECK)
+#if !defined(AREA512_TDECK) && !defined(AREA512_CYD_ES3C28P) &&                \
+  !defined(AREA512_CYD_2432S028)
 #include <M5Unified.hpp>
 #endif
 
@@ -19,6 +20,12 @@ extern "C" int ADC_init(uint8_t pin);
 extern "C" uint32_t ADC_read_raw(uint8_t pin);
 
 static constexpr uint8_t TDECK_BATTERY_ADC_PIN = 4;
+static bool is_battery_adc_initialized = false;
+#elif defined(AREA512_CYD_ES3C28P)
+extern "C" int ADC_init(uint8_t pin);
+extern "C" uint32_t ADC_read_raw(uint8_t pin);
+
+static constexpr uint8_t ES3C28P_BATTERY_ADC_PIN = 9;
 static bool is_battery_adc_initialized = false;
 #endif
 
@@ -81,6 +88,22 @@ area512_metrics_battery_mv(void) {
 
   // R2P2-ESP32 uses raw * 3.3 / 4095 volts and a 2:1 battery divider.
   return (int)((raw * 6600 + 4095 / 2) / 4095);
+#elif defined(AREA512_CYD_ES3C28P)
+  if (!is_battery_adc_initialized) {
+    if (ADC_init(ES3C28P_BATTERY_ADC_PIN) < 0)
+      return -1;
+
+    is_battery_adc_initialized = true;
+  }
+
+  uint32_t raw = ADC_read_raw(ES3C28P_BATTERY_ADC_PIN);
+
+  if (raw == 0)
+    return -1;
+
+  return (int)((raw * 6600 + 4095 / 2) / 4095);
+#elif defined(AREA512_CYD_2432S028)
+  return -1;
 #else
   int mv = (int)M5.Power.getBatteryVoltage();
   return mv > 0 ? mv : -1;

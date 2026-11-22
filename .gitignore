@@ -10,3 +10,4 @@ dependencies.lock
 managed_components/*
 area512-ti-lsp
 __pycache__/
+browser_emulator/*

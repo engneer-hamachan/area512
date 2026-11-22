@@ -1,0 +1,29 @@
+# Area512 built-in type declaration.
+
+class File
+  # Close file
+  def close: () -> nil
+
+  # Read remaining file contents
+  def read: () -> String
+
+  def self.new: (String path, ?String mode) -> File
+
+  # Open file and return File object
+  def self.open: (String path, ?String mode) -> File
+
+  # Open file, yield to block, close automatically
+  def self.open: (String path, ?String mode) { (File file) -> untyped } -> untyped
+
+  # Check if file exists
+  def self.exist?: (String path) -> bool
+
+  def self.file?: (String path) -> bool
+
+  def self.directory?: (String path) -> bool
+
+  def self.unlink: (String path) -> Integer
+
+  def self.rename: (String source_path, String destination_path) -> Integer
+
+end

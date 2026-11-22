@@ -513,6 +513,80 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(
   show_display_header_image
 );
 
+#if defined(AREA512_CYD)
+static mp_obj_t
+read_display_window_top_without_soft_keyboard(void) {
+  return MP_OBJ_NEW_SMALL_INT(
+    area512_gfx_read_window_top_without_soft_keyboard()
+  );
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(
+  read_display_window_top_without_soft_keyboard_callable,
+  read_display_window_top_without_soft_keyboard
+);
+
+static mp_obj_t
+move_display_window(
+  mp_obj_t screen_left_object,
+  mp_obj_t screen_top_without_soft_keyboard_object
+) {
+
+  area512_gfx_move_window(
+    mp_obj_get_int(screen_left_object),
+    mp_obj_get_int(screen_top_without_soft_keyboard_object)
+  );
+  area512_gfx_draw_app_screen();
+
+  return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_2(
+  move_display_window_callable,
+  move_display_window
+);
+
+static mp_obj_t
+set_display_subwindow(size_t argument_count, const mp_obj_t *arguments) {
+  (void)argument_count;
+
+  area512_gfx_set_subwindow(
+    mp_obj_get_int(arguments[0]),
+    mp_obj_get_int(arguments[1]),
+    mp_obj_get_int(arguments[2]),
+    mp_obj_get_int(arguments[3])
+  );
+
+  return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(
+  set_display_subwindow_callable,
+  4,
+  4,
+  set_display_subwindow
+);
+
+static mp_obj_t
+push_display_subwindow(mp_obj_t sprite_object) {
+  void *sprite_handle;
+
+  if (mp_obj_is_type(sprite_object, &area512_micropython_sprite_type))
+    sprite_handle =
+      area512_micropython_fetch_sprite_handle_or_raise(sprite_object);
+  else
+    sprite_handle =
+      area512_micropython_fetch_quaternary_sprite_handle_or_raise(
+        sprite_object
+      );
+
+  area512_gfx_push_subwindow(sprite_handle);
+
+  return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(
+  push_display_subwindow_callable,
+  push_display_subwindow
+);
+#endif
+
 static const mp_rom_map_elem_t display_locals_table[] = {
   {MP_ROM_QSTR(MP_QSTR_width), MP_ROM_PTR(&fetch_display_width_callable)},
   {MP_ROM_QSTR(MP_QSTR_height), MP_ROM_PTR(&fetch_display_height_callable)},
@@ -537,6 +611,24 @@ static const mp_rom_map_elem_t display_locals_table[] = {
     MP_ROM_QSTR(MP_QSTR_show_header_image),
     MP_ROM_PTR(&show_display_header_image_callable),
   },
+#if defined(AREA512_CYD)
+  {
+    MP_ROM_QSTR(MP_QSTR_read_window_top_without_soft_keyboard),
+    MP_ROM_PTR(&read_display_window_top_without_soft_keyboard_callable),
+  },
+  {
+    MP_ROM_QSTR(MP_QSTR_move_window),
+    MP_ROM_PTR(&move_display_window_callable),
+  },
+  {
+    MP_ROM_QSTR(MP_QSTR_subwindow),
+    MP_ROM_PTR(&set_display_subwindow_callable),
+  },
+  {
+    MP_ROM_QSTR(MP_QSTR_push_subwindow),
+    MP_ROM_PTR(&push_display_subwindow_callable),
+  },
+#endif
 };
 static MP_DEFINE_CONST_DICT(display_locals_dictionary, display_locals_table);
 

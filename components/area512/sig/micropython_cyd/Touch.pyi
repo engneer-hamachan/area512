@@ -1,0 +1,36 @@
+class Touch:
+
+    @staticmethod
+    def read() -> tuple[str, int, int] | None:
+        """
+        Next touch event as ("TAP" | "DRAG" | "RELEASE", x, y) in window coordinates, or None.
+        """
+        ...
+
+    @staticmethod
+    def read_current_point() -> tuple[int, int] | None:
+        """
+        The point being touched now as (x, y) in window coordinates, or None when nothing is touched.
+        """
+        ...
+
+    @staticmethod
+    def open_keyboard() -> None:
+        """
+        Raise the window and show the software keyboard below it; redraw afterwards.
+        """
+        ...
+
+    @staticmethod
+    def close_keyboard() -> None:
+        """
+        Hide the software keyboard and put the window back; redraw afterwards.
+        """
+        ...
+
+    @staticmethod
+    def bluetooth_keyboard_connected() -> bool:
+        """
+        Whether a Bluetooth keyboard is connected.
+        """
+        ...

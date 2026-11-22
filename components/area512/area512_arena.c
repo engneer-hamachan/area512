@@ -2,9 +2,31 @@
 
 #include <mrubyc.h>
 
+#if defined(AREA512_CYD_2432S028)
+#include <esp_heap_caps.h>
+#include <stdlib.h>
+
+uint8_t *g_area512_arena;
+#else
 uint8_t g_area512_arena[AREA512_ARENA_BYTE_SIZE] __attribute__((aligned(8)));
+#endif
 
 static int s_recorded_arena_used_byte_size;
+
+#if defined(AREA512_CYD_2432S028)
+void
+area512_allocate_arena(void) {
+  g_area512_arena =
+    heap_caps_aligned_alloc(
+      8,
+      AREA512_ARENA_BYTE_SIZE,
+      MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT
+    );
+
+  if (g_area512_arena == NULL)
+    abort();
+}
+#endif
 
 void
 area512_init_arena(void) {

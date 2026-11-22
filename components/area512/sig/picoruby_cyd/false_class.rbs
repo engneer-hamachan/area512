@@ -1,0 +1,4 @@
+# Area512 built-in type declaration.
+
+class FalseClass < Bool
+end

@@ -1,0 +1,60 @@
+# Area512 built-in type declaration.
+
+class Float
+  # Calculate modulo
+  def %: ((Integer | Float) other) -> Float
+
+  # Perform multiplication
+  def *: ((Integer | Float) other) -> Float
+
+  # Calculate power
+  def **: ((Integer | Float) other) -> Float
+
+  # Perform addition
+  def +: ((Integer | Float) other) -> Float
+
+  # Unary plus operator. Returns self
+  def +@: () -> Float
+
+  # Perform subtraction
+  def -: ((Integer | Float) other) -> Float
+
+  # Unary minus operator. Inverts sign
+  def -@: () -> Float
+
+  # Perform division
+  def /: ((Integer | Float) other) -> Float
+
+  # Perform less than comparison
+  def <: ((Integer | Float) other) -> bool
+
+  # Perform less than or equal comparison
+  def <=: ((Integer | Float) other) -> bool
+
+  # Comparison operator. Returns -1 if self < other, 0 if self == other, 1 if self > other
+  def <=>: ((Integer | Float) other) -> (Integer | nil)
+
+  # Perform equality comparison
+  def ==: (untyped other) -> bool
+
+  def ===: (untyped other) -> bool
+
+  # Perform greater than comparison
+  def >: ((Integer | Float) other) -> bool
+
+  # Perform greater than or equal comparison
+  def >=: ((Integer | Float) other) -> bool
+
+  # Get absolute value
+  def abs: () -> Float
+
+  # Return self as floating point number
+  def to_f: () -> Float
+
+  # Convert to integer (truncate)
+  def to_i: () -> Integer
+
+  # Convert to string
+  def to_s: () -> String
+
+end

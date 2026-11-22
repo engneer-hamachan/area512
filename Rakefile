@@ -3,6 +3,7 @@ MRUBY_ROOT = File.join(AREA512_ROOT, "R2P2-ESP32/components/picoruby-esp32/picor
 IDF_BUILD_DIR = File.join(AREA512_ROOT, "build")
 IDF_SDKCONFIG = File.join(AREA512_ROOT, "sdkconfig")
 IDF_SDKCONFIG_DEFAULTS = File.join(AREA512_ROOT, "sdkconfig.defaults")
+IDF_2432S028_SDKCONFIG_DEFAULTS = File.join(AREA512_ROOT, "sdkconfig.defaults.2432s028")
 MRUBY_BUILD_CONFIG = File.join(AREA512_ROOT, "components/area512/build_config/area512.rb")
 $LOAD_PATH << File.join(MRUBY_ROOT, "lib")
 
@@ -27,9 +28,17 @@ end
 
 # An existing sdkconfig takes precedence over sdkconfig.defaults, so options
 # added to the defaults never reach a build directory configured before them.
-def remove_sdkconfig_older_than_defaults(sdkconfig_path)
+def remove_sdkconfig_older_than_defaults(
+  sdkconfig_path,
+  sdkconfig_defaults_paths = [IDF_SDKCONFIG_DEFAULTS]
+)
   return unless File.file?(sdkconfig_path)
-  return if File.mtime(sdkconfig_path) >= File.mtime(IDF_SDKCONFIG_DEFAULTS)
+
+  sdkconfig_modified_time = File.mtime(sdkconfig_path)
+
+  return if sdkconfig_defaults_paths.all? do |sdkconfig_defaults_path|
+    sdkconfig_modified_time >= File.mtime(sdkconfig_defaults_path)
+  end
 
   rm_f sdkconfig_path
 end
@@ -69,6 +78,11 @@ task :gendb do
   sh "make gendb"
 end
 
+desc "Generate the built-in TI database for the CYD boards"
+task :gendb_cyd do
+  sh "make gendb-cyd"
+end
+
 desc "Build the Cardputer firmware"
 task :build => :gendb do
   remove_sdkconfig_older_than_defaults(IDF_SDKCONFIG)
@@ -103,6 +117,26 @@ namespace :build do
     idf_py "-B build/tdeck -DSDKCONFIG=build/tdeck/sdkconfig " \
            "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=ON -DAREA512_CAPTFT_ILI9341=OFF " \
            "-DAREA512_TDECK=ON build"
+  end
+
+  desc "Build the ES3C28P (CYD) firmware with windows and a touch keyboard"
+  task :es3c28p => :gendb_cyd do
+    remove_sdkconfig_older_than_defaults(File.join(IDF_BUILD_DIR, "es3c28p/sdkconfig"))
+    idf_py "-B build/es3c28p -DSDKCONFIG=build/es3c28p/sdkconfig " \
+           "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=OFF -DAREA512_CAPTFT_ILI9341=OFF " \
+           "-DAREA512_TDECK=OFF -DAREA512_CYD=ON -DAREA512_CYD_ES3C28P=ON build"
+  end
+
+  desc "Build the ESP32-2432S028 (CYD) firmware with windows and a touch keyboard"
+  task :"2432s028" => :gendb_cyd do
+    remove_sdkconfig_older_than_defaults(
+      File.join(IDF_BUILD_DIR, "2432s028/sdkconfig"),
+      [IDF_SDKCONFIG_DEFAULTS, IDF_2432S028_SDKCONFIG_DEFAULTS]
+    )
+    idf_py "-B build/2432s028 -DSDKCONFIG=build/2432s028/sdkconfig -DIDF_TARGET=esp32 " \
+           "'-DSDKCONFIG_DEFAULTS=sdkconfig.defaults;sdkconfig.defaults.2432s028' " \
+           "-DAREA512_CARDPUTER_V11=OFF -DAREA512_EXT_DISPLAY=OFF -DAREA512_CAPTFT_ILI9341=OFF " \
+           "-DAREA512_TDECK=OFF -DAREA512_CYD=ON -DAREA512_CYD_2432S028=ON build"
   end
 end
 

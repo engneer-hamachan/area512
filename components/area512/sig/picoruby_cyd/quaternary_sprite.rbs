@@ -1,0 +1,61 @@
+# Area512 built-in type declaration.
+
+class QuaternarySprite
+  # Palette index of the theme background color
+  BACKGROUND_COLOR_INDEX: Integer
+
+  # Palette index of the theme text color
+  TEXT_COLOR_INDEX: Integer
+
+  # Palette index of the theme emphasis color
+  EMPHASIS_COLOR_INDEX: Integer
+
+  # Palette index of the theme border color
+  BORDER_COLOR_INDEX: Integer
+
+  # Palette index of the theme selected color
+  SELECTED_COLOR_INDEX: Integer
+
+  # Palette index of the theme box color
+  BOX_COLOR_INDEX: Integer
+
+  # Sprite width in pixels
+  def width: () -> Integer
+
+  # Sprite height in pixels
+  def height: () -> Integer
+
+  # Fill the whole sprite with a *_COLOR_INDEX constant
+  def fill: (Integer color_index) -> QuaternarySprite
+
+  # Draw a single pixel (x, y, color_index)
+  def pixel: (Integer x, Integer y, Integer color_index) -> QuaternarySprite
+
+  # Draw a line (x0, y0, x1, y1, color_index)
+  def line: (Integer x0, Integer y0, Integer x1, Integer y1, Integer color_index) -> QuaternarySprite
+
+  # Draw a rectangle outline (x, y, w, h, color_index)
+  def rect: (Integer x, Integer y, Integer width, Integer height, Integer color_index) -> QuaternarySprite
+
+  # Draw a filled rectangle (x, y, w, h, color_index)
+  def fill_rect: (Integer x, Integer y, Integer width, Integer height, Integer color_index) -> QuaternarySprite
+
+  # Draw a circle outline (x, y, r, color_index)
+  def circle: (Integer x, Integer y, Integer radius, Integer color_index) -> QuaternarySprite
+
+  # Draw a filled circle (x, y, r, color_index)
+  def fill_circle: (Integer x, Integer y, Integer radius, Integer color_index) -> QuaternarySprite
+
+  # Draw text at (x, y, str, color_index); efont supports Japanese
+  def text: (Integer x, Integer y, String string, Integer color_index) -> QuaternarySprite
+
+  # Transfer the sprite to the screen at (x, y); optional 3rd arg is a transparent *_COLOR_INDEX constant
+  def push: (Integer x, Integer y, ?Integer transparent_color_index) -> QuaternarySprite
+
+  # Free the sprite buffer immediately
+  def delete: () -> nil
+
+  # Create an off-screen sprite of 4-bit palette indices in the theme colors
+  def self.new: (Integer width, Integer height, ?Integer font_size) -> QuaternarySprite
+
+end

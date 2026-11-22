@@ -261,7 +261,9 @@ int area512_take_next_app(char *path, size_t path_size);
 void area512_cancel_next_app(void);
 
 
-#ifdef AREA512_EXT_DISPLAY
+#if defined(AREA512_CYD)
+#include "../cyd/include/area512_hal.h"
+#elif defined(AREA512_EXT_DISPLAY)
 #include "../captft/include/area512_hal.h"
 #endif
 

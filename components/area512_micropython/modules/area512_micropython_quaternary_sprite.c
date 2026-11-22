@@ -1,11 +1,12 @@
 #include "area512_hal.h"
+#include "area512_micropython_sprite.h"
 
 #include "py/runtime.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#define SUPPORTED_FONT_SIZE_MESSAGE "font size must be 10, 12, 14, 16, or 24"
+#define SUPPORTED_FONT_SIZE_MESSAGE "font size must be 8, 10, 12, 14, 16, or 24"
 
 typedef struct {
   mp_obj_base_t base;
@@ -33,6 +34,14 @@ fetch_sprite_handle_or_raise(mp_obj_t sprite_object) {
   return sprite_instance->sprite_handle;
 }
 
+void *
+area512_micropython_fetch_quaternary_sprite_handle_or_raise(
+  mp_obj_t sprite_object
+) {
+
+  return fetch_sprite_handle_or_raise(sprite_object);
+}
+
 static uint32_t
 fetch_color_index_or_raise(mp_obj_t color_index_object) {
   mp_int_t color_index = mp_obj_get_int(color_index_object);
@@ -48,8 +57,8 @@ fetch_color_index_or_raise(mp_obj_t color_index_object) {
 
 static bool
 is_supported_font_size(int font_size) {
-  return font_size == 10 || font_size == 12 || font_size == 14 ||
-         font_size == 16 || font_size == 24;
+  return font_size == 8 || font_size == 10 || font_size == 12 ||
+         font_size == 14 || font_size == 16 || font_size == 24;
 }
 
 static mp_obj_t
